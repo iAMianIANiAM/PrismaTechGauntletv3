@@ -16,6 +16,7 @@ namespace Config {
   // LED configuration
   constexpr uint8_t NUM_LEDS = 12;      // Number of LEDs in the ring
   constexpr uint8_t DEFAULT_BRIGHTNESS = 100; // Default brightness (0-255) - 39% brightness as per hardware analysis
+  constexpr uint8_t LOW_POWER_BRIGHTNESS = 20;    // 0-255
   
   // Sensor configuration
   constexpr uint8_t POSITION_SAMPLE_RATE = 50;  // Hz
@@ -59,7 +60,19 @@ namespace Config {
     constexpr uint8_t SHIELD_COLOR[3] = {0, 0, 255};     // Blue
     constexpr uint8_t NULL_COLOR[3] = {255, 165, 0};     // Orange
     constexpr uint8_t UNKNOWN_COLOR[3] = {255, 255, 255}; // White
+    constexpr uint8_t POSITION_COLORS[7][3] = {
+        {255, 0, 0},    // POS_NULL: Red
+        {0, 255, 0},    // POS_SHIELD: Green
+        {0, 0, 255},    // POS_OFFER: Blue
+        {255, 0, 255},  // POS_OATH: Magenta
+        {255, 255, 0},  // POS_DIG: Yellow
+        {0, 255, 255},  // POS_CALM: Cyan
+        {255, 127, 0}   // POS_UNDEFINED: Orange
+    };
   }
+
+  // System power states
+  constexpr unsigned long IDLE_TIMEOUT = 30000;  // Time before entering low power (30s)
 }
 
 #endif // CONFIG_H 

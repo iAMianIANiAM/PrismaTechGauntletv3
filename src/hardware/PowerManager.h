@@ -25,10 +25,21 @@ public:
   bool init();
   
   /**
+   * @brief Update power management (call periodically)
+   */
+  void update();
+  
+  /**
    * @brief Set the current power state
    * @param state PowerState to transition to
    */
   void setPowerState(PowerState state);
+  
+  /**
+   * @brief Set low power mode
+   * @param lowPower True to enter low power, false for normal power
+   */
+  void setLowPowerMode(bool lowPower);
   
   /**
    * @brief Get the current power state

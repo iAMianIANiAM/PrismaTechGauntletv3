@@ -22,6 +22,9 @@
 // Default to AD0_LOW unless changed through setAddress()
 #define MPU9250_ADDRESS MPU9250_ADDRESS_AD0_LOW
 
+// Number of samples for filtering
+#define FILTER_SAMPLE_COUNT 5
+
 /**
  * @brief Interface to the MPU9250/MPU6050 IMU sensor
  * 
@@ -54,6 +57,35 @@ public:
    * @return True if read was successful
    */
   bool readSensorData(SensorData* data);
+  
+  /**
+   * @brief Read sensor data with filtering
+   * @param data Pointer to SensorData structure to fill with filtered data
+   * @return True if read was successful
+   */
+  bool readFilteredData(SensorData* data);
+  
+  /**
+   * @brief Validate the sensor data for consistency
+   * @param data The sensor data to validate
+   * @return True if data appears valid
+   */
+  bool validateSensorData(const SensorData& data);
+  
+  /**
+   * @brief Get the maximum axis values detected within a time period
+   * @param data Pointer to SensorData to store maximum values
+   * @param durationMs Duration in milliseconds to monitor
+   * @return True if operation was successful
+   */
+  bool getMaxAxisData(SensorData* data, uint32_t durationMs);
+  
+  /**
+   * @brief Calculate the magnitude of motion across all axes
+   * @param data Sensor data to analyze
+   * @return Total motion magnitude (unitless, relative)
+   */
+  uint32_t calculateMotionMagnitude(const SensorData& data);
   
   /**
    * @brief Set the sensor sample rate
@@ -115,10 +147,30 @@ private:
   int16_t gyroOffsetY = 0;
   int16_t gyroOffsetZ = 0;
   
+  // Filtering data
+  SensorData filterSamples[FILTER_SAMPLE_COUNT];
+  uint8_t filterIndex = 0;
+  bool filterInitialized = false;
+  
+  // Data validation thresholds
+  static const int32_t MAX_ACCEL_VALUE = 32767;  // Max possible 16-bit value
+  static const int32_t MAX_GYRO_VALUE = 32767;   // Max possible 16-bit value
+  static const int32_t MIN_ACCEL_VARIATION = 10; // Minimum expected variation
+  static const int32_t MAX_CONSECUTIVE_IDENTICAL = 5; // Max identical readings
+  
+  // Sensor health tracking
+  uint8_t errorCount = 0;
+  uint8_t identicalReadings = 0;
+  bool lastReadValid = true;
+  
   // I2C helper methods
   bool writeRegister(uint8_t reg, uint8_t value);
   uint8_t readRegister(uint8_t reg);
   bool readRegisters(uint8_t reg, uint8_t* buffer, uint8_t count);
+  
+  // Filtering helper methods
+  void addToFilterBuffer(const SensorData& data);
+  void calculateFilteredData(SensorData* output);
 };
 
 #endif // MPU9250_INTERFACE_H 

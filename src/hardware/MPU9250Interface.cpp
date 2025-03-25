@@ -285,105 +285,356 @@ bool MPU9250Interface::readRegisters(uint8_t reg, uint8_t* buffer, uint8_t count
 
 // Enhanced error handling and connection verification
 bool MPU9250Interface::isConnected() {
+    // Try to read the WHO_AM_I register
     Wire.beginTransmission(sensorAddress);
-    uint8_t error = Wire.endTransmission();
+    Wire.write(WHO_AM_I_REG);
+    uint8_t error = Wire.endTransmission(false);
     
     if (error != 0) {
-        Serial.printf("I2C connection error: %d (address 0x%02X)\n", error, sensorAddress);
-        return false;
+        Serial.printf("I2C error during isConnected check: %d\n", error);
+        
+        // Try the alternative address if the first one fails
+        if (sensorAddress == MPU9250_ADDRESS_AD0_LOW) {
+            Serial.println("Trying alternative I2C address 0x69");
+            sensorAddress = MPU9250_ADDRESS_AD0_HIGH;
+        } else {
+            Serial.println("Trying standard I2C address 0x68");
+            sensorAddress = MPU9250_ADDRESS_AD0_LOW;
+        }
+        
+        // Try again with the new address
+        Wire.beginTransmission(sensorAddress);
+        Wire.write(WHO_AM_I_REG);
+        error = Wire.endTransmission(false);
+        
+        if (error != 0) {
+            Serial.println("Device not responding on either address");
+            return false;
+        } else {
+            Serial.printf("Device found at alternative address 0x%02X\n", sensorAddress);
+        }
     }
     
+    // Device responded to I2C communication
     return true;
 }
 
 bool MPU9250Interface::verifyConnection() {
-    // Check if device responds to I2C communication
+    // First check if device is responding to I2C
     if (!isConnected()) {
-        Serial.println("MPU sensor not responding to I2C communication");
         return false;
     }
     
-    // Check WHO_AM_I register
+    // Read WHO_AM_I register value
     uint8_t whoAmI = readRegister(WHO_AM_I_REG);
     
-    // Accept a wider range of valid WHO_AM_I values
-    bool validID = (whoAmI == 0x68 || whoAmI == 0x71 || whoAmI == 0x73 || whoAmI == 0x70);
-    
-    if (!validID) {
-        Serial.printf("Invalid WHO_AM_I value: 0x%02X\n", whoAmI);
+    // Verify the register value matches expected values for MPU6050/MPU9250
+    // MPU6050: 0x68, MPU9250: 0x71 or 0x73, MPU6000: 0x70
+    if (whoAmI == 0x68 || whoAmI == 0x71 || whoAmI == 0x73 || whoAmI == 0x70) {
+        Serial.printf("WHO_AM_I register returned valid value: 0x%02X\n", whoAmI);
+        return true;
+    } else {
+        Serial.printf("WHO_AM_I register returned unknown value: 0x%02X\n", whoAmI);
+        return false;
     }
-    
-    return validID;
 }
 
 bool MPU9250Interface::resetDevice() {
-    Serial.println("Resetting MPU device...");
-    // Reset the device by setting bit 7 of PWR_MGMT_1 register
-    return writeRegister(PWR_MGMT_1_REG, 0x80);
+    // Write the reset bit to PWR_MGMT_1 register
+    Serial.println("Resetting MPU sensor...");
+    if (!writeRegister(PWR_MGMT_1_REG, 0x80)) {
+        Serial.println("Failed to reset device");
+        return false;
+    }
+    
+    // Wait for reset to complete
+    delay(100);
+    
+    // Verify the device is responsive after reset
+    if (!isConnected()) {
+        Serial.println("Device not responding after reset");
+        return false;
+    }
+    
+    // Wake up the sensor
+    if (!writeRegister(PWR_MGMT_1_REG, 0x01)) {
+        Serial.println("Failed to wake up device after reset");
+        return false;
+    }
+    
+    return true;
 }
 
 bool MPU9250Interface::recoverFromError() {
-    Serial.println("Attempting to recover from error state...");
+    Serial.println("Attempting to recover MPU sensor from error state...");
     
-    // First, try resetting the device
+    // Try basic reset first
     if (!resetDevice()) {
-        Serial.println("Reset failed");
+        Serial.println("Basic reset failed");
+        
+        // Try re-initializing I2C
+        Wire.end();
+        delay(50);
+        Wire.begin(SDA_PIN, SCL_PIN);
+        Wire.setClock(I2C_FREQUENCY);
+        delay(50);
+        
+        // Try reset again
+        if (!resetDevice()) {
+            Serial.println("Re-initialization failed, recovery unsuccessful");
+            return false;
+        }
+    }
+    
+    // Reset successful, try to re-initialize the device
+    if (!init()) {
+        Serial.println("Re-initialization failed after reset");
         return false;
     }
     
-    delay(100);  // Wait for reset
+    // Reset error counters
+    errorCount = 0;
+    identicalReadings = 0;
+    lastReadValid = true;
     
-    // Reinitialize
-    return init();
+    Serial.println("MPU recovery successful");
+    return true;
 }
 
 bool MPU9250Interface::runDiagnostics() {
-    Serial.println("\n=== MPU Sensor Diagnostics ===");
+    Serial.println("Running MPU sensor diagnostics...");
     
-    // Test 1: I2C Communication
-    Serial.println("Test 1: I2C Communication");
+    // Check 1: Verify I2C connection
     if (!isConnected()) {
-        Serial.println("FAIL: Device not responding on I2C bus");
-        return false;
-    }
-    Serial.println("PASS: Device responding on I2C bus");
-    
-    // Test 2: Device Identity
-    Serial.println("Test 2: Device Identity");
-    uint8_t whoAmI = readRegister(WHO_AM_I_REG);
-    Serial.printf("WHO_AM_I = 0x%02X: ", whoAmI);
-    
-    if (whoAmI == 0x68 || whoAmI == 0x71 || whoAmI == 0x73 || whoAmI == 0x70) {
-        Serial.println("PASS: Valid device ID");
-    } else {
-        Serial.println("FAIL: Unknown device ID");
+        Serial.println("Diagnostic failed: Device not responding on I2C");
         return false;
     }
     
-    // Test 3: Power Management
-    Serial.println("Test 3: Power Management");
-    uint8_t pwrMgmt = readRegister(PWR_MGMT_1_REG);
-    Serial.printf("PWR_MGMT_1 = 0x%02X: ", pwrMgmt);
-    
-    if (pwrMgmt & 0x40) { // Check if sleep bit is set
-        Serial.println("FAIL: Device is in sleep mode");
+    // Check 2: Verify device identity
+    if (!verifyConnection()) {
+        Serial.println("Diagnostic failed: Device identity check failed");
         return false;
-    } else {
-        Serial.println("PASS: Device is awake");
     }
     
-    // Test 4: Data Reading
-    Serial.println("Test 4: Data Reading");
+    // Check 3: Verify sensor data reading
     SensorData testData;
     if (!readSensorData(&testData)) {
-        Serial.println("FAIL: Could not read sensor data");
+        Serial.println("Diagnostic failed: Cannot read sensor data");
         return false;
     }
     
-    Serial.println("PASS: Successfully read sensor data");
-    Serial.printf("Accel: X=%d Y=%d Z=%d\n", testData.accelX, testData.accelY, testData.accelZ);
-    Serial.printf("Gyro: X=%d Y=%d Z=%d\n", testData.gyroX, testData.gyroY, testData.gyroZ);
+    // Check 4: Verify data validation
+    if (!validateSensorData(testData)) {
+        Serial.println("Diagnostic failed: Sensor data validation failed");
+        return false;
+    }
     
-    Serial.println("=== Diagnostics Complete ===");
+    // Check 5: Test register write and read
+    uint8_t testValue = 0x03;  // DLPF setting
+    if (!writeRegister(CONFIG_REG, testValue)) {
+        Serial.println("Diagnostic failed: Cannot write to registers");
+        return false;
+    }
+    
+    uint8_t readValue = readRegister(CONFIG_REG);
+    if (readValue != testValue) {
+        Serial.printf("Diagnostic failed: Register read/write mismatch (wrote 0x%02X, read 0x%02X)\n",
+                     testValue, readValue);
+        return false;
+    }
+    
+    Serial.println("All MPU sensor diagnostics passed successfully");
     return true;
+}
+
+bool MPU9250Interface::readFilteredData(SensorData* data) {
+    // Check if a valid pointer was provided
+    if (data == nullptr) {
+        return false;
+    }
+    
+    // Get raw sensor data first
+    SensorData rawData;
+    if (!readSensorData(&rawData)) {
+        return false;
+    }
+    
+    // If filtering isn't initialized, use raw data directly
+    if (!filterInitialized) {
+        // Initialize all filter slots with this sample
+        for (int i = 0; i < FILTER_SAMPLE_COUNT; i++) {
+            filterSamples[i] = rawData;
+        }
+        filterInitialized = true;
+        *data = rawData;
+        return true;
+    }
+    
+    // Add the new data to the filter buffer
+    addToFilterBuffer(rawData);
+    
+    // Calculate the filtered data
+    calculateFilteredData(data);
+    
+    return true;
+}
+
+void MPU9250Interface::addToFilterBuffer(const SensorData& data) {
+    // Store the new reading in the current index
+    filterSamples[filterIndex] = data;
+    
+    // Move to the next slot (circular buffer)
+    filterIndex = (filterIndex + 1) % FILTER_SAMPLE_COUNT;
+}
+
+void MPU9250Interface::calculateFilteredData(SensorData* output) {
+    // Simple averaging filter
+    int32_t accelXSum = 0, accelYSum = 0, accelZSum = 0;
+    int32_t gyroXSum = 0, gyroYSum = 0, gyroZSum = 0;
+    
+    // Sum all values
+    for (int i = 0; i < FILTER_SAMPLE_COUNT; i++) {
+        accelXSum += filterSamples[i].accelX;
+        accelYSum += filterSamples[i].accelY;
+        accelZSum += filterSamples[i].accelZ;
+        
+        gyroXSum += filterSamples[i].gyroX;
+        gyroYSum += filterSamples[i].gyroY;
+        gyroZSum += filterSamples[i].gyroZ;
+    }
+    
+    // Calculate average
+    output->accelX = accelXSum / FILTER_SAMPLE_COUNT;
+    output->accelY = accelYSum / FILTER_SAMPLE_COUNT;
+    output->accelZ = accelZSum / FILTER_SAMPLE_COUNT;
+    
+    output->gyroX = gyroXSum / FILTER_SAMPLE_COUNT;
+    output->gyroY = gyroYSum / FILTER_SAMPLE_COUNT;
+    output->gyroZ = gyroZSum / FILTER_SAMPLE_COUNT;
+    
+    // Use the timestamp from the most recent reading
+    output->timestamp = filterSamples[filterIndex > 0 ? filterIndex - 1 : FILTER_SAMPLE_COUNT - 1].timestamp;
+}
+
+bool MPU9250Interface::validateSensorData(const SensorData& data) {
+    // Check for impossibly large values (likely hardware failure)
+    if (abs(data.accelX) > MAX_ACCEL_VALUE || 
+        abs(data.accelY) > MAX_ACCEL_VALUE || 
+        abs(data.accelZ) > MAX_ACCEL_VALUE ||
+        abs(data.gyroX) > MAX_GYRO_VALUE || 
+        abs(data.gyroY) > MAX_GYRO_VALUE || 
+        abs(data.gyroZ) > MAX_GYRO_VALUE) {
+        
+        Serial.println("Error: Sensor values exceed maximum possible range");
+        errorCount++;
+        lastReadValid = false;
+        return false;
+    }
+    
+    // Check for repeated identical readings (possible hardware failure)
+    if (filterInitialized) {
+        int lastIdx = (filterIndex == 0) ? FILTER_SAMPLE_COUNT - 1 : filterIndex - 1;
+        
+        if (data.accelX == filterSamples[lastIdx].accelX &&
+            data.accelY == filterSamples[lastIdx].accelY &&
+            data.accelZ == filterSamples[lastIdx].accelZ &&
+            data.gyroX == filterSamples[lastIdx].gyroX &&
+            data.gyroY == filterSamples[lastIdx].gyroY &&
+            data.gyroZ == filterSamples[lastIdx].gyroZ) {
+            
+            identicalReadings++;
+            
+            if (identicalReadings > MAX_CONSECUTIVE_IDENTICAL) {
+                Serial.println("Warning: Too many identical consecutive readings");
+                errorCount++;
+                lastReadValid = false;
+                return false;
+            }
+        } else {
+            // Reset the counter if readings change
+            identicalReadings = 0;
+        }
+    }
+    
+    // Check for expected minimum variation in accelerometer 
+    // (over multiple readings when device is handheld)
+    if (filterInitialized) {
+        bool hasVariation = false;
+        for (int i = 0; i < FILTER_SAMPLE_COUNT - 1; i++) {
+            if (abs(filterSamples[i].accelX - filterSamples[i+1].accelX) > MIN_ACCEL_VARIATION ||
+                abs(filterSamples[i].accelY - filterSamples[i+1].accelY) > MIN_ACCEL_VARIATION ||
+                abs(filterSamples[i].accelZ - filterSamples[i+1].accelZ) > MIN_ACCEL_VARIATION) {
+                hasVariation = true;
+                break;
+            }
+        }
+        
+        if (!hasVariation) {
+            // No variation is suspicious but might be valid if device is stationary
+            // Just log a warning but don't invalidate
+            Serial.println("Note: Low variation in accelerometer readings");
+        }
+    }
+    
+    // Reset error count if we have a valid reading
+    if (errorCount > 0) {
+        errorCount--;
+    }
+    
+    lastReadValid = true;
+    return true;
+}
+
+bool MPU9250Interface::getMaxAxisData(SensorData* data, uint32_t durationMs) {
+    if (data == nullptr) {
+        return false;
+    }
+    
+    // Initialize with minimum values
+    data->accelX = data->accelY = data->accelZ = -32768;
+    data->gyroX = data->gyroY = data->gyroZ = -32768;
+    data->timestamp = millis();
+    
+    uint32_t startTime = millis();
+    uint32_t endTime = startTime + durationMs;
+    
+    // Sample data for the specified duration
+    while (millis() < endTime) {
+        SensorData current;
+        if (!readSensorData(&current)) {
+            continue;  // Skip invalid readings
+        }
+        
+        // Update maximum values (using absolute values)
+        if (abs(current.accelX) > abs(data->accelX)) data->accelX = current.accelX;
+        if (abs(current.accelY) > abs(data->accelY)) data->accelY = current.accelY;
+        if (abs(current.accelZ) > abs(data->accelZ)) data->accelZ = current.accelZ;
+        
+        if (abs(current.gyroX) > abs(data->gyroX)) data->gyroX = current.gyroX;
+        if (abs(current.gyroY) > abs(data->gyroY)) data->gyroY = current.gyroY;
+        if (abs(current.gyroZ) > abs(data->gyroZ)) data->gyroZ = current.gyroZ;
+        
+        delay(10);  // Small delay between samples
+    }
+    
+    // Update timestamp
+    data->timestamp = millis();
+    return true;
+}
+
+uint32_t MPU9250Interface::calculateMotionMagnitude(const SensorData& data) {
+    // Simple sum of absolute values across all axes
+    uint32_t magnitude = 0;
+    
+    // Add accelerometer components (scaled down)
+    magnitude += (abs(data.accelX) / 10);
+    magnitude += (abs(data.accelY) / 10);
+    magnitude += (abs(data.accelZ) / 10);
+    
+    // Add gyroscope components (scaled down)
+    magnitude += (abs(data.gyroX) / 5);
+    magnitude += (abs(data.gyroY) / 5);
+    magnitude += (abs(data.gyroZ) / 5);
+    
+    return magnitude;
 } 
