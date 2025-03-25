@@ -4,30 +4,44 @@
 #include "../core/SystemTypes.h"
 #include <Wire.h>
 
-// MPU9250 I2C address
-#define MPU9250_ADDRESS 0x68
+// MPU Register Definitions
+#define WHO_AM_I_REG       0x75  // Device identity register
+#define PWR_MGMT_1_REG     0x6B  // Power management register
+#define ACCEL_XOUT_H_REG   0x3B  // First accelerometer data register
+#define GYRO_XOUT_H_REG    0x43  // First gyroscope data register
+#define CONFIG_REG         0x1A  // Configuration register
+#define GYRO_CONFIG_REG    0x1B  // Gyroscope configuration register
+#define ACCEL_CONFIG_REG   0x1C  // Accelerometer configuration register
+#define SMPLRT_DIV_REG     0x19  // Sample rate divider register
+#define INT_ENABLE_REG     0x38  // Interrupt enable register
 
-// MPU9250 register addresses
-#define MPU9250_ACCEL_XOUT_H    0x3B
-#define MPU9250_ACCEL_XOUT_L    0x3C
-#define MPU9250_ACCEL_YOUT_H    0x3D
-#define MPU9250_ACCEL_YOUT_L    0x3E
-#define MPU9250_ACCEL_ZOUT_H    0x3F
-#define MPU9250_ACCEL_ZOUT_L    0x40
-#define MPU9250_GYRO_XOUT_H     0x43
-#define MPU9250_GYRO_XOUT_L     0x44
-#define MPU9250_GYRO_YOUT_H     0x45
-#define MPU9250_GYRO_YOUT_L     0x46
-#define MPU9250_GYRO_ZOUT_H     0x47
-#define MPU9250_GYRO_ZOUT_L     0x48
-#define MPU9250_PWR_MGMT_1      0x6B
-#define MPU9250_WHO_AM_I        0x75
+// MPU9250/MPU6050 I2C addresses
+#define MPU9250_ADDRESS_AD0_LOW  0x68  // Default address when AD0 is grounded
+#define MPU9250_ADDRESS_AD0_HIGH 0x69  // Alternative address when AD0 is connected to VCC
+
+// Default to AD0_LOW unless changed through setAddress()
+#define MPU9250_ADDRESS MPU9250_ADDRESS_AD0_LOW
 
 /**
- * @brief Interface to the MPU9250 IMU sensor
+ * @brief Interface to the MPU9250/MPU6050 IMU sensor
+ * 
+ * Provides methods to initialize, read data from, and calibrate the
+ * MPU9250 or MPU6050 sensor via I2C communication.
  */
 class MPU9250Interface {
 public:
+  /**
+   * @brief Set the I2C address for the MPU sensor
+   * @param address The I2C address (0x68 or 0x69)
+   */
+  void setAddress(uint8_t address);
+  
+  /**
+   * @brief Get the current I2C address being used
+   * @return The current I2C address
+   */
+  uint8_t getAddress() const;
+  
   /**
    * @brief Initialize the IMU sensor
    * @return True if initialization was successful
@@ -58,8 +72,41 @@ public:
    * @return True if calibration was successful
    */
   bool calibrate();
+  
+  /**
+   * @brief Check if the sensor is connected
+   * @return True if connected
+   */
+  bool isConnected();
+  
+  /**
+   * @brief Verify sensor connection with ID check
+   * @return True if the correct sensor is connected
+   */
+  bool verifyConnection();
+  
+  /**
+   * @brief Reset the sensor
+   * @return True if reset was successful
+   */
+  bool resetDevice();
+  
+  /**
+   * @brief Attempt to recover from an error state
+   * @return True if recovery was successful
+   */
+  bool recoverFromError();
+  
+  /**
+   * @brief Run diagnostics on the sensor
+   * @return True if all diagnostic tests pass
+   */
+  bool runDiagnostics();
 
 private:
+  // Current sensor address (default to AD0_LOW)
+  uint8_t sensorAddress = MPU9250_ADDRESS_AD0_LOW;
+  
   // Sensor calibration offsets
   int16_t accelOffsetX = 0;
   int16_t accelOffsetY = 0;

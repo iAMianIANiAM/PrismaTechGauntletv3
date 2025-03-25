@@ -48,7 +48,7 @@ namespace Config {
   constexpr uint16_t FREECAST_DISPLAY_MS = 2000;    // Pattern display duration
   
   // Power management
-  constexpr uint16_t IDLE_SLEEP_DELAY_MS = 300000; // Time before entering sleep mode (5 min)
+  constexpr uint32_t IDLE_SLEEP_DELAY_MS = 300000; // Time before entering sleep mode (5 min)
   
   // Define position colors (R, G, B)
   namespace Colors {

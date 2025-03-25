@@ -1,8 +1,184 @@
-# PrismaTech Gauntlet 3.0 - Directory Index
+# Directory Index - PrismaTech Gauntlet 3.0
 
-## Overview
+## Project Structure Overview
 
-This document provides a comprehensive index of the PrismaTech Gauntlet 3.0 project structure, including directories, key files, and their relationships.
+```
+/src
+  /core         - System management and core structures
+  /hardware     - Hardware interfaces for sensors and LEDs
+  /detection    - Position and gesture detection logic
+  /modes        - Mode-specific implementation handlers
+  /animation    - LED animation system
+  /utils        - Support utilities
+/examples       - Standalone example applications
+```
+
+## Current Implementation Focus
+
+### Phase 2: Hardware Interface Foundation
+
+#### Completed
+- **MPU9250 Core Interface** (`/src/hardware/MPU9250Interface.*`)
+  - I2C communication setup
+  - Sensor initialization
+  - Raw data reading
+  - Error handling and diagnostics
+  - Debug logging
+  - Auto-detection of device address
+  - Calibration routines
+  - Connection verification
+  - Hardware testing with successful validation
+  
+- **I2C Scanner Utility** (`/src/utils/I2CScanner.h`)
+  - I2C bus scanning
+  - Device detection
+  - MPU-specific diagnostic tools
+  - Register reading capabilities
+  
+- **Diagnostic Test Example** (`/examples/MPUDiagnosticTest.cpp`)
+  - Comprehensive MPU sensor testing
+  - Connection diagnostics
+  - Sensor data visualization
+
+#### Pending Implementation
+- **MPU9250 Data Processing** (`/src/hardware/MPU9250Interface.*`)
+  - Simple filtering implementation
+  - Data validation checks
+  - Performance optimization
+  - Raw data threshold determination
+
+- **LED Interface** (`/src/hardware/LEDInterface.*`)
+  - WS2812 driver initialization
+  - Color control
+  - Animation framework
+  - Power management
+
+- **Hardware Manager** (`/src/hardware/HardwareManager.*`)
+  - Unified initialization
+  - Resource management
+  - Power state control
+  - Error recovery
+
+## Core Components
+
+### Hardware Layer
+- `MPU9250Interface`: Sensor communication and data reading
+  - **Status**: Core implementation complete and hardware-verified
+  - **Verification**: Successfully tested on hardware
+- `I2CScanner`: I2C diagnostics and connection verification
+  - **Status**: Implementation complete
+  - **Verification**: Successfully tested on hardware
+- `LEDInterface`: LED control and animation management
+  - **Status**: Not implemented
+- `HardwareManager`: Hardware resource coordination
+  - **Status**: Not implemented
+
+### Core Systems
+- `GauntletController`: System coordination
+- `PositionDetector`: Position detection logic
+- `GestureRecognizer`: Gesture recognition
+- `AnimationSystem`: LED animation management
+
+## Implementation Status
+
+### Completed
+- Core architecture design
+- Directory structure
+- Basic data structures
+- Interface definitions
+- Debug infrastructure
+- MPU9250 Core Interface implementation
+  - I2C communication
+  - Sensor initialization
+  - Data reading
+  - Error handling
+  - Calibration routine
+  - Hardware validation
+- I2C Scanner utility
+  - Bus scanning
+  - MPU-specific diagnostics
+  - Connection troubleshooting
+- Diagnostic test application 
+  - Step-by-step sensor verification
+  - Data visualization
+  - Error reporting
+
+### In Progress
+- Testing and verification of Calibration Protocol
+- Analysis of calibration data
+- Determination of position thresholds
+
+### Pending
+- LED Interface implementation
+- Hardware Manager integration
+- Position detection implementation
+- Gesture recognition
+- Mode implementation
+- Animation system
+
+## File Relationships
+
+### Hardware Layer
+```
+HardwareManager
+  ├── MPU9250Interface (Implemented & Verified)
+  └── LEDInterface (Pending)
+```
+
+### Utilities
+```
+Utils
+  ├── I2CScanner (Implemented & Verified)
+  ├── DebugTools
+  └── CircularBuffer
+```
+
+### Core Systems
+```
+GauntletController
+  ├── HardwareManager
+  ├── PositionDetector
+  ├── GestureRecognizer
+  └── AnimationSystem
+```
+
+### Implemented Files
+- **`src/hardware/MPU9250Interface.h/cpp`** - MPU9250 sensor interface (VERIFIED)
+- **`src/utils/I2CScanner.h`** - I2C diagnostic utilities (VERIFIED)
+- **`examples/MPUDiagnosticTest.cpp`** - Diagnostic application (VERIFIED)
+- **`src/core/SystemTypes.h`** - Data structures
+- **`src/core/Config.h`** - System configuration
+- **`src/main.cpp`** - Main application implementing sensor reading
+
+## Current Development Guidelines
+
+### Hardware Interface Implementation
+- Focus on robust error handling
+- Maintain raw integer data throughout sensor processing
+- Document hardware configurations carefully
+- Avoid complex scaling operations
+- Prioritize reliability over optimization
+
+### MPU Sensor Data Handling
+- Work with raw integer data to avoid scaling issues
+- Implement simple filtering where needed
+- Document all data transformations explicitly
+- Use relative comparisons rather than absolute values
+- Implement hysteresis for threshold detection
+
+### Code Organization
+- Keep hardware-specific code isolated
+- Maintain clear interface boundaries
+- Document all public interfaces
+- Include comprehensive error handling
+- Add detailed debug logging
+
+### Testing Requirements
+- Unit tests for all components
+- Integration tests for hardware communication
+- Error condition testing
+- Performance validation
+- Memory usage monitoring
 
 ## Top-Level Directory Structure
 
@@ -11,6 +187,7 @@ This document provides a comprehensive index of the PrismaTech Gauntlet 3.0 proj
 - **/lib** - External libraries
 - **/reference** - Reference documents and design specifications
 - **/working** - Working documents and project notes
+- **/examples** - Standalone example applications for testing components
 
 ## Source Code Organization
 
@@ -21,15 +198,15 @@ The source code follows a layered architecture focused on embedded efficiency:
 Central system organization and state management.
 
 - **GauntletController.h/cpp** - Main system controller coordinating all subsystems
-- **SystemTypes.h** - Common data structures and enumerations
-- **Config.h** - System-wide configuration parameters
+- **SystemTypes.h** - Common data structures and enumerations (IMPLEMENTED)
+- **Config.h** - System-wide configuration parameters (IMPLEMENTED)
 
 ### Hardware Layer (`/src/hardware`)
 
 Hardware interfaces and abstractions.
 
 - **HardwareManager.h** - Coordinates all hardware components (header only)
-- **MPU9250Interface.h** - IMU sensor interface (header only)
+- **MPU9250Interface.h/cpp** - IMU sensor interface (IMPLEMENTED)
 - **LEDInterface.h** - WS2812 LED control interface (header only)
 - **PowerManager.h** - Power state management (header only)
 
@@ -64,16 +241,23 @@ Visual feedback system for LED patterns.
 
 Support utilities and helper functions.
 
+- **I2CScanner.h** - I2C bus scanner and diagnostic tools (IMPLEMENTED)
 - **CircularBuffer.h** - Generic circular buffer implementation
 - **FixedMath.h** - Fixed-point math utilities for efficient calculations
 - **DebugTools.h/cpp** - Debugging and diagnostic tools
+
+### Examples (`/examples`)
+Standalone test applications for verifying component functionality.
+
+- **MPUDiagnosticTest.cpp** - Diagnostic application for MPU sensor (IMPLEMENTED)
+- (Additional example files to be created as needed)
 
 ## Key Class Relationships
 
 ```
 GauntletController
   ├── HardwareManager
-  │     ├── MPU9250Interface
+  │     ├── MPU9250Interface (IMPLEMENTED)
   │     ├── LEDInterface
   │     └── PowerManager
   ├── PositionDetector

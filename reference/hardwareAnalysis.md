@@ -35,6 +35,18 @@ The PrismaTech Gauntlet requires hardware capable of:
 
 **Verdict:** The ESP32-WROOM is HIGHLY SUITABLE for this application. Its dual-core architecture provides better multitasking capabilities compared to the previously considered ESP32-S2, which will be beneficial when implementing the complex Freecast Mode that requires simultaneous sensor processing and LED animation.
 
+#### Hardware Insights - ESP32-WROOM
+
+The ESP32-WROOM has proven to be a reliable platform for our development. Key insights include:
+
+1. **I2C Communication Performance**: The ESP32's I2C implementation works most reliably at 100kHz with the MPU sensor, rather than the maximum 400kHz. This lower speed provides more stable readings and fewer communication errors.
+
+2. **Power Considerations**: The ESP32 development board adequately powers both the MPU sensor (via 3.3V) and the LED ring (via 5V from USB) without requiring additional power management components.
+
+3. **Development Workflow**: The PlatformIO environment provides a streamlined development experience for ESP32, with reliable build and upload processes. The serial monitor at 115200 baud works well for debugging and data output.
+
+4. **Processing Capacity**: The ESP32's dual-core architecture provides ample processing power for our application. Early tests show minimal CPU utilization when reading sensor data, indicating we have significant headroom for implementing complex gesture recognition algorithms.
+
 #### MPU9250/6500/9255 9-Axis IMU
 
 **Advantages:**
@@ -52,6 +64,46 @@ The PrismaTech Gauntlet requires hardware capable of:
 - While the magnetometer is not explicitly required by the TrueFunctionGuide, it may provide more accurate absolute orientation data that could enhance gesture detection reliability
 
 **Verdict:** The MPU9250/6500/9255 is HIGHLY SUITABLE for detecting all required hand positions and gestures. The demonstrated success in the previous prototype confirms its effectiveness, and the additional magnetometer axis may provide opportunities for enhanced functionality or more robust position detection.
+
+#### Hardware Insights - MPU9250/6050 IMU
+
+Our implementation and testing of the MPU sensor has yielded several valuable insights:
+
+1. **Raw Data Analysis**: 
+   - The first set of MPU output data shows raw integer values in the expected range for the sensor's 16-bit output (-32,768 to 32,767)
+   - Accelerometer data (e.g., `Accel(X=3129 Y=-8192 Z=17183)`) shows Earth's gravity primarily affecting the Z-axis when the device is held horizontally, with values approximately half of the full 16-bit range (~16,000-17,000)
+   - Gyroscope data (e.g., `Gyro(X=209 Y=1059 Z=2028)`) shows rotation rates with values typically in the 0-7000 range during normal movement
+   - The raw values demonstrate sufficient resolution and sensitivity for detecting hand positions
+   - Values are consistent and responsive to movement, indicating good sensor performance
+
+2. **Initialization Requirements**:
+   - I2C clock speed must be set to 100kHz (not 400kHz) for reliable communication
+   - The WHO_AM_I register may return different values (0x68, 0x71, 0x73, 0x70) depending on the exact sensor variant
+   - A proper initialization sequence including device reset and configuration is essential for reliable operation
+   - Auto-detection of the sensor address (0x68 or 0x69) improves reliability across different hardware setups
+
+3. **Data Interpretation Best Practices**:
+   - Maintain raw integer values throughout processing pipeline to avoid floating-point scaling issues
+   - Use consistent value interpretation across the codebase
+   - Consider implementing simple baseline calibration to account for sensor offset variations
+   - For position detection, focus on relative magnitude differences between axes rather than absolute values
+   - Implement threshold-based detection with hysteresis to prevent position flickering
+
+4. **Cautions When Working with MPU Data**:
+   - **AVOID complex scaling calculations**: The previous implementation faced issues with inconsistent scaling factors. Working with raw integers provides more predictable results.
+   - **AVOID premature normalization**: Normalizing too early can amplify noise in weak signals.
+   - **MAINTAIN explicit documentation** of any transformations applied to the raw data.
+   - **IMPLEMENT error detection** for unexpected sensor values that might indicate sensor issues.
+   - **CONSIDER motion context**: Rapid movements generate high gyroscope values that should be interpreted differently than static accelerometer readings.
+   - **BE CAUTIOUS with sensor fusion**: While sensor fusion can improve accuracy, it adds complexity and potential for errors.
+
+5. **Implementation Recommendations**:
+   - Keep a direct reference to raw values for diagnostic purposes
+   - Implement simple low-pass filtering to reduce noise in accelerometer data
+   - For position detection, use the dominant axis approach comparing relative magnitudes
+   - Create clear conversion functions if scaled values are needed for specific calculations
+   - Document all threshold values and how they were determined
+   - Add explicit bounds checking to prevent unexpected behavior with extreme values
 
 #### WS2812 12-LED RGB Ring
 
@@ -74,6 +126,24 @@ The PrismaTech Gauntlet requires hardware capable of:
 - USB power can typically provide sufficient current, especially with the reduced brightness setting
 
 **Verdict:** The WS2812 12-LED RGB Ring is SUITABLE for implementing all the visual effects described. Its successful implementation in the previous prototype with the FastLED library confirms its viability.
+
+#### Hardware Insights - WS2812 LED Ring
+
+While we have not yet implemented the LED interface in our current iteration, our analysis of the previous implementation and hardware specifications provides the following insights:
+
+1. **Power Management**: 
+   - The 39% brightness setting (100/255) provides a good balance between visibility and power consumption
+   - Brief periods of high brightness for effects like "Rainbow Burst" appear to be within the power capabilities of the USB connection
+
+2. **Control Interface**:
+   - GPIO12 is confirmed as the data pin for the LED ring
+   - The FastLED library provides a reliable and efficient interface for controlling the LEDs
+   - Single-pin control simplifies wiring and reduces potential points of failure
+
+3. **Implementation Considerations**:
+   - Animations should be implemented using non-blocking patterns to maintain system responsiveness
+   - Position indicators need to be visually distinct with clear color mapping to hand positions
+   - Careful timing of LED updates is necessary to ensure smooth animations without interfering with sensor readings
 
 ### Overall Hardware Compatibility
 
