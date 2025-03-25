@@ -58,18 +58,16 @@ This document details the hardware components and technical specifications for t
 
 ## Pin Assignments
 
-*To be updated with specific pin connections during implementation.*
-
 | Component | Pin on Component | Connected to ESP32-S2 Pin | Notes |
 |-----------|------------------|---------------------------|-------|
 | MPU6050 | VCC | 3.3V | |
 | MPU6050 | GND | GND | |
-| MPU6050 | SDA | GPIO? (TBD) | I2C Data Line |
-| MPU6050 | SCL | GPIO? (TBD) | I2C Clock Line |
-| MPU6050 | INT | GPIO? (TBD) | Optional interrupt pin |
+| MPU6050 | SDA | GPIO7 | I2C Data Line |
+| MPU6050 | SCL | GPIO8 | I2C Clock Line |
+| MPU6050 | INT | GPIO5 | Optional interrupt pin |
 | WS2812 | VDD | 5V | May require external power for full brightness |
 | WS2812 | GND | GND | |
-| WS2812 | DIN | GPIO? (TBD) | Data input pin |
+| WS2812 | DIN | GPIO6 | Data input pin with 470Ω resistor in series |
 
 ## Power Requirements
 
