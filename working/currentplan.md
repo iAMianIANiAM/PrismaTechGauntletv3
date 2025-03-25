@@ -2,7 +2,7 @@
 
 This document provides a detailed outline of our current work focus, priorities, and implementation strategies.
 
-## Current Focus: Project Initialization and Hardware Planning
+## Current Focus: Software Development for Recovered Prototype
 
 ### Completed Tasks
 - Set up project documentation structure
@@ -15,33 +15,59 @@ This document provides a detailed outline of our current work focus, priorities,
 - Created hardware documentation
   - Documented component specifications in hardwareSpecifications.md
   - Analyzed hardware suitability in hardwareAnalysis.md
-  - Defined pin assignments and wiring instructions
+  - Updated documentation to reflect the recovered prototype hardware configuration
 - Initialized Git repository
   - Created initial commit with project structure
   - Connected to GitHub remote repository
 
 ### Current Tasks in Progress
-- Hardware build planning
-  - Finalizing component placement strategy
-  - Considering physical mounting options for wearability
+- Hardware verification
+  - Documenting precise hardware configuration from the recovered prototype
+  - Planning hardware testing routines to verify functionality
 
 ### Implementation Details
-- Selected specific GPIO pins for components:
-  - MPU6050: Using GPIO7 (SDA) and GPIO8 (SCL) for I2C communication
-  - MPU6050: Using GPIO5 for interrupt signal (optional)
-  - WS2812 LED Ring: Using GPIO6 for data control
-- Power management planning
-  - Primary power via USB-C
-  - LED brightness management to stay within power constraints
-  - Decoupling capacitor for power stability
+- Hardware configuration in the recovered prototype:
+  - ESP32-WROOM dual-core controller
+  - MPU9250/6500/9255 9-axis IMU
+  - WS2812 12-LED RGB Ring
+  
+- Specific configuration parameters:
+  - **LED Configuration:**
+    - LED_PIN: GPIO12 (not GPIO23 as initially documented)
+    - NUM_LEDS: 12
+    - COLOR_ORDER: GRB
+    - LED_BRIGHTNESS: 100 (out of 255)
+    - Using FastLED library
+  
+  - **I2C Configuration:**
+    - SDA_PIN: GPIO21
+    - SCL_PIN: GPIO22
+    - I2C_CLOCK: 100000 (100kHz)
+    - MPU_ADDR: 0x68
+  
+- Existing software capabilities:
+  - WiFi connectivity for OTA updates and telnet debugging
+  - Basic gesture detection (palm-down to palm-up)
+  - Rainbow Burst effect in response to CalmOffer gesture
 
 ### Next Steps
-1. Physical hardware assembly (to be done by Ian)
-2. Implement basic test sketches:
-   - MPU6050 sensor test to verify I2C communication
-   - WS2812 LED test to verify control and brightness
-   - Power consumption measurement
-3. Begin WiFi and OTA implementation
-   - Research appropriate ESP32-S2 OTA libraries
-   - Create basic WiFi connection setup
-   - Implement OTA update functionality 
+1. Hardware verification:
+   - Test I2C communication with the MPU9250 sensor at address 0x68
+   - Test WS2812 LED ring functionality using GPIO12 data pin
+   - Verify existing gesture detection capability
+   - Document the confirmed hardware connections
+
+2. Software structure assessment:
+   - Analyze the existing codebase structure
+   - Identify components to build upon
+   - Plan refactoring of code to implement full TrueFunctionGuide functionality
+
+3. Idle Mode enhancement:
+   - Develop complete position detection system using the Dominant Axis Detection Model
+   - Implement full visual feedback for all hand positions
+   - Enhance gesture recognition system to detect both CalmOffer and LongNull gestures
+
+4. WiFi and OTA refinement:
+   - Ensure robust WiFi connection management
+   - Implement comprehensive OTA update mechanism
+   - Add web-based configuration interface if feasible 
