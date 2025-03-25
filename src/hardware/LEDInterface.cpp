@@ -1,9 +1,9 @@
 #include "LEDInterface.h"
 #include "../utils/DebugTools.h"
-#include <Adafruit_NeoPixel.h>
+#include <FastLED.h>
 
-// NeoPixel instance for the LED ring
-Adafruit_NeoPixel pixels(Config::NUM_LEDS, Config::LED_DATA_PIN, NEO_GRB + NEO_KHZ800);
+// FastLED array for the LED ring
+CRGB leds[Config::NUM_LEDS];
 
 bool LEDInterface::init() {
   // Configure the LED power control pin if defined
@@ -12,16 +12,20 @@ bool LEDInterface::init() {
     digitalWrite(Config::LED_POWER_PIN, HIGH); // Enable LED power
   }
   
-  // Initialize the NeoPixel library
-  pixels.begin();
-  pixels.setBrightness(brightness);
-  pixels.clear();
-  pixels.show();
+  // Initialize the FastLED library
+  // Using the GRB color order as specified in hardware analysis
+  FastLED.addLeds<WS2812, Config::LED_DATA_PIN, GRB>(leds, Config::NUM_LEDS);
+  FastLED.setBrightness(brightness);
+  FastLED.clear();
+  FastLED.show();
   
   // Reset LED buffer
   for (int i = 0; i < Config::NUM_LEDS; i++) {
     ledBuffer[i] = {0, 0, 0};
   }
+  
+  DEBUG_PRINTF("LED Interface initialized on pin %d\n", Config::LED_DATA_PIN);
+  DEBUG_PRINTF("Brightness set to %d\n", brightness);
   
   return true;
 }
@@ -29,6 +33,8 @@ bool LEDInterface::init() {
 void LEDInterface::setLED(uint8_t index, const Color& color) {
   if (index < Config::NUM_LEDS) {
     ledBuffer[index] = color;
+  } else {
+    DEBUG_PRINTF("WARNING: LED index out of bounds: %d\n", index);
   }
 }
 
@@ -39,27 +45,34 @@ void LEDInterface::setAllLEDs(const Color& color) {
 }
 
 void LEDInterface::setLEDRange(uint8_t startIndex, uint8_t count, const Color& color) {
-  for (int i = 0; i < count; i++) {
-    if (startIndex + i < Config::NUM_LEDS) {
-      ledBuffer[startIndex + i] = color;
-    }
+  uint8_t endIndex = startIndex + count - 1;
+  if (endIndex >= Config::NUM_LEDS) {
+    DEBUG_PRINTF("WARNING: LED range partially out of bounds: %d to %d\n", 
+                 startIndex, endIndex);
+    endIndex = Config::NUM_LEDS - 1;
+  }
+  
+  for (int i = startIndex; i <= endIndex; i++) {
+    ledBuffer[i] = color;
   }
 }
 
 void LEDInterface::setBrightness(uint8_t newBrightness) {
   brightness = newBrightness;
-  pixels.setBrightness(brightness);
+  FastLED.setBrightness(brightness);
+  
+  DEBUG_PRINTF("LED brightness set to %d\n", brightness);
 }
 
 void LEDInterface::show() {
-  // Apply brightness and set pixels
+  // Apply colors to the FastLED array
   for (int i = 0; i < Config::NUM_LEDS; i++) {
-    Color adjustedColor = applyBrightness(ledBuffer[i]);
-    pixels.setPixelColor(i, adjustedColor.r, adjustedColor.g, adjustedColor.b);
+    Color color = ledBuffer[i];
+    leds[i] = CRGB(color.r, color.g, color.b);
   }
   
   // Update the LED ring
-  pixels.show();
+  FastLED.show();
 }
 
 void LEDInterface::clear() {
@@ -69,12 +82,88 @@ void LEDInterface::clear() {
   }
   
   // Clear LEDs
-  pixels.clear();
-  pixels.show();
+  FastLED.clear();
+  FastLED.show();
+  
+  DEBUG_PRINTLN("LEDs cleared");
 }
 
 Color LEDInterface::getColorForPosition(uint8_t position) const {
   return mapPositionToColor(position);
+}
+
+// Additional animation methods
+void LEDInterface::fadeToBlack(uint8_t fadeAmount) {
+  for (int i = 0; i < Config::NUM_LEDS; i++) {
+    // Fade each channel
+    if (ledBuffer[i].r > fadeAmount) ledBuffer[i].r -= fadeAmount;
+    else ledBuffer[i].r = 0;
+    
+    if (ledBuffer[i].g > fadeAmount) ledBuffer[i].g -= fadeAmount;
+    else ledBuffer[i].g = 0;
+    
+    if (ledBuffer[i].b > fadeAmount) ledBuffer[i].b -= fadeAmount;
+    else ledBuffer[i].b = 0;
+  }
+}
+
+void LEDInterface::rainbow(uint8_t initialHue, uint8_t deltaHue) {
+  // Use FastLED's fill_rainbow function directly on the leds array
+  fill_rainbow(leds, Config::NUM_LEDS, initialHue, deltaHue);
+  
+  // Update the ledBuffer to match the FastLED array
+  for (int i = 0; i < Config::NUM_LEDS; i++) {
+    ledBuffer[i].r = leds[i].r;
+    ledBuffer[i].g = leds[i].g;
+    ledBuffer[i].b = leds[i].b;
+  }
+}
+
+void LEDInterface::rainbowBurst() {
+  // Create a fast rainbow burst effect (used for CalmOffer gesture)
+  // Start with high brightness
+  uint8_t savedBrightness = brightness;
+  FastLED.setBrightness(255);
+  
+  // Rapid rainbow animation
+  for (int j = 0; j < 256; j += 8) {
+    fill_rainbow(leds, Config::NUM_LEDS, j, 5);
+    FastLED.show();
+    delay(5); // Short delay for quick animation
+  }
+  
+  // Restore original brightness
+  FastLED.setBrightness(savedBrightness);
+  brightness = savedBrightness;
+  
+  // Clear after effect
+  clear();
+}
+
+void LEDInterface::pulse(const Color& color, uint8_t pulseCount, uint16_t pulseDuration) {
+  uint8_t savedBrightness = brightness;
+  
+  for (int p = 0; p < pulseCount; p++) {
+    // Fade in
+    for (int b = 0; b < savedBrightness; b += 5) {
+      setAllLEDs(color);
+      FastLED.setBrightness(b);
+      show();
+      delay(pulseDuration / (savedBrightness / 5) / 2);
+    }
+    
+    // Fade out
+    for (int b = savedBrightness; b > 0; b -= 5) {
+      setAllLEDs(color);
+      FastLED.setBrightness(b);
+      show();
+      delay(pulseDuration / (savedBrightness / 5) / 2);
+    }
+  }
+  
+  // Restore original brightness
+  FastLED.setBrightness(savedBrightness);
+  brightness = savedBrightness;
 }
 
 Color LEDInterface::mapPositionToColor(uint8_t position) const {

@@ -8,14 +8,14 @@
  */
 namespace Config {
   // Hardware pins
-  constexpr uint8_t LED_DATA_PIN = 18;  // WS2812 data pin (RMT peripheral)
+  constexpr uint8_t LED_DATA_PIN = 12;  // WS2812 data pin (GPIO12 confirmed in hardware analysis)
   constexpr uint8_t LED_POWER_PIN = 5;  // Power control for LEDs
   constexpr uint8_t I2C_SDA_PIN = 21;   // I2C data line
   constexpr uint8_t I2C_SCL_PIN = 22;   // I2C clock line
   
   // LED configuration
   constexpr uint8_t NUM_LEDS = 12;      // Number of LEDs in the ring
-  constexpr uint8_t DEFAULT_BRIGHTNESS = 80; // Default brightness (0-255)
+  constexpr uint8_t DEFAULT_BRIGHTNESS = 100; // Default brightness (0-255) - 39% brightness as per hardware analysis
   
   // Sensor configuration
   constexpr uint8_t POSITION_SAMPLE_RATE = 50;  // Hz
