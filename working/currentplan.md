@@ -178,6 +178,28 @@ The implementation follows a modular organization:
 - Begin developing the position detection algorithm based on dominant axis
 - Add more sophisticated gesture detection building on position detection
 
+## Recent Project Housekeeping
+
+The project structure has been improved with the following housekeeping tasks:
+
+1. **Test Directory Reorganization**
+   - Created a structured test directory organization
+   - Moved test files from src/ to test/mpu/
+   - Created a dedicated helpers directory in test/
+   - Added README.md with comprehensive documentation for the test structure
+
+2. **Dependency Cleanup**
+   - Confirmed successful transition from Adafruit_NeoPixel to FastLED
+   - Verified no residual references to the old library
+   - Updated platformio.ini to reflect the new library requirements
+
+3. **Build Environment Improvements**
+   - Added specific build environment for unit tests in platformio.ini
+   - Removed redundant test files from src/ and examples/ directories
+   - Updated directory index documentation to reflect the new structure
+
+The codebase is now more organized with a clear separation between application code and test code, making maintenance easier and reducing potential confusion during development.
+
 ## Hardware Implementation
 
 ### MPU Sensor Implementation

@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include "utils/DebugTools.h"
+#include "../../src/utils/DebugTools.h"
 
 // Forward declaration of test function
-void testMPU9250();
+extern void testMPU9250();
 
 void setup() {
   // Initialize serial communication

@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include "../hardware/MPU9250Interface.h"
-#include "DebugTools.h"
+#include "../../src/hardware/MPU9250Interface.h"
+#include "../../src/utils/DebugTools.h"
 
 // Test instance
 MPU9250Interface testSensor;

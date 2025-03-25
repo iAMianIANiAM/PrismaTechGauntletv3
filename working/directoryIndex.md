@@ -188,6 +188,7 @@ GauntletController
 - **/reference** - Reference documents and design specifications
 - **/working** - Working documents and project notes
 - **/examples** - Standalone example applications for testing components
+- **/test** - Structured test files for unit and integration testing
 
 ## Source Code Organization
 
@@ -250,7 +251,18 @@ Support utilities and helper functions.
 Standalone test applications for verifying component functionality.
 
 - **MPUDiagnosticTest.cpp** - Diagnostic application for MPU sensor (IMPLEMENTED)
+- **LEDTest.cpp** - Test application for LED interface (IMPLEMENTED)
 - (Additional example files to be created as needed)
+
+### Test Directory (`/test`)
+Structured test files organized by component.
+
+- **`/mpu`** - MPU sensor test files
+  - **MPU9250Test.cpp** - Test functions for the MPU sensor
+  - **MPU9250TestMain.cpp** - Main entry point for MPU tests
+- **`/led`** - LED interface test files (future)
+- **`/helpers`** - Utility files for testing
+  - **dummy.cpp** - Arduino framework entry point helper
 
 ## Key Class Relationships
 
@@ -304,6 +316,8 @@ This project follows the PlatformIO standard directory structure for ESP32 devel
 - **`src/`**: Contains the main application code
 - **`include/`**: Contains header files that should be accessible across the entire project
 - **`lib/`**: Contains project-specific libraries or modified third-party libraries
+- **`test/`**: Contains organized test files for components
+- **`examples/`**: Contains standalone example applications
 - **`platformio.ini`**: Configuration file for PlatformIO that specifies build parameters, board details, framework, and library dependencies
 
 ## Namespace Organization
