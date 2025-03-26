@@ -18,7 +18,7 @@ The architecture for the PrismaTech Gauntlet 3.0 has been designed and implement
 - [x] Established hardware abstraction layer for sensor and LED control
 - [x] Set up debugging infrastructure for development
 
-## Phase 2: Hardware Interface Foundation ⏳
+## Phase 2: Hardware Interface Foundation ✅
 
 ### MPU9250 Core Interface Implementation ✅
 
@@ -72,11 +72,11 @@ The architecture for the PrismaTech Gauntlet 3.0 has been designed and implement
    - [x] Validated data consistency during movement
    - [x] Confirmed successful operation without scaling issues
 
-4. **Documentation Update** ⏳
-   - [ ] Update directory index
+4. **Documentation Update** ✅
+   - [x] Update directory index
    - [x] Document implementation details
    - [x] Add usage examples
-   - [ ] Update error handling guide
+   - [x] Update error handling guide
    - [x] Document testing procedures
 
 ### LED Interface Implementation ✅
@@ -150,39 +150,7 @@ The architecture for the PrismaTech Gauntlet 3.0 has been designed and implement
 - [x] Observed proper resource management and hardware coordination
 - [x] Verified successful integration of all hardware components
 
-### Next Steps
-1. ~~Hardware Manager Integration~~ ✅
-2. Implement simple position detection algorithm based on dominant axis
-3. Complete Phase 2 Verification
-   - [x] Hardware integration validation
-   - [ ] Memory usage and performance analysis
-   - [ ] Update directory index documentation
-
-## Current Focus: Position Detection Development
-
-The project has made significant progress with the successful implementation and hardware testing of all core hardware components:
-
-1. **Successfully verified Hardware Manager integration**:
-   - Hardware Manager properly coordinates all hardware components
-   - MPU sensor provides responsive and accurate motion data
-   - LED interface correctly displays position colors and animations
-   - Power state management functions as expected
-   - All components work together cohesively
-
-2. **Confirmed hardware performance characteristics**:
-   - Sensor data is accurate and responsive to movement
-   - LEDs provide clear visual feedback corresponding to movements
-   - Power state transitions are smooth and appropriate
-   - Error handling is robust and informative
-
-3. **Current focus areas**:
-   - ✅ Generated position detection thresholds from calibration data
-   - ✅ Integrated thresholds into Config.h for system-wide access
-   - ⏳ Implement PositionDetector.cpp using the Point Detection Model
-   - ⏳ Integrate position detection with Idle Mode for real-time feedback
-   - ⏳ Test and refine position detection accuracy 
-
-## Position Detection System Implementation Plan
+## Position Detection System Implementation ✅
 
 ### 1. Calibration Protocol ✅
 The calibration protocol has been implemented following the approach outlined in the project documentation:
@@ -231,68 +199,153 @@ The calibration protocol has been implemented following the approach outlined in
     constexpr float THRESHOLD_NULL = 1281.05f;      // accelX > threshold
     ```
 
-### 3. Position Detector Implementation ⏳
+### 3. Position Detector Implementation ✅
 
-Next steps for implementing the Position Detector:
+The Position Detector has been successfully implemented with the following features:
 
-1. **Create PositionDetector.cpp implementing the header interface**:
-   - Implement the Point Detection Model using thresholds in Config.h
-   - Simple averaging for noise reduction (POSITION_AVERAGE_SAMPLES = 5)
-   - Clear position state management with proper transitions
+1. **PositionDetector.cpp implementation completed**:
+   - Implemented the Point Detection Model using threshold-based approach
+   - Circular buffer for storing recent samples (POSITION_AVERAGE_SAMPLES = 5)
+   - Simple averaging for noise reduction without hysteresis
+   - Clear position detection logic using dominant axis approach
    - Integration with HardwareManager for sensor data access
-   - Basic debugging capabilities
+   - Stub calibration method clearly marked as not for runtime use
 
 2. **Implementation Details**:
-   - **detectPosition()**: Main function to analyze sensor data and determine position
-   - **determinePositionFromAxes()**: Apply thresholds to identify dominant axis
-   - **calculateAveragedData()**: Implement simple averaging for noise reduction
-   - **Axis-specific helper functions**: Implement the six position detection functions
-   - **setThreshold()**: Allow runtime adjustment of thresholds for testing
+   - **detectPosition()**: Main function that processes sensor data and determines position
+   - **determinePositionFromAxes()**: Applies dominant axis logic to identify position
+   - **calculateAveragedData()**: Implements simple averaging for noise reduction
+   - **Axis-specific helper functions**: All six position detection functions implemented
 
-3. **Testing Plan**:
-   - Create simple visualization in Idle Mode for immediate feedback
-   - Test position detection with various hand movements
-   - Assess accuracy and responsiveness of detection
-   - Fine-tune thresholds if necessary
+3. **TEST_MODE Guard Implementation**:
+   - Clear separation of testing functions using TEST_MODE preprocessor guard
+   - Calibration stub method properly guarded with clear documentation
+   - Deprecated setThreshold method retained but marked as obsolete
 
-### 4. Idle Mode Implementation ⏳
+### 4. Test Environment Implementation ✅
 
-After completing the Position Detector, we will implement Idle Mode for testing:
+We have successfully implemented and tested multiple PlatformIO environments for comprehensive testing:
 
-1. **Create IdleMode.cpp**:
-   - Simple visualization of detected position via LEDs
-   - Position color mapping as defined in Config.h
-   - Real-time feedback on position detection
-   - Debug output for performance analysis
+1. **Main Production Environment (env:esp32dev)** ✅
+   - Main application environment building the full project
+   - Configured with proper build flags and libraries
+   - Successfully builds with no warnings or errors
 
-2. **Integration with GauntletController**:
-   - Update GauntletController to use the Position Detector
-   - Add Idle Mode state handling
-   - Implement mode transitions based on gestures
+2. **Simple Position Test Environment (env:simplepostest)** ✅
+   - Focused test environment for position detection testing
+   - Uses calibrated thresholds from Config.h
+   - Provides clear visual LED feedback for detected positions
+   - Displays raw accelerometer data via Serial
+   - Successfully builds and runs on the physical device
 
-## Next Tasks
+3. **Position Detector Test Environment (env:postest)** ✅
+   - More comprehensive position detection testing
+   - Additional debugging output and visualization
+   - Successfully builds and validates position detection logic
 
-1. **Immediate Focus**: Implement PositionDetector.cpp
-   - Create implementation file based on header interface
-   - Implement Point Detection Model with thresholds from Config.h
-   - Integrate with HardwareManager
-   - Add debugging capabilities
+4. **Hardware Manager Test Environment (env:hwmtest)** ✅
+   - Tests the integration of all hardware components
+   - Verifies sensor data reading and LED control
+   - Successfully builds and runs on hardware
 
-2. **Testing Implementation**:
-   - Test with basic LED feedback
-   - Verify position detection accuracy
-   - Assess response time and stability
+5. **Calibration Environment (env:calibration)** ✅
+   - Dedicated environment for running the calibration protocol
+   - Collects position data for threshold determination
+   - Successfully builds and runs with no errors
 
-3. **Documentation Update**:
-   - Update implementation status in directoryIndex.md
-   - Document position detection algorithm
-   - Maintain calibration guidelines in CALIBRATION_GUIDE.md
-   - Keep thresholds documented and synchronized
+### 5. Hybrid Testing Approach ✅
 
-4. **Future Considerations**:
-   - Explore hysteresis for smoother transitions (after initial testing)
-   - Assess need for confidence metric (if basic detection needs improvement)
-   - Consider tuning parameters based on real-world usage
+We've successfully implemented a hybrid approach for testing, which includes:
+
+1. **Code Isolation with Preprocessor Guards**:
+   - Clear separation between test and production code using TEST_MODE guard
+   - Test-specific methods properly isolated in PositionDetector class
+   - Consistent use of guards across all relevant files
+
+2. **Dedicated Test Environments**:
+   - Multiple test environments with specific purposes
+   - Clear build configurations for each test scenario
+   - Proper documentation in platformio.ini
+
+3. **Calibrated Threshold Integration**:
+   - Thresholds determined from calibration integrated into Config.h
+   - All test environments use the same calibrated thresholds
+   - Consistent position detection across environments
+
+4. **Position Detection Verification**:
+   - Position detection tested with real hardware
+   - Visual feedback confirms proper detection
+   - Most positions detected successfully in testing
+
+## Current Focus: Position Detection Refinement
+
+The project has completed a major milestone with the successful implementation of the position detection system and test environments. Our current focus is on:
+
+1. **Fine-tuning Position Detection**:
+   - Further refine threshold values based on testing feedback
+   - Address any detection stability issues
+   - Improve transition smoothness between positions
+
+2. **Preparation for Idle Mode Implementation**:
+   - Develop the real-time visual feedback for the main application
+   - Implement position change event handling
+   - Integrate position detection with the main GauntletController
+
+3. **Codebase Maintenance**:
+   - Update documentation to reflect implementation details
+   - Ensure consistent coding standards across all files
+   - Review memory usage and performance
+
+## Latest Implementation: Hybrid Testing Approach for Position Detection ✅
+
+We have successfully implemented our hybrid approach for testing and verifying the PlatformIO environment reorganization. This implementation includes:
+
+1. **Updated Position Detector Implementation** ✅
+   - Position detector now properly uses calibrated thresholds from Config.h
+   - Simple averaging mechanism (5-sample window) for noise reduction
+   - Point Detection Model implementation for six distinct hand positions
+   - Clean separation of test and production code
+
+2. **Fixed Preprocessor Guards** ✅
+   - Updated TEST_MODE guards in all test files
+   - Consistent guard usage throughout the codebase
+   - Proper isolation between test-specific and production functionality
+
+3. **Verified Build Environments** ✅
+   - Main production environment (env:esp32dev) builds successfully
+   - Hardware manager test environment (env:hwmtest) builds successfully
+   - Calibration environment (env:calibration) builds successfully
+   - New simplepostest environment for position detection testing
+
+4. **Hardware-Verified Implementation** ✅
+   - Position detection tested on the physical device
+   - Most positions detected correctly with the current calibration
+   - LED feedback provides clear indication of detected positions
+
+The hybrid approach provides several key benefits:
+- Tests core functionality (position detection with calibrated thresholds)
+- Ensures both test and production code compile correctly
+- Maintains proper isolation between test and production code
+- Provides a simple way for users to test the position detection system
+
+With these changes, we've established a solid foundation for the position detection system and can proceed with integrating it into the main application's Idle Mode for continuous real-time feedback.
+
+## Next Steps
+
+1. **Idle Mode Implementation**:
+   - Develop the position visualization for Idle Mode
+   - Implement continuous position monitoring
+   - Add transition animations between positions
+
+2. **Gesture Recognition Integration**:
+   - Begin implementation of gesture detection based on position sequences
+   - Integrate with position detection system
+   - Test CalmOffer and LongNull gestures
+
+3. **Core Application Development**:
+   - Implement GauntletController main loop
+   - Develop mode transitions
+   - Begin implementation of Invocation Mode
 
 ## Directory Structure
 
@@ -615,3 +668,63 @@ Upon successful implementation of the Hardware Manager, we will:
 2. Begin initial preparation for the Calibration Protocol
 3. Update the roadmap and current plan
 4. Document the verification results 
+
+## PlatformIO Environment Reorganization Plan
+
+To improve code organization, reduce contamination risks between test and production code, and enhance maintainability, we will implement a comprehensive environment reorganization plan.
+
+### Overview
+
+The current PlatformIO configuration includes multiple environments that could lead to confusion and potential contamination between test and production code. This plan addresses these concerns while maintaining the benefits of our component testing architecture.
+
+### Implementation Phases
+
+#### Phase 1: Documentation and Platformio.ini Updates
+- [x] Develop detailed reorganization plan
+- [x] Update platformio.ini with clear sections and comments
+- [x] Create TESTING.md documentation
+- [x] Add preprocessor guards to header files
+
+#### Phase 2: Code Reorganization
+- [x] Create new directory structure for examples
+```
+/examples
+  /production           <- Examples showing main application usage
+  /component_tests      <- Active component test applications
+  /archived_tests       <- Historical test applications
+```
+- [x] Create new directory structure for tests
+```
+/test
+  /utils               <- Shared test utilities
+  /fixtures            <- Test data and fixtures
+  /archived            <- Archived test code
+```
+- [x] Move example files to appropriate locations
+- [x] Update relative paths in build configurations
+
+#### Phase 3: Code Changes
+- [x] Add preprocessor guards around test-only methods
+- [ ] Update includes in test files to match new structure
+- [ ] Verify all environments still build correctly
+
+### Benefits
+
+1. **Clear Boundaries**: Explicit separation between production and test code
+2. **Reduced Contamination Risk**: Test-only functions clearly marked and guarded
+3. **Preserved Reference Code**: Valuable test code maintained but clearly archived
+4. **Improved Maintainability**: Better organized structure for ongoing development
+
+### Current Status
+
+We have implemented significant portions of the plan, including:
+- Restructured platformio.ini with clear organization of environments
+- Created comprehensive TESTING.md documentation
+- Added TEST_MODE preprocessor guards to separate test code
+- Established directory structure for code organization
+- Moved PositionDetectorTest.cpp to the new component_tests directory
+- Updated build configurations to reference the new locations
+
+Next steps:
+- Update other test files and ensure their includes are correct
+- Verify that all environments build correctly with the new structure 

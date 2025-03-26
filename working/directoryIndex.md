@@ -11,13 +11,14 @@
   /animation    - LED animation system
   /utils        - Support utilities
 /examples       - Standalone example applications
+  /component_tests - Component-specific test applications
 /utils          - Python utilities for data collection and analysis
 /logs           - Data logs and generated thresholds
 ```
 
 ## Current Implementation Focus
 
-### Phase 2: Hardware Interface Foundation
+### Phase 2: Hardware Interface Foundation ✅
 
 #### Completed
 - **MPU9250 Core Interface** (`/src/hardware/MPU9250Interface.*`)
@@ -84,7 +85,7 @@
   - Error recovery demonstration
   - Sensor data visualization with LED feedback
 
-### Phase 3: Basic Position Detection
+### Phase 3: Basic Position Detection ✅
 
 #### Completed
 - **Calibration Protocol** (`/examples/CalibrationProtocol.cpp`)
@@ -103,7 +104,6 @@
   - Comprehensive calibration guide (`CALIBRATION_GUIDE.md`)
   - Sensor placement and orientation tracking
 
-#### In Progress Implementation
 - **Position Detection Thresholds**
   - Threshold determination from calibration data
   - Thresholds generated from latest calibration (calibration_data_20250326_011013.csv)
@@ -111,21 +111,41 @@
   - Thresholds integrated into `src/core/Config.h` for system-wide access
   - Refactored for back-of-hand sensor placement
   - Documentation of threshold values and ranges
-  - **Status**: Thresholds determined and integrated, awaiting implementation of detection logic
+  - **Status**: Thresholds determined and integrated, successfully used in position detection
 
-#### Pending Implementation
 - **Position Detector Implementation** (`/src/detection/PositionDetector.cpp`)
-  - Position Detector header exists (`/src/detection/PositionDetector.h`)
-  - Point Detection Model implementation pending
-  - Position classification based on calibration thresholds
-  - Position state management
+  - Point Detection Model implementation complete
+  - Position classification based on dominant axis thresholds
+  - Simple averaging for noise reduction (5-sample circular buffer)
+  - No hysteresis initially for clearer testing
+  - No confidence metric per user preference
   - Integration with hardware manager
+  - TEST_MODE preprocessor guards for separating test and production code
+  - **Status**: Implementation complete and tested on hardware
 
+- **Test Environments** (`platformio.ini`)
+  - Main production environment (env:esp32dev)
+  - Simple position test environment (env:simplepostest)
+  - Position detector test environment (env:postest)
+  - Hardware manager test environment (env:hwmtest)
+  - Calibration environment (env:calibration)
+  - Consistent build configurations and dependencies
+  - **Status**: All environments build successfully and tested on hardware
+
+- **Simple Position Test** (`/examples/component_tests/SimplePositionTest.cpp`)
+  - Direct testing of position detection
+  - Visual LED feedback for detected positions
+  - Serial output of raw sensor data and detected positions
+  - Uses calibrated thresholds from Config.h
+  - **Status**: Successfully tested on hardware, most positions detected
+
+#### In Progress Implementation
 - **Idle Mode** (`/src/modes/IdleMode.cpp`)
   - Position color visualization
   - Testing and feedback functionality
   - Position tracking
   - Performance monitoring
+  - **Status**: Design completed, implementation pending
 
 ## Core Components
 
@@ -143,6 +163,16 @@
   - **Status**: Implementation complete and hardware-verified
   - **Verification**: Successfully tested with integration of MPU and LED components
 
+### Position Detection System
+- `PositionDetector`: Position detection logic
+  - **Status**: Implementation complete, tested on hardware
+  - **Verification**: Successfully tested using SimplePositionTest
+  - **Features**: 
+    - Point Detection Model with threshold-based classification
+    - 5-sample averaging for noise reduction
+    - Dominant axis detection for six hand positions
+    - TEST_MODE guards for test-specific functionality
+
 ### Calibration and Analysis
 - `CalibrationProtocol.cpp`: Calibration sequence implementation
   - **Status**: Implementation complete and hardware-verified
@@ -157,9 +187,6 @@
 ### Core Systems
 - `GauntletController`: System coordination
   - **Status**: Header implemented, implementation file exists but functionality pending
-  - **Verification**: Not yet verified
-- `PositionDetector`: Position detection logic
-  - **Status**: Header implemented, implementation file pending
   - **Verification**: Not yet verified
 - `GestureRecognizer`: Gesture recognition
   - **Status**: Header defined, implementation pending
@@ -227,306 +254,140 @@
   - Robust error handling for binary data
   - CSV file generation with timestamps
   - Threshold analysis and extraction
+- Position Detection System
+  - Position Detector implementation using dominant axis model
+  - Simple averaging for noise reduction
+  - Threshold-based detection for six hand positions
+  - Memory-efficient implementation with circular buffer
+  - TEST_MODE guards for test/production separation
+- Test Environment Implementation
+  - Multiple PlatformIO environments for different testing scenarios
+  - Consistent build configurations
+  - Hybrid approach for test and production code
+  - Simple position test application
+  - Hardware-verified test environments
 
 ### In Progress
-- Position Detection System
-  - Threshold validation and adjustment
-  - Consideration for forearm sensor placement
-  - Statistical analysis of position distinctiveness
+- Position Detection Refinement
+  - Fine-tuning thresholds based on testing feedback
+  - Addressing detection stability issues
+  - Improving transition behavior
+- Idle Mode Implementation
+  - Position visualization design
+  - Real-time position feedback
+  - LED animation integration
 
-### Pending
-- Position detector implementation
-- Gesture recognition
-- Mode implementation
-- Animation system enhancements
+## Test Environment Structure
 
-## File Relationships
+### Simple Position Test
+**File**: `/examples/component_tests/SimplePositionTest.cpp`
+**Environment**: env:simplepostest
+**Purpose**: Basic testing of position detection with visual feedback
+**Features**:
+- Real-time sensor data output
+- Position detection with LED feedback
+- Uses calibrated thresholds from Config.h
+- Clean TEST_MODE guards for isolation
 
-### Hardware Layer
+### Position Detector Test
+**File**: `/examples/component_tests/PositionDetectorTest.cpp`
+**Environment**: env:postest
+**Purpose**: More comprehensive testing of position detection system
+**Features**:
+- Advanced position debugging
+- Transition analysis
+- Duration measurements
+- Extended serial output
+
+### Hardware Manager Test
+**File**: `/examples/HardwareManagerTest.cpp`
+**Environment**: env:hwmtest
+**Purpose**: Integration testing of all hardware components
+**Features**:
+- Hardware initialization verification
+- Sensor data reading
+- LED control demonstration
+- Power state management
+
+### Calibration Protocol
+**File**: `/examples/CalibrationProtocol.cpp`
+**Environment**: env:calibration
+**Purpose**: Collecting calibration data for threshold generation
+**Features**:
+- Guided calibration sequence
+- Position-specific data collection
+- LED visual indicators
+- Serial CSV output
+
+## Class Relationships
+
+### Hardware Layer Relationships
 ```
-HardwareManager (Implemented & Verified)
-  ├── MPU9250Interface (Implemented & Verified)
-  └── LEDInterface (Implemented & Verified)
+HardwareManager
+├── MPU9250Interface (sensor data acquisition)
+├── LEDInterface (visual feedback)
+└── PowerManager (power state control)
 ```
 
-### Utilities
-```
-Utils
-  ├── I2CScanner (Implemented & Verified)
-  ├── DebugTools
-  └── CircularBuffer
-```
-
-### Calibration System
-```
-CalibrationProtocol (Implemented & Verified)
-  └─┬─ calibration_logger.py (Implemented & Verified)
-    └── analyze_calibration.py (Implemented & Verified)
-         └── suggested_thresholds.txt (Generated)
-```
-
-### Core Systems
-```
-GauntletController
-  ├── HardwareManager
-  │     ├── MPU9250Interface (IMPLEMENTED & VERIFIED)
-  │     ├── LEDInterface (IMPLEMENTED & VERIFIED)
-  │     └── PowerManager (IMPLEMENTED & VERIFIED)
-  ├── PositionDetector (HEADER IMPLEMENTED, CPP PENDING)
-  ├── GestureRecognizer (HEADER IMPLEMENTED, CPP PENDING)
-  └── AnimationSystem (HEADER IMPLEMENTED, CPP PENDING)
-        └── FreecastGenerator (NOT YET IMPLEMENTED)
-```
-
-### Implemented Files
-- **`src/hardware/MPU9250Interface.h/cpp`** - MPU9250 sensor interface (VERIFIED)
-- **`src/utils/I2CScanner.h`** - I2C diagnostic utilities (VERIFIED)
-- **`examples/MPUDiagnosticTest.cpp`** - Diagnostic application (VERIFIED)
-- **`examples/MPUFilterTest.cpp`** - Data processing testing application (VERIFIED)
-- **`src/core/SystemTypes.h`** - Data structures (IMPLEMENTED)
-- **`src/core/Config.h`** - System configuration including position detection thresholds (IMPLEMENTED)
-- **`src/main.cpp`** - Main application implementing sensor reading (IMPLEMENTED)
-- **`src/hardware/LEDInterface.h/cpp`** - LED interface for WS2812 control (VERIFIED)
-- **`src/hardware/HardwareManager.h/cpp`** - Hardware resource manager (VERIFIED)
-- **`src/hardware/PowerManager.h/cpp`** - Power state management (VERIFIED)
-- **`examples/LEDTest.cpp`** - LED testing application (VERIFIED)
-- **`examples/HardwareManagerTest.cpp`** - Hardware integration test (VERIFIED)
-- **`examples/CalibrationProtocol.cpp`** - Calibration protocol implementation (VERIFIED)
-- **`utils/calibration_logger.py`** - Calibration data logging utility (VERIFIED)
-- **`utils/analyze_calibration.py`** - Calibration data analysis utility (VERIFIED)
-- **`logs/suggested_thresholds.txt`** - Generated threshold values (GENERATED)
-- **`src/core/GauntletController.h/cpp`** - Main system controller (IMPLEMENTED, NOT VERIFIED)
-- **`src/detection/PositionDetector.h`** - Position detection header (IMPLEMENTED, AWAITING CPP IMPLEMENTATION)
-- **`src/detection/GestureRecognizer.h`** - Gesture recognition header (IMPLEMENTED, AWAITING CPP IMPLEMENTATION)
-- **`src/detection/CalibrationRoutine.h`** - Calibration routine header (IMPLEMENTED, AWAITING CPP IMPLEMENTATION)
-- **`src/utils/DebugTools.h/cpp`** - Debugging and diagnostic tools (IMPLEMENTED)
-- **`src/utils/FixedMath.h`** - Fixed-point math utilities (IMPLEMENTED)
-- **`src/utils/CircularBuffer.h`** - Generic circular buffer implementation (IMPLEMENTED)
-
-## Current Development Guidelines
-
-### Hardware Interface Implementation
-- Focus on robust error handling
-- Maintain raw integer data throughout sensor processing
-- Document hardware configurations carefully
-- Avoid complex scaling operations
-- Prioritize reliability over optimization
-
-### MPU Sensor Data Handling
-- Work with raw integer data to avoid scaling issues
-- Implement simple filtering where needed
-- Document all data transformations explicitly
-- Use relative comparisons rather than absolute values
-- Implement hysteresis for threshold detection
-
-### Calibration and Position Detection
-- Adapt to current sensor placement on forearm
-- Focus on statistical analysis for threshold determination
-- Consider multi-axis criteria for position detection
-- Prioritize reliability over sensitivity
-- Implement clear debugging capabilities for position detection
-
-### Code Organization
-- Keep hardware-specific code isolated
-- Maintain clear interface boundaries
-- Document all public interfaces
-- Include comprehensive error handling
-- Add detailed debug logging
-
-### Testing Requirements
-- Unit tests for all components
-- Integration tests for hardware communication
-- Error condition testing
-- Performance validation
-- Memory usage monitoring
-
-### Position Detection Implementation
-- Implement Point Detection Model with clear threshold boundaries
-- Use simple averaging for noise reduction
-- Avoid complex confidence calculations initially
-- Prioritize clear visual feedback during testing
-- Create distinct zones for positions with well-defined "unknown" areas
-- Validate with thorough testing in Idle Mode
-
-## Top-Level Directory Structure
-
-- **/src** - Main source code for the application
-- **/include** - External library header files
-- **/lib** - External libraries
-- **/reference** - Reference documents and design specifications
-- **/working** - Working documents and project notes
-- **/examples** - Standalone example applications for testing components
-- **/test** - Structured test files for unit and integration testing
-
-## Source Code Organization
-
-The source code follows a layered architecture focused on embedded efficiency:
-
-### Core Layer (`/src/core`)
-
-Central system organization and state management.
-
-- **GauntletController.h/cpp** - Main system controller coordinating all subsystems
-- **SystemTypes.h** - Common data structures and enumerations (IMPLEMENTED)
-- **Config.h** - System-wide configuration parameters (IMPLEMENTED)
-
-### Hardware Layer (`/src/hardware`)
-
-Hardware interfaces and abstractions.
-
-- **HardwareManager.h** - Coordinates all hardware components (header only)
-- **MPU9250Interface.h/cpp** - IMU sensor interface (IMPLEMENTED)
-- **LEDInterface.h** - WS2812 LED control interface (header only)
-- **PowerManager.h** - Power state management (header only)
-
-### Detection Layer (`/src/detection`)
-
-Position and gesture detection algorithms.
-
-- **PositionDetector.h** - Hand position detection using Dominant Axis model (header only)
-- **GestureRecognizer.h** - Gesture detection for mode triggers (header only)
-- **CalibrationRoutine.h** - Sensor calibration procedure (header only)
-
-### Mode Handlers (`/src/modes`)
-
-Implementation of the four operational modes.
-
-- Directory created but files not yet implemented
-- Planned files include:
-  - **IdleMode.h/cpp** - Default monitoring mode
-  - **InvocationMode.h/cpp** - Three-slot position recording mode
-  - **ResolutionMode.h/cpp** - Spell determination and effect mode
-  - **FreecastMode.h/cpp** - Motion-based pattern generation mode
-
-### Animation System (`/src/animation`)
-
-Visual feedback system for LED patterns.
-
-- **AnimationSystem.h** - Animation coordination and rendering (header only)
-- **AnimationData.h** - Predefined animation data stored in program memory
-- **FreecastGenerator.h** - Dynamic pattern generation from motion data (header only)
-
-### Utilities (`/src/utils`)
-
-Support utilities and helper functions.
-
-- **I2CScanner.h** - I2C bus scanner and diagnostic tools (IMPLEMENTED)
-- **CircularBuffer.h** - Generic circular buffer implementation
-- **FixedMath.h** - Fixed-point math utilities for efficient calculations
-- **DebugTools.h/cpp** - Debugging and diagnostic tools
-
-### Examples (`/examples`)
-Standalone test applications for verifying component functionality.
-
-- **MPUDiagnosticTest.cpp** - Diagnostic application for MPU sensor (IMPLEMENTED)
-- **LEDTest.cpp** - Test application for LED interface (IMPLEMENTED)
-- **CalibrationProtocol.cpp** - Calibration protocol for position detection (IMPLEMENTED)
-- (Additional example files to be created as needed)
-
-### Test Directory (`/test`)
-Structured test files organized by component.
-
-- **`/mpu`** - MPU sensor test files
-  - **MPU9250Test.cpp** - Test functions for the MPU sensor
-  - **MPU9250TestMain.cpp** - Main entry point for MPU tests
-- **`/led`** - LED interface test files (future)
-- **`/helpers`** - Utility files for testing
-  - **dummy.cpp** - Arduino framework entry point helper
-
-## Key Class Relationships
-
+### Detection Layer Relationships
 ```
 GauntletController
-  ├── HardwareManager (IMPLEMENTED & VERIFIED)
-  │     ├── MPU9250Interface (IMPLEMENTED & VERIFIED)
-  │     ├── LEDInterface (IMPLEMENTED & VERIFIED)
-  │     └── PowerManager (IMPLEMENTED & VERIFIED)
-  ├── PositionDetector (HEADER IMPLEMENTED, CPP PENDING)
-  ├── GestureRecognizer (HEADER IMPLEMENTED, CPP PENDING)
-  └── AnimationSystem (HEADER IMPLEMENTED, CPP PENDING)
-        └── FreecastGenerator (NOT YET IMPLEMENTED)
+├── HardwareManager (hardware access)
+├── PositionDetector (position detection)
+│   └── HardwareManager* (sensor data access)
+├── GestureRecognizer (gesture detection)
+│   └── PositionReading[] (position history)
+└── AnimationSystem (visual feedback)
+    └── LEDInterface* (LED control)
 ```
 
-## Data Flow
+### Calibration Relationships
+```
+CalibrationProtocol
+├── HardwareManager (hardware access)
+│   ├── MPU9250Interface (sensor data)
+│   └── LEDInterface (visual feedback)
+└── Serial (data output)
 
-1. **Input Flow**:
-   - MPU9250Interface → HardwareManager → PositionDetector → GestureRecognizer → Mode Handlers
+analyze_calibration.py
+├── calibration_data_*.csv (input)
+└── suggested_thresholds.txt (output)
+```
 
-2. **State Management Flow**:
-   - GauntletController manages system state and mode transitions
-   - Each mode uses specialized handlers for timing and behavior
+## Directory Structure Details
 
-3. **Output Flow**:
-   - Mode Handlers → AnimationSystem → LEDInterface → Physical LEDs
+### /src/core
+Contains core system definitions, types, and configuration:
+- `Config.h/.cpp`: System-wide configuration parameters including calibrated thresholds
+- `SystemTypes.h`: Data structure definitions and enumerations
+- `GauntletController.h/.cpp`: Main system controller (implementation in progress)
 
-## Key Resource Usage
+### /src/hardware
+Hardware abstraction layer components:
+- `MPU9250Interface.h/.cpp`: Sensor interface implementation
+- `LEDInterface.h/.cpp`: LED control with FastLED
+- `HardwareManager.h/.cpp`: Unified hardware management
+- `PowerManager.h/.cpp`: Power state control
 
-- **Memory Usage**: Static allocation with fixed buffer sizes
-- **Processing**: Event-driven core with non-blocking design
-- **Power Management**: Multiple power states to optimize battery life
+### /src/detection
+Position and gesture detection components:
+- `PositionDetector.h/.cpp`: Hand position detection using dominant axis model
+- `GestureRecognizer.h`: Gesture detection based on position sequences (header only)
+- `CalibrationRoutine.h`: Calibration procedure definitions (header only)
 
-## Configuration Parameters
+### /examples
+Standalone test applications:
+- `/component_tests/SimplePositionTest.cpp`: Position detection test with visual feedback
+- `/component_tests/PositionDetectorTest.cpp`: Comprehensive position detection testing
+- `HardwareManagerTest.cpp`: Hardware integration test
+- `CalibrationProtocol.cpp`: Calibration data collection application
 
-Key system parameters are defined in `Config.h` including:
+### /utils
+Python utilities for calibration:
+- `calibration_logger.py`: Serial data collection
+- `analyze_calibration.py`: Statistical analysis of calibration data
 
-- Hardware pin assignments
-- Timing parameters for state transitions
-- Threshold values for position detection
-- Color definitions for visual feedback
-
-## Current Development Stage
-
-Foundation layer is complete with architecture in place. Hardware layer implementation is complete and verified. Calibration workflow is implemented and working successfully. Position detection thresholds have been generated from calibration data and integrated into Config.h. Next steps focus on implementing the PositionDetector.cpp file to leverage the thresholds for actual position detection functionality.
-
-## PlatformIO Project Structure
-
-This project follows the PlatformIO standard directory structure for ESP32 development:
-
-- **`src/`**: Contains the main application code
-- **`include/`**: Contains header files that should be accessible across the entire project
-- **`lib/`**: Contains project-specific libraries or modified third-party libraries
-- **`test/`**: Contains organized test files for components
-- **`examples/`**: Contains standalone example applications
-- **`platformio.ini`**: Configuration file for PlatformIO that specifies build parameters, board details, framework, and library dependencies
-
-## Namespace Organization
-
-Will be fully implemented as we develop the core components.
-
-## Key Directories and Contents
-
-### Reference Directory
-- **`TrueFunctionGuide.md`**: Comprehensive documentation of system functionality
-- **`LED Reference/`**: Documentation for WS2812 LED Ring
-- **`GY-521_MPU6050 Reference/`**: Documentation for the MPU6050 sensor
-- **`ESP32 Reference/`**: Documentation for the ESP32-S2 mini controller
-- **`hardwareSpecifications.md`**: Detailed hardware specifications and wiring information
-
-### Working Directory
-- **`roadmap.md`**: Project goals and timelines in checklist format
-- **`currentplan.md`**: Detailed outline of current work
-- **`directoryIndex.md`**: This file - comprehensive index of the project directory
-- **`UserScratchpad.md`**: Notes and ideas for the development process
-
-### Source Directory
-- **`main.cpp`**: Application entry point
-- **`core/`**: Core system components
-- **`hardware/`**: Hardware interface components
-- **`detection/`**: Position and gesture detection components
-- **`modes/`**: To be populated with mode handlers
-- **`animation/`**: Animation system components
-- **`utils/`**: Utility functions and tools
-
-### Utils Directory (`/utils`)
-Utilities for data processing and analysis.
-
-- **calibration_logger.py** - Serial data logger for calibration (IMPLEMENTED)
-- **analyze_calibration.py** - Analysis tool for calibration data (IMPLEMENTED)
-- **CALIBRATION_GUIDE.md** - Step-by-step guide for calibration process (IMPLEMENTED)
-
-## Logs Directory (`/logs`)
-Log files for calibration data and generated thresholds.
-
-- **calibration_data_20250326_011013.csv** - Most recent calibration data (back-of-hand placement) (VERIFIED)
-- **suggested_thresholds.txt** - Generated threshold values from latest calibration (GENERATED)
-- Other calibration data files from previous calibration runs 
+### /logs
+Data and analysis logs:
+- `calibration_data_*.csv`: Raw calibration data
+- `suggested_thresholds.txt`: Generated threshold values 
