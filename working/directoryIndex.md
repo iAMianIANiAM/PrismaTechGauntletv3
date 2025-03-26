@@ -11,6 +11,8 @@
   /animation    - LED animation system
   /utils        - Support utilities
 /examples       - Standalone example applications
+/utils          - Python utilities for data collection and analysis
+/logs           - Data logs and generated thresholds
 ```
 
 ## Current Implementation Focus
@@ -84,19 +86,40 @@
 
 ### Phase 3: Basic Position Detection
 
+#### Completed
+- **Calibration Protocol** (`/examples/CalibrationProtocol.cpp`)
+  - Structured calibration sequence with state machine
+  - Position-specific data collection (30 seconds per position)
+  - LED visual indicators for positions and transitions
+  - Serial data output in CSV format for analysis
+  - Successfully tested on hardware
+
+- **Calibration Utilities** (`/utils/`)
+  - Serial data logger script (`calibration_logger.py`)
+  - Calibration data analysis script (`analyze_calibration.py`)
+  - Threshold generation for position detection
+  - Robust error handling for data capture
+  - Detailed statistical analysis of sensor readings
+
+#### In Progress Implementation
+- **Position Detection Thresholds**
+  - Threshold determination from calibration data
+  - Adaptation for current sensor placement on forearm
+  - Statistical analysis of position distinctiveness
+  - Documentation of threshold values and ranges
+
 #### Pending Implementation
 - **Position Detector** (`/src/detection/PositionDetector.cpp`)
-  - Dominant axis detection algorithm
-  - Position classification logic
+  - Point Detection Model implementation
+  - Position classification based on calibration thresholds
   - Position state management
-  - Filtering and debouncing
-  - Confidence calculation
+  - Integration with hardware manager
 
-- **Position Test Application** (`/examples/PositionTest.cpp`)
-  - Position detection visualization
-  - Position transition demonstration
-  - LED feedback integration
-  - Debug output formatting
+- **Idle Mode** (`/src/modes/IdleMode.cpp`)
+  - Position color visualization
+  - Testing and feedback functionality
+  - Position tracking
+  - Performance monitoring
 
 ## Core Components
 
@@ -113,6 +136,17 @@
 - `HardwareManager`: Hardware resource coordination
   - **Status**: Implementation complete and hardware-verified
   - **Verification**: Successfully tested with integration of MPU and LED components
+
+### Calibration and Analysis
+- `CalibrationProtocol.cpp`: Calibration sequence implementation
+  - **Status**: Implementation complete and hardware-verified
+  - **Verification**: Successfully collected calibration data for all positions
+- `calibration_logger.py`: Data collection utility
+  - **Status**: Implementation complete with robust error handling
+  - **Verification**: Successfully logged calibration data
+- `analyze_calibration.py`: Data analysis utility
+  - **Status**: Implementation complete with statistical analysis capabilities
+  - **Verification**: Successfully generated threshold values from calibration data
 
 ### Core Systems
 - `GauntletController`: System coordination
@@ -169,19 +203,25 @@
   - MPU data processing verification
   - LED display verification
   - Hardware Manager integration verification
+- Calibration Protocol implementation
+  - State machine for sequenced calibration
+  - Visual indicators for positions
+  - Timed data collection for each position
+  - CSV data output format
+- Calibration Data Collection Utilities
+  - Serial data logging
+  - Robust error handling for binary data
+  - CSV file generation with timestamps
+  - Threshold analysis and extraction
 
 ### In Progress
-- Completion of Phase 2 Verification
-  - Memory usage analysis
-  - Performance evaluation
-  - Directory index finalization
-- Preparation for Position Detection
-  - Analysis of filtered sensor data
-  - Determination of position thresholds
-  - Algorithm refinement for dominant axis approach
+- Position Detection System
+  - Threshold validation and adjustment
+  - Consideration for forearm sensor placement
+  - Statistical analysis of position distinctiveness
 
 ### Pending
-- Position detection implementation
+- Position detector implementation
 - Gesture recognition
 - Mode implementation
 - Animation system enhancements
@@ -201,6 +241,14 @@ Utils
   ├── I2CScanner (Implemented & Verified)
   ├── DebugTools
   └── CircularBuffer
+```
+
+### Calibration System
+```
+CalibrationProtocol (Implemented & Verified)
+  └─┬─ calibration_logger.py (Implemented & Verified)
+    └── analyze_calibration.py (Implemented & Verified)
+         └── suggested_thresholds.txt (Generated)
 ```
 
 ### Core Systems
@@ -225,6 +273,10 @@ GauntletController
 - **`examples/LEDTest.cpp`** - LED testing application (VERIFIED)
 - **`examples/HardwareManagerTest.cpp`** - Hardware integration test (VERIFIED)
 - **`src/hardware/PowerManager.h/cpp`** - Power state management (VERIFIED)
+- **`examples/CalibrationProtocol.cpp`** - Calibration protocol implementation (VERIFIED)
+- **`utils/calibration_logger.py`** - Calibration data logging utility (VERIFIED)
+- **`utils/analyze_calibration.py`** - Calibration data analysis utility (VERIFIED)
+- **`logs/suggested_thresholds.txt`** - Generated threshold values
 
 ## Current Development Guidelines
 
@@ -242,6 +294,13 @@ GauntletController
 - Use relative comparisons rather than absolute values
 - Implement hysteresis for threshold detection
 
+### Calibration and Position Detection
+- Adapt to current sensor placement on forearm
+- Focus on statistical analysis for threshold determination
+- Consider multi-axis criteria for position detection
+- Prioritize reliability over sensitivity
+- Implement clear debugging capabilities for position detection
+
 ### Code Organization
 - Keep hardware-specific code isolated
 - Maintain clear interface boundaries
@@ -255,6 +314,14 @@ GauntletController
 - Error condition testing
 - Performance validation
 - Memory usage monitoring
+
+### Position Detection Implementation
+- Implement Point Detection Model with clear threshold boundaries
+- Use simple averaging for noise reduction
+- Avoid complex confidence calculations initially
+- Prioritize clear visual feedback during testing
+- Create distinct zones for positions with well-defined "unknown" areas
+- Validate with thorough testing in Idle Mode
 
 ## Top-Level Directory Structure
 

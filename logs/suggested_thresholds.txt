@@ -1,0 +1,21 @@
+// Suggested thresholds from calibration data analysis
+// Generated from calibration_data_20250325_204208.csv
+
+// OFFER: accelZ > 14691.55
+const float THRESHOLD_OFFER = 14691.55f;
+
+// CALM: accelZ < -1183.37
+const float THRESHOLD_CALM = -1183.37f;
+
+// OATH: accelY < -7391.26
+const float THRESHOLD_OATH = -7391.26f;
+
+// DIG: accelY > 7791.08
+const float THRESHOLD_DIG = 7791.08f;
+
+// SHIELD: accelX < -11517.09
+const float THRESHOLD_SHIELD = -11517.09f;
+
+// NULL: accelX > 427.31
+const float THRESHOLD_NULL = 427.31f;
+

@@ -1,0 +1,181 @@
+# Calibration Data Log
+# Created: 2025-03-25 20:42:08
+# Raw serial output follows:
+
+Calibration complete
+Accel offsets: X=7777 Y=-492 Z=-6807
+Gyro offsets: X=1509 Y=2638 Z=200
+Initializing LED interface...
+Initializing power management...
+Initializing PowerManager
+HardwareManager initialization complete
+Hardware initialized successfully
+
+==================================
+Calibration Protocol Instructions:
+==================================
+1. The gauntlet will start with a 30-second warmup period
+2. After warmup, it will glow the color for the first position
+3. Hold each position for 30 seconds when prompted
+4. A flashing white light indicates transition between positions
+5. Data will be streamed to serial output during collection
+==================================
+
+
+# Calibration Data
+# Format: timestamp,position,accelX,accelY,accelZ,gyroX,gyroY,gyroZ
+# Sample data (approximately one reading per second):
+
+==================================
+Starting 30-second warmup period...
+Get ready to place the gauntlet on your hand
+==================================
+
+Warmup: 20 seconds remaining
+Warmup: 10 seconds remaining
+WARNING: 4 seconds until first position. Get ready!
+WARNING: 2 seconds until first position. Get ready!
+ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ==================================
+Transitioning to: Position: Offer (Purple)
+Z-axis dominant positive
+Hold your hand forward with palm up
+Hold this position for 30 seconds
+==================================
+
+36014,0,-5477,442,14433,-1709,-2467,-127
+38494,0,-5465,440,14625,-1743,-2480,-129
+40994,0,-5617,486,14701,-1455,-2424,-278
+43494,0,-5299,348,14525,-1522,-2446,-204
+Current position: Position: Offer (Purple) - 20 seconds remaining
+45994,0,-5335,308,14393,-1612,-2570,-268
+48494,0,-5249,362,14515,-1688,-2520,-169
+50794,0,-5355,168,14521,-1631,-2703,-454
+53294,0,-5369,-74,14529,-1542,-2444,-55
+55794,0,-5373,140,14473,-1714,-2462,-216
+Current position: Position: Offer (Purple) - 10 seconds remaining
+58294,0,-5243,-92,14729,-1517,-2897,-537
+60794,0,-5471,260,14487,-1690,-2561,-230
+63094,0,-5289,114,14701,-1786,-2629,-46
+65594,0,-5273,72,14411,-1591,-2529,-211
+
+==================================
+Transitioning to: Position: Calm (Yellow)
+Z-axis dominant negative
+Hold your hand forward with palm down
+Hold this position for 30 seconds
+==================================
+
+66194,1,-5327,40,14455,-1520,-2537,-321
+68694,1,-5209,1850,-1015,-1624,-2407,-119
+71194,1,-5159,2348,-1145,-1476,-2369,78
+73694,1,-4759,2064,-1177,-1673,-2345,-167
+Current position: Position: Calm (Yellow) - 20 seconds remaining
+75994,1,-5015,1968,-1515,-1471,-2445,178
+78494,1,-4869,1636,-1083,-1850,-2515,-166
+80994,1,-3793,478,-777,-1476,-2409,-145
+83494,1,-4131,224,-989,-1259,-2347,-255
+Current position: Position: Calm (Yellow) - 10 seconds remaining
+85994,1,-4271,330,-1253,-1532,-3027,-749
+88294,1,-4137,-154,-985,-1550,-2813,-306
+90794,1,-4533,718,-1111,-1799,-2804,-43
+93294,1,-4181,1258,-1061,-1737,-2692,-338
+95794,1,-3227,522,-483,-1512,-2901,-527
+
+==================================
+Transitioning to: Position: Oath (Red)
+Y-axis dominant negative
+Hold your hand pointing upwards
+Hold this position for 30 seconds
+==================================
+
+96154,2,-3681,506,-645,-1502,-2374,-276
+ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ654,2,-5173,-7598,7187,-1302,-1932,-37
+100954,2,-3367,-6694,6233,-1602,-2637,656
+103454,2,-4481,-6960,5159,-1137,-3003,-92
+Current position: Position: Oath (Red) - 20 seconds remaining
+105954,2,-4845,-7030,5495,-742,-2022,1590
+108454,2,-4619,-6900,4897,-2132,-2741,-548
+110954,2,-4871,-7042,5969,-1601,-2506,-13
+113254,2,-4801,-7184,6133,-1251,-2554,-184
+115754,2,-5289,-7192,5989,-1442,-2601,33
+Current position: Position: Oath (Red) - 10 seconds remaining
+118254,2,-5271,-7242,6055,-1537,-2591,-165
+120754,2,-5707,-7224,6295,-1688,-2423,-443
+123254,2,-5693,-7366,6263,-1596,-2421,-244
+125754,2,-5957,-7410,6307,-1701,-2551,-51
+
+==================================
+Transitioning to: Position: Dig (Green)
+Y-axis dominant positive
+Hold your hand pointing downwards
+Hold this position for 30 seconds
+==================================
+
+126154,3,-5961,-7440,6215,-1534,-2417,-160
+128654,3,-6323,8174,9509,-1636,-2567,-264
+131154,3,-5997,7862,10019,-1735,-2747,-203
+133654,3,-5831,7924,9831,-1546,-2662,-292
+Current position: Position: Dig (Green) - 20 seconds remaining
+136154,3,-5955,7964,9611,-1605,-2544,-195
+138654,3,-5989,8042,9257,-1628,-2658,-171
+140954,3,-5901,7902,9563,-1575,-2452,-227
+143454,3,-6133,7886,9763,-1583,-2588,-148
+Current position: Position: Dig (Green) - 10 seconds remaining
+145954,3,-5073,5254,12437,-516,-2252,168
+148454,3,-4807,7056,10971,-1644,-2524,-207
+150954,3,-5001,6926,11393,-1578,-2392,-285
+153254,3,-4703,6972,10943,-1109,-2487,-387
+155754,3,-4945,6850,11029,-1476,-2657,-278
+
+==================================
+Transitioning to: Position: Shield (Blue)
+X-axis dominant negative
+Hold your hand to the side with palm out
+Hold this position for 30 seconds
+==================================
+
+156094,4,-4883,6890,11133,-1710,-2493,-216
+158594,4,-11001,-220,-969,-1809,-3464,288
+161094,4,-11211,-122,-791,-1732,-2094,-969
+163594,4,-10707,-954,-1059,-1631,-2069,-57
+Current position: Position: Shield (Blue) - 20 seconds remaining
+165894,4,-10957,-434,-1205,-1540,-2473,-31
+168394,4,-10929,218,-661,-996,-2040,-152
+170894,4,-11035,-610,-885,-1769,-2605,-504
+173394,4,-11269,-1186,-441,-1863,-2833,-542
+Current position: Position: Shield (Blue) - 10 seconds remaining
+175894,4,-11757,-978,-621,-1777,-2885,-437
+178194,4,-11347,-1174,-657,-1523,-2393,4
+180694,4,-10955,-866,-1153,-1587,-2270,64
+183194,4,-10625,-746,-1155,-1406,-2577,58
+185694,4,-10571,-780,-863,-1454,-2363,105
+
+==================================
+Transitioning to: Position: Null (Orange)
+X-axis dominant positive
+Hold your hand to the side with palm in
+Hold this position for 30 seconds
+==================================
+
+186054,5,-10815,-654,-1237,-1368,-2499,264
+188554,5,77,-660,6189,-2299,-2297,84
+190854,5,237,-112,6579,-1563,-3064,-774
+193354,5,651,-346,6737,-1830,-2207,-350
+195854,5,113,-316,6219,-1512,-2384,-64
+Current position: Position: Null (Orange) - 20 seconds remaining
+198354,5,343,-82,6601,-1831,-2821,-164
+200854,5,593,224,6691,-1816,-2539,-317
+203154,5,425,194,6729,-1730,-2590,-264
+205654,5,537,130,6391,-1685,-2807,-220
+Current position: Position: Null (Orange) - 10 seconds remaining
+208154,5,477,244,5753,-1517,-2397,-131
+210654,5,529,262,6027,-1458,-2501,-336
+213154,5,349,372,6195,-1653,-2567,-234
+215654,5,407,488,6321,-1352,-2409,-232
+
+==================================
+Transitioning to: Calibration Complete
+Calibration complete! Data collection finished.
+You can now analyze the collected data.
+==================================
+

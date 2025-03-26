@@ -175,59 +175,138 @@ The project has made significant progress with the successful implementation and
    - Power state transitions are smooth and appropriate
    - Error handling is robust and informative
 
-3. **Next focus areas**:
-   - Refine position detection using dominant axis approach
-   - Implement filtering for sensor data stability
-   - Develop gesture recognition based on position transitions
-   - Begin implementation of operational modes
+3. **Current focus areas**:
+   - Finalize position detection thresholds based on calibration data
+   - Develop position detector implementation using dominant axis model
+   - Adapt thresholds for current forearm sensor placement
+   - Implement Idle Mode for position visualization and testing
 
-This successful hardware integration provides a solid foundation for the next phases of development focused on position detection and gesture recognition.
+## Position Detection System Implementation Plan
 
-### MPU9250 Data Processing Implementation ✅
+### 1. Calibration Protocol ✅
+The calibration protocol has been implemented following the approach outlined in the project documentation:
 
-#### Implementation Completed
-- [x] Basic Filtering Implementation
-  - [x] Simple averaging filter for sensor data
-  - [x] Circular buffer for sample storage
-  - [x] Raw vs. filtered data comparison
-  - [x] Sample count configuration
-- [x] Data Validation Checks
-  - [x] Out-of-range value detection
-  - [x] Repeated identical readings detection
-  - [x] Variation monitoring
-  - [x] Sensor health tracking
-- [x] Error State Management
-  - [x] Improved error detection
-  - [x] Recovery procedures enhancement
-  - [x] Diagnostic test improvements
-  - [x] Auto-recovery from common issues
-- [x] Motion Analysis Tools
-  - [x] Motion magnitude calculation
-  - [x] Maximum axis data collection
-  - [x] Time-based sampling
-  - [x] Data validation integration
-- [x] Comprehensive Testing
-  - [x] Created MPUFilterTest example
-  - [x] Side-by-side raw vs filtered data comparison
-  - [x] Data validation verification
-  - [x] Maximum axis data demonstration
+- **Calibration Sequence**:
+  - 30-second warmup with visual indicator
+  - 30-second data collection for each of the six hand positions
+  - 5-second transitions between positions
+  - Complete data collection via serial output
 
-#### Hardware Verification
-- [x] Basic filtering tested on the ESP32
-- [x] Verified successful error recovery procedures
-- [x] Confirmed motion magnitude calculation accuracy
-- [x] Validated sensor data consistency checks
+- **Position Order**:
+  1. Offer (Purple): Z-axis dominant positive
+  2. Calm (Yellow): Z-axis dominant negative
+  3. Oath (Red): Y-axis dominant negative
+  4. Dig (Green): Y-axis dominant positive
+  5. Shield (Blue): X-axis dominant negative
+  6. Null (Orange): X-axis dominant positive
 
-### Next Steps
-1. ~~Implement MPU9250 Data Processing~~ ✅
-2. Complete Phase 2 Verification
-   - [x] Hardware integration validation
-   - [ ] Memory usage and performance analysis
-   - [ ] Update directory index documentation
-3. Begin Position Detection Implementation
-   - Implement dominant axis detection algorithm
-   - Create position state management
-   - Integrate with LED interface for visual feedback
+- **Implementation Details**:
+  - Created CalibrationProtocol.cpp in examples directory
+  - Leveraged existing HardwareManager and LED interface
+  - Implemented state machine for calibration phases
+  - Generated formatted CSV output for analysis
+
+- **Data Collection & Analysis Utilities**:
+  - Simple Python script (calibration_logger.py) to capture serial output
+  - Data is saved to timestamped CSV files in a logs directory
+  - Analysis script (analyze_calibration.py) processes calibration data
+  - Automatically generates suggested threshold values for position detection
+  - Provides statistical analysis of sensor readings for each position
+
+### 2. Position Detection Thresholds (In Progress)
+
+Initial calibration has been completed with the sensor now placed on the forearm rather than the back of the hand. This new placement presents some detection challenges:
+
+- **Current Findings**:
+  - Reduced articulation range due to forearm placement versus hand placement
+  - Increased variability in readings for some positions
+  - Some positions show inconsistent dominant axis behavior
+  - OFFER position shows excellent consistency and distinctiveness
+  - CALM, NULL, and SHIELD positions show more variability and overlap
+
+- **Threshold Adjustment Strategy**:
+  - Review the automatically generated thresholds
+  - Consider manual adjustments based on actual readings
+  - Explore multi-axis detection for positions with high variability
+  - Test thresholds with real-world use cases
+  - Implement debug output to fine-tune detection
+
+- **Adaptation Considerations**:
+  - Sensor placement on forearm affects the detection sensitivity
+  - May require more conservative thresholds with larger buffer zones
+  - Some positions may require redefinition for reliable detection
+  - Statistical analysis provides basis for threshold determination
+  - Will implement position detector with adjustable thresholds for tuning
+
+### 3. Position Detector Implementation
+Once calibration data is analyzed and thresholds are finalized, we will implement the PositionDetector:
+
+- **Core Functionality**:
+  - Point Detection Model with distinct thresholds for each position
+  - Simple averaging filter to reduce sensor noise
+  - Clear detection zones with POS_UNKNOWN for areas between positions
+  - Immediate position transitions when thresholds are crossed
+
+- **Implementation Details**:
+  - Create PositionDetector.cpp implementing the header interface
+  - Apply thresholds determined from calibration data
+  - Implement the six axis detection methods defined in the header
+  - Ensure clean integration with HardwareManager
+
+### 4. Idle Mode Implementation
+The Idle Mode will serve as both core functionality and testing platform:
+
+- **Functionality**:
+  - Position visualization using four LEDs at positions 0, 3, 6, and 9
+  - Color feedback corresponding to detected hand position
+  - Serial output for detailed position and sensor data
+  - Performance metrics for position detection
+
+- **Testing Capabilities**:
+  - Real-time visual feedback for position detection
+  - Position stability evaluation
+  - Transition responsiveness testing
+  - Threshold validation in real-world usage
+
+### Verification Strategy
+The implementation will be verified at several key checkpoints:
+
+1. **Calibration Protocol Verification** ✅
+   - Complete execution of calibration sequence
+   - Proper LED indicators throughout the process
+   - Complete data collection via serial
+   - Successful generation of threshold values
+
+2. **Position Detector Verification**
+   - Detection of all six positions
+   - Proper handling of POS_UNKNOWN state
+   - Responsive transitions between positions
+   - Stability when maintaining a position
+
+3. **Performance Metrics**
+   - Detection reliability percentage
+   - Detection response time
+   - Position stability measurement
+   - Memory and CPU usage during detection
+
+## Next Steps
+
+1. Review and finalize position detection thresholds
+   - Adjust the automatically generated thresholds as needed
+   - Consider multi-axis detection criteria for challenging positions
+   - Document threshold determination approach in working documents
+
+2. Implement PositionDetector class
+   - Use finalized thresholds from calibration
+   - Implement all detection methods specified in the header
+   - Add debug output for detection troubleshooting
+   - Test with hardware and verify detection accuracy
+
+3. Implement Idle Mode for testing
+   - Create visual feedback for current detected position
+   - Implement serial diagnostic output
+   - Design interface for threshold adjustment during testing
+   - Document performance metrics and detection reliability
 
 ## Directory Structure
 
