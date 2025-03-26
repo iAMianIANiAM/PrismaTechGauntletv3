@@ -4,8 +4,13 @@
 #include <Arduino.h>
 #include "../core/SystemTypes.h"
 
-// Comment this line to disable debug output
-#define DEBUG_ENABLED
+// Check for calibration flag first - if it's defined, debug will be disabled
+#ifdef CALIBRATION_DISABLE_DEBUG
+  #undef DEBUG_ENABLED
+#else
+  // Comment this line to disable debug output
+  #define DEBUG_ENABLED
+#endif
 
 /**
  * @brief Debug output utilities

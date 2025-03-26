@@ -196,6 +196,11 @@ def analyze_calibration_data(file_path):
             f.write("// Suggested thresholds from calibration data analysis\n")
             f.write(f"// Generated from {Path(file_path).name}\n\n")
             
+            # Add metadata section for manual completion
+            f.write("// Sensor placement: [EDIT HERE - back-of-hand/forearm/etc]\n")
+            f.write("// Sensor orientation: [EDIT HERE - face-down/face-up/etc]\n")
+            f.write("// Additional notes: [any special considerations]\n\n")
+            
             for position, data in position_thresholds.items():
                 f.write(f"// {position}: {data['axis']} {data['comparator']} {data['threshold']:.2f}\n")
                 

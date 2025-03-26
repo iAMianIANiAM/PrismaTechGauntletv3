@@ -1,21 +1,25 @@
 // Suggested thresholds from calibration data analysis
-// Generated from calibration_data_20250325_204208.csv
+// Generated from calibration_data_20250326_011013.csv
 
-// OFFER: accelZ > 14691.55
-const float THRESHOLD_OFFER = 14691.55f;
+// Sensor placement: back-of-hand
+// Sensor orientation: face-down
+// Additional notes: MPU9250 sensor mounted on the back of hand
 
-// CALM: accelZ < -1183.37
-const float THRESHOLD_CALM = -1183.37f;
+// OFFER: accelZ > 18900.09
+const float THRESHOLD_OFFER = 18900.09f;
 
-// OATH: accelY < -7391.26
-const float THRESHOLD_OATH = -7391.26f;
+// CALM: accelZ < 2014.40
+const float THRESHOLD_CALM = 2014.40f;
 
-// DIG: accelY > 7791.08
-const float THRESHOLD_DIG = 7791.08f;
+// OATH: accelY < -12475.42
+const float THRESHOLD_OATH = -12475.42f;
 
-// SHIELD: accelX < -11517.09
-const float THRESHOLD_SHIELD = -11517.09f;
+// DIG: accelY > 3106.71
+const float THRESHOLD_DIG = 3106.71f;
 
-// NULL: accelX > 427.31
-const float THRESHOLD_NULL = 427.31f;
+// SHIELD: accelX < -14224.77
+const float THRESHOLD_SHIELD = -14224.77f;
+
+// NULL: accelX > 1281.05
+const float THRESHOLD_NULL = 1281.05f;
 

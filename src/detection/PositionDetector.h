@@ -32,17 +32,22 @@ public:
    */
   PositionReading getCurrentPosition() const;
   
+#ifdef TEST_MODE
   /**
-   * @brief Calibrate the position detection thresholds
+   * @brief TESTING ONLY: Calibrate the position detection thresholds
+   * @note This method is only for testing, not for production use.
+   *       Calibration is performed via a separate calibration utility.
    * @return True if calibration was successful
    */
   bool calibrate();
   
   /**
-   * @brief Set custom thresholds for position detection
-   * @param threshold Axis threshold value
+   * @brief TESTING ONLY: Set custom thresholds for position detection
+   * @note This method is only for testing, not for production use.
+   * @param threshold Axis threshold value (deprecated - thresholds now in Config.h)
    */
   void setThreshold(uint16_t threshold);
+#endif // TEST_MODE
 
 private:
   // Hardware reference
@@ -54,9 +59,6 @@ private:
   // Historical data for averaging
   SensorData recentSamples[POSITION_AVERAGE_SAMPLES];
   uint8_t sampleIndex = 0;
-  
-  // Threshold for dominant axis detection
-  uint16_t axisThreshold = 1500;
   
   // Internal processing methods
   uint8_t determinePositionFromAxes(const SensorData& averagedData);

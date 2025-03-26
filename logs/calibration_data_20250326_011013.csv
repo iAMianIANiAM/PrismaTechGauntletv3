@@ -1,0 +1,234 @@
+# Calibration Data Log
+# Created: 2025-03-26 01:10:13
+# Raw serial output follows:
+
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:1184
+load:0x40078000,len:13232
+load:0x40080400,len:3028
+entry 0x400805e4
+
+==================================
+PrismaTech Gauntlet 3.0 - Calibration Protocol
+==================================
+
+Initializing hardware...
+Initializing HardwareManager...
+Initializing MPU sensor...
+Testing MPU at address 0x68
+Device found on I2C bus
+MPU sensor address set to 0x68
+Resetting MPU sensor...
+Initializing MPU sensor on I2C address 0x68
+[  1461][E][Wire.cpp:416] beginTransmission(): Unfinished Repeated Start transaction! Expected requestFrom, not beginTransmission! Clearing...
+MPU WHO_AM_I register value: 0x70
+Valid MPU sensor identified
+Detected MPU variant (possibly MPU6000)
+Resetting MPU sensor...
+Waking up sensor...
+Setting sample rate to 125Hz...
+Configuring accelerometer to ±4g range...
+Configuring gyroscope to ±500 deg/s range...
+Configuring digital low pass filter...
+MPU sensor initialization complete
+MPU sensor initialized successfully
+Calibrating MPU sensor...
+MPU calibration starting...
+Keep the device still for 2 seconds
+Calibration complete
+Accel offsets: X=6672 Y=4390 Z=-10622
+Gyro offsets: X=-100 Y=126 Z=-26
+Initializing LED interface...
+Initializing power management...
+Initializing PowerManager
+HardwareManager initialization complete
+Hardware initialized successfully
+
+==================================
+Calibration Protocol Instructions:
+==================================
+1. The gauntlet will start with a 30-second warmup period
+2. After warmup, it will glow the color for the first position
+3. Hold each position for 30 seconds when prompted
+4. A flashing white light indicates transition between positions
+5. Data will be streamed to serial output during collection
+==================================
+
+# PrismaTech Gauntlet 3.0 Calibration Data
+# =====================================
+# Date: 1970-01-01 00:00:05
+# IMPORTANT: Record these details for this calibration run:
+# Sensor placement (back-of-hand/forearm/etc): 
+# Sensor orientation (face-down/face-up/etc): 
+# Additional notes: 
+# =====================================
+timestamp,position,accelX,accelY,accelZ,gyroX,gyroY,gyroZ
+
+==================================
+Starting 30-second warmup period...
+Get ready to place the gauntlet on your hand
+==================================
+
+Warmup: 20 seconds remaining
+Warmup: 10 seconds remaining
+WARNING: 4 seconds until first position. Get ready!
+WARNING: 2 seconds until first position. Get ready!
+
+==================================
+Transitioning to: Position: Offer (Purple)
+Z-axis dominant positive
+Hold your hand forward with palm up
+Hold this position for 30 seconds
+==================================
+
+36014,0,-6636,-3634,18710,44,-132,426
+38513,0,-6878,-3704,18508,-465,-148,47
+41013,0,-6752,-3906,18834,52,221,143
+43513,0,-6656,-3860,18466,-119,573,19
+Current position: Position: Offer (Purple) - 20 seconds remaining
+46013,0,-6466,-3856,18784,-648,-773,6
+48513,0,-6896,-4276,18798,79,43,-287
+50813,0,-6684,-4134,18950,293,-133,-463
+53313,0,-6712,-4112,18680,-6,8,4
+55813,0,-6852,-4124,18674,-67,217,270
+Current position: Position: Offer (Purple) - 10 seconds remaining
+58313,0,-6888,-4244,18642,101,93,413
+60813,0,-6856,-4052,18708,17,24,97
+63113,0,-6890,-4156,18690,-71,163,216
+65613,0,-6906,-4112,18662,-41,-36,-137
+
+==================================
+Transitioning to: Position: Calm (Yellow)
+Z-axis dominant negative
+Hold your hand forward with palm down
+Hold this position for 30 seconds
+==================================
+
+66213,1,-6778,-4106,18826,-37,-10,157
+68713,1,-5742,-4536,2100,-723,225,36
+71213,1,-6256,-4214,2178,-555,-268,-83
+73713,1,-6492,-4420,2146,124,-86,303
+Current position: Position: Calm (Yellow) - 20 seconds remaining
+76013,1,-6580,-4410,2080,129,-18,453
+78513,1,-6734,-4616,2140,163,83,23
+81013,1,-6650,-4870,2204,-50,21,14
+83513,1,-6452,-4704,2010,-20,-23,-219
+Current position: Position: Calm (Yellow) - 10 seconds remaining
+86013,1,-6572,-4592,1962,49,73,136
+88313,1,-6092,-4324,2014,-491,224,141
+90813,1,-6128,-3486,2040,1498,-244,1079
+93313,1,-6156,-3808,1680,540,-30,-3170
+95813,1,-5752,-5004,2196,-96,239,555
+
+==================================
+Transitioning to: Position: Oath (Red)
+Y-axis dominant negative
+Hold your hand pointing upwards
+Hold this position for 30 seconds
+==================================
+
+96153,2,-5898,-4812,2146,-203,27,-261
+98653,2,-7228,-12318,10618,229,181,287
+100953,2,-6400,-12384,11924,-195,-71,-139
+103453,2,-6976,-12400,11834,-235,333,122
+Current position: Position: Oath (Red) - 20 seconds remaining
+105953,2,-6970,-12432,11230,-542,-644,256
+108453,2,-6876,-12456,11832,240,53,-263
+110953,2,-6656,-12484,11942,304,-135,-599
+113253,2,-6622,-12624,11674,247,426,-243
+115753,2,-6714,-12554,10932,279,234,-144
+Current position: Position: Oath (Red) - 10 seconds remaining
+118253,2,-6478,-12396,11372,531,-47,38
+120753,2,-6236,-12534,11222,-156,-49,73
+123253,2,-6008,-12514,11606,-80,46,-62
+125753,2,-6232,-12546,11134,-554,53,246
+
+==================================
+Transitioning to: Position: Dig (Green)
+Y-axis dominant positive
+Hold your hand pointing downwards
+Hold this position for 30 seconds
+==================================
+
+126153,3,-6820,-12608,10600,-45,184,245
+128653,3,-6062,3434,14028,559,-846,-212
+131153,3,-6738,2890,14148,256,-244,146
+133653,3,-6872,2754,14652,68,70,30
+Current position: Position: Dig (Green) - 20 seconds remaining
+136153,3,-6742,3030,14362,125,154,-184
+138653,3,-6838,2822,14312,-420,-351,205
+140953,3,-6522,2626,14602,144,421,-168
+143453,3,-6516,2892,13932,-329,350,-107
+Current position: Position: Dig (Green) - 10 seconds remaining
+145953,3,-6396,2874,14208,301,317,473
+148453,3,-6288,2980,14432,-200,-339,138
+150953,3,-6276,3090,13124,1156,-813,879
+153253,3,-6132,3226,13172,-55,98,163
+155753,3,-5976,3358,13718,-133,-125,35
+
+==================================
+Transitioning to: Position: Shield (Blue)
+X-axis dominant negative
+Hold your hand to the side with palm out
+Hold this position for 30 seconds
+==================================
+
+156113,4,-6084,3098,13420,-35,-264,-46
+158613,4,-14114,-5516,7704,95,-335,-281
+161113,4,-13892,-5700,7210,-359,80,-246
+163613,4,-13834,-5444,7056,144,-23,95
+Current position: Position: Shield (Blue) - 20 seconds remaining
+165913,4,-13818,-5516,6740,251,-347,319
+168413,4,-13998,-5964,7300,-478,-410,-355
+170913,4,-14104,-6068,7624,189,-262,38
+173413,4,-14430,-5510,8466,517,603,-159
+Current position: Position: Shield (Blue) - 10 seconds remaining
+175913,4,-14164,-5814,7748,-55,393,-14
+178213,4,-13956,-6318,7530,-332,-525,-316
+180713,4,-14208,-6182,7490,565,319,202
+183213,4,-14064,-5958,7778,-685,-222,110
+185713,4,-13584,-6340,6902,-383,-191,-368
+
+==================================
+Transitioning to: Position: Null (Orange)
+X-axis dominant positive
+Hold your hand to the side with palm in
+Hold this position for 30 seconds
+==================================
+
+186053,5,-13778,-6052,6830,-210,-83,252
+188553,5,1452,-4142,11012,-146,38,-625
+190853,5,1568,-4030,12926,-414,-403,-443
+193353,5,1316,-4212,12770,-658,140,-289
+195853,5,1196,-4296,12948,38,-102,98
+Current position: Position: Null (Orange) - 20 seconds remaining
+198353,5,890,-4562,12984,429,-90,660
+200853,5,1282,-4718,13086,262,29,-141
+203153,5,1188,-4554,13000,33,43,-758
+205653,5,1474,-3776,12542,44,-430,-111
+Current position: Position: Null (Orange) - 10 seconds remaining
+208153,5,1102,-3398,11996,302,-45,813
+210653,5,1332,-3458,12158,162,-328,-74
+213153,5,1242,-3240,12372,-160,30,-104
+215653,5,1468,-3364,12670,-374,-353,-472
+
+==================================
+Transitioning to: Calibration Complete
+Calibration complete! Data collection finished.
+You can now analyze the collected data.
+
+==================================
+Next steps:
+1. Make sure you've saved the calibration data
+2. Run 'python utils/analyze_calibration.py logs/calibration_data_TIMESTAMP.csv'
+3. Copy the thresholds from logs/suggested_thresholds.txt to your code
+4. Remember to note the sensor placement and orientation!
+==================================
+
+==================================
+

@@ -164,15 +164,20 @@ void updateLEDs() {
       
       if (elapsedTime < WARMUP_DURATION - WARMUP_WARNING_DURATION) {
         // Soft white pulsing during warmup
+        uint8_t newPulseValue;
         if (pulseIncreasing) {
-          pulseValue = min(100, pulseValue + 2);
-          if (pulseValue >= 100) pulseIncreasing = false;
+          newPulseValue = min(100, pulseValue + 2);
+          if (newPulseValue >= 100) pulseIncreasing = false;
         } else {
-          pulseValue = max(20, pulseValue - 2);
-          if (pulseValue <= 20) pulseIncreasing = true;
+          newPulseValue = max(20, pulseValue - 2);
+          if (newPulseValue <= 20) pulseIncreasing = true;
         }
         
-        hardware->setBrightness(pulseValue);
+        // Only update if the value actually changed
+        if (newPulseValue != pulseValue) {
+          pulseValue = newPulseValue;
+          hardware->setBrightness(pulseValue);
+        }
         Color white = {255, 255, 255};
         hardware->setAllLEDs(white);
       } else {
@@ -199,9 +204,17 @@ void updateLEDs() {
       // Create the right color for this position
       uint8_t position = getPositionForState(currentState);
       
-      // Use a local LEDInterface to get the position color
-      LEDInterface ledInterface;
-      Color posColor = ledInterface.getColorForPosition(position);
+      // Get position color directly from Config
+      Color posColor;
+      switch(position) {
+        case POS_OFFER:  posColor = {Config::Colors::OFFER_COLOR[0], Config::Colors::OFFER_COLOR[1], Config::Colors::OFFER_COLOR[2]}; break;
+        case POS_CALM:   posColor = {Config::Colors::CALM_COLOR[0], Config::Colors::CALM_COLOR[1], Config::Colors::CALM_COLOR[2]}; break;
+        case POS_OATH:   posColor = {Config::Colors::OATH_COLOR[0], Config::Colors::OATH_COLOR[1], Config::Colors::OATH_COLOR[2]}; break;
+        case POS_DIG:    posColor = {Config::Colors::DIG_COLOR[0], Config::Colors::DIG_COLOR[1], Config::Colors::DIG_COLOR[2]}; break;
+        case POS_SHIELD: posColor = {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}; break;
+        case POS_NULL:   posColor = {Config::Colors::NULL_COLOR[0], Config::Colors::NULL_COLOR[1], Config::Colors::NULL_COLOR[2]}; break;
+        default:         posColor = {255, 255, 255}; break;
+      }
       
       // Set the color through the hardware manager
       hardware->setBrightness(150);
@@ -211,15 +224,20 @@ void updateLEDs() {
     
     case STATE_COMPLETE: {
       // Completion pulse white
+      uint8_t newPulseValue;
       if (pulseIncreasing) {
-        pulseValue = min(180, pulseValue + 5);
-        if (pulseValue >= 180) pulseIncreasing = false;
+        newPulseValue = min(180, pulseValue + 5);
+        if (newPulseValue >= 180) pulseIncreasing = false;
       } else {
-        pulseValue = max(30, pulseValue - 5);
-        if (pulseValue <= 30) pulseIncreasing = true;
+        newPulseValue = max(30, pulseValue - 5);
+        if (newPulseValue <= 30) pulseIncreasing = true;
       }
       
-      hardware->setBrightness(pulseValue);
+      // Only update if the value actually changed
+      if (newPulseValue != pulseValue) {
+        pulseValue = newPulseValue;
+        hardware->setBrightness(pulseValue);
+      }
       Color white = {255, 255, 255};
       hardware->setAllLEDs(white);
       break;
@@ -252,7 +270,33 @@ void transitionToNextState() {
   samplesCollected = 0;
   
   // Move to next state
-  currentState = static_cast<CalibrationState>(currentState + 1);
+  switch (currentState) {
+    case STATE_WARMUP:
+      currentState = STATE_POSITION_OFFER;
+      break;
+    case STATE_POSITION_OFFER:
+      currentState = STATE_POSITION_CALM;
+      break;
+    case STATE_POSITION_CALM:
+      currentState = STATE_POSITION_OATH;
+      break;
+    case STATE_POSITION_OATH:
+      currentState = STATE_POSITION_DIG;
+      break;
+    case STATE_POSITION_DIG:
+      currentState = STATE_POSITION_SHIELD;
+      break;
+    case STATE_POSITION_SHIELD:
+      currentState = STATE_POSITION_NULL;
+      break;
+    case STATE_POSITION_NULL:
+      currentState = STATE_COMPLETE;
+      break;
+    default:
+      break;
+  }
+  
+  // Reset state timing
   stateStartTime = millis();
   
   // Print state change information
@@ -269,6 +313,13 @@ void transitionToNextState() {
   } else {
     Serial.println("Calibration complete! Data collection finished.");
     Serial.println("You can now analyze the collected data.");
+    Serial.println("\n==================================");
+    Serial.println("Next steps:");
+    Serial.println("1. Make sure you've saved the calibration data");
+    Serial.println("2. Run 'python utils/analyze_calibration.py logs/calibration_data_TIMESTAMP.csv'");
+    Serial.println("3. Copy the thresholds from logs/suggested_thresholds.txt to your code");
+    Serial.println("4. Remember to note the sensor placement and orientation!");
+    Serial.println("==================================\n");
   }
   Serial.print("==================================\n\n");
   
@@ -326,9 +377,20 @@ void printStatusUpdate() {
 }
 
 void printCSVHeader() {
-  Serial.println("\n# Calibration Data");
-  Serial.println("# Format: timestamp,position,accelX,accelY,accelZ,gyroX,gyroY,gyroZ");
-  Serial.println("# Sample data (approximately one reading per second):");
+  // Get timestamp for this calibration run
+  char timestamp[24];
+  time_t now = time(nullptr);
+  strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", localtime(&now));
+  
+  Serial.println("# PrismaTech Gauntlet 3.0 Calibration Data");
+  Serial.println("# =====================================");
+  Serial.println(String("# Date: ") + timestamp);
+  Serial.println("# IMPORTANT: Record these details for this calibration run:");
+  Serial.println("# Sensor placement (back-of-hand/forearm/etc): ");  
+  Serial.println("# Sensor orientation (face-down/face-up/etc): ");
+  Serial.println("# Additional notes: ");
+  Serial.println("# =====================================");
+  Serial.println("timestamp,position,accelX,accelY,accelZ,gyroX,gyroY,gyroZ");
 }
 
 void outputSampleCSV(const SensorData& sample, uint8_t position) {

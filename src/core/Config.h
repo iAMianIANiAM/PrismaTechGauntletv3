@@ -27,6 +27,15 @@ namespace Config {
   constexpr uint8_t MIN_CONFIDENCE = 60;        // Minimum confidence for position change
   constexpr uint16_t DEBOUNCE_TIME_MS = 100;    // Position debounce time
   
+  // Position detection thresholds (calibrated for back-of-hand mounting)
+  // From calibration_data_20250326_011013.csv
+  constexpr float THRESHOLD_OFFER = 18900.09f;    // accelZ > threshold
+  constexpr float THRESHOLD_CALM = 2014.40f;      // accelZ < threshold
+  constexpr float THRESHOLD_OATH = -12475.42f;    // accelY < threshold
+  constexpr float THRESHOLD_DIG = 3106.71f;       // accelY > threshold
+  constexpr float THRESHOLD_SHIELD = -14224.77f;  // accelX < threshold
+  constexpr float THRESHOLD_NULL = 1281.05f;      // accelX > threshold
+  
   // Timing parameters
   constexpr uint16_t CALMOFFER_WINDOW_MS = 1000;  // Time window for CalmOffer gesture
   constexpr uint16_t LONGNULL_TIME_MS = 5000;     // Time required for LongNull gesture

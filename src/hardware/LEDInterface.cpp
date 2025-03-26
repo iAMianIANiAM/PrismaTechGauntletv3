@@ -24,8 +24,10 @@ bool LEDInterface::init() {
     ledBuffer[i] = {0, 0, 0};
   }
   
+#ifndef SUPPRESS_LED_DEBUG
   DEBUG_PRINTF("LED Interface initialized on pin %d\n", Config::LED_DATA_PIN);
   DEBUG_PRINTF("Brightness set to %d\n", brightness);
+#endif
   
   return true;
 }
@@ -34,7 +36,9 @@ void LEDInterface::setLED(uint8_t index, const Color& color) {
   if (index < Config::NUM_LEDS) {
     ledBuffer[index] = color;
   } else {
+#ifndef SUPPRESS_LED_DEBUG
     DEBUG_PRINTF("WARNING: LED index out of bounds: %d\n", index);
+#endif
   }
 }
 
@@ -47,8 +51,10 @@ void LEDInterface::setAllLEDs(const Color& color) {
 void LEDInterface::setLEDRange(uint8_t startIndex, uint8_t count, const Color& color) {
   uint8_t endIndex = startIndex + count - 1;
   if (endIndex >= Config::NUM_LEDS) {
+#ifndef SUPPRESS_LED_DEBUG
     DEBUG_PRINTF("WARNING: LED range partially out of bounds: %d to %d\n", 
                  startIndex, endIndex);
+#endif
     endIndex = Config::NUM_LEDS - 1;
   }
   
@@ -61,7 +67,10 @@ void LEDInterface::setBrightness(uint8_t newBrightness) {
   brightness = newBrightness;
   FastLED.setBrightness(brightness);
   
+  // Only print debug message if not suppressed for calibration
+#ifndef SUPPRESS_LED_DEBUG
   DEBUG_PRINTF("LED brightness set to %d\n", brightness);
+#endif
 }
 
 void LEDInterface::show() {
@@ -85,7 +94,9 @@ void LEDInterface::clear() {
   FastLED.clear();
   FastLED.show();
   
+#ifndef SUPPRESS_LED_DEBUG
   DEBUG_PRINTLN("LEDs cleared");
+#endif
 }
 
 Color LEDInterface::getColorForPosition(uint8_t position) const {

@@ -1,0 +1,439 @@
+# Calibration Data Log
+# Created: 2025-03-26 01:00:43
+# Raw serial output follows:
+
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:1184
+load:0x40078000,len:13232
+load:0x40080400,len:3028
+entry 0x400805e4
+
+==================================
+PrismaTech Gauntlet 3.0 - Calibration Protocol
+==================================
+
+Initializing hardware...
+Initializing HardwareManager...
+Initializing MPU sensor...
+Testing MPU at address 0x68
+Device found on I2C bus
+MPU sensor address set to 0x68
+Resetting MPU sensor...
+Initializing MPU sensor on I2C address 0x68
+[  1461][E][Wire.cpp:416] beginTransmission(): Unfinished Repeated Start transaction! Expected requestFrom, not beginTransmission! Clearing...
+MPU WHO_AM_I register value: 0x70
+Valid MPU sensor identified
+Detected MPU variant (possibly MPU6000)
+Resetting MPU sensor...
+Waking up sensor...
+Setting sample rate to 125Hz...
+Configuring accelerometer to ±4g range...
+Configuring gyroscope to ±500 deg/s range...
+Configuring digital low pass filter...
+MPU sensor initialization complete
+MPU sensor initialized successfully
+Calibrating MPU sensor...
+MPU calibration starting...
+Keep the device still for 2 seconds
+Calibration complete
+Accel offsets: X=763 Y=-546 Z=-16759
+Gyro offsets: X=-249 Y=-537 Z=-308
+Initializing LED interface...
+LED Interface initialized on pin 12
+Brightness set to 100
+LED brightness set to 100
+Initializing power management...
+Initializing PowerManager
+LED brightness set to 100
+HardwareManager initialization complete
+Hardware initialized successfully
+
+==================================
+Calibration Protocol Instructions:
+==================================
+1. The gauntlet will start with a 30-second warmup period
+2. After warmup, it will glow the color for the first position
+3. Hold each position for 30 seconds when prompted
+4. A flashing white light indicates transition between positions
+5. Data will be streamed to serial output during collection
+==================================
+
+# PrismaTech Gauntlet 3.0 Calibration Data
+# =====================================
+# Date: 1970-01-01 00:00:05
+# IMPORTANT: Record these details for this calibration run:
+# Sensor placement (back-of-hand/forearm/etc): 
+# Sensor orientation (face-down/face-up/etc): 
+# Additional notes: 
+# =====================================
+timestamp,position,accelX,accelY,accelZ,gyroX,gyroY,gyroZ
+
+==================================
+Starting 30-second warmup period...
+Get ready to place the gauntlet on your hand
+==================================
+
+LED brightness set to 2
+LED brightness set to 4
+LED brightness set to 6
+LED brightness set to 8
+LED brightness set to 10
+LED brightness set to 12
+LED brightness set to 14
+LED brightness set to 16
+LED brightness set to 18
+LED brightness set to 20
+LED brightness set to 22
+LED brightness set to 24
+LED brightness set to 26
+LED brightness set to 28
+LED brightness set to 30
+LED brightness set to 32
+LED brightness set to 34
+LED brightness set to 36
+LED brightness set to 38
+LED brightness set to 40
+LED brightness set to 42
+LED brightness set to 44
+LED brightness set to 46
+LED brightness set to 48
+LED brightness set to 50
+LED brightness set to 52
+LED brightness set to 54
+LED brightness set to 56
+LED brightness set to 58
+LED brightness set to 60
+LED brightness set to 62
+LED brightness set to 64
+LED brightness set to 66
+LED brightness set to 68
+LED brightness set to 70
+LED brightness set to 72
+LED brightness set to 74
+LED brightness set to 76
+LED brightness set to 78
+LED brightness set to 80
+LED brightness set to 82
+LED brightness set to 84
+LED brightness set to 86
+LED brightness set to 88
+LED brightness set to 90
+LED brightness set to 92
+LED brightness set to 94
+LED brightness set to 96
+LED brightness set to 98
+LED brightness set to 100
+LED brightness set to 98
+LED brightness set to 96
+LED brightness set to 94
+LED brightness set to 92
+LED brightness set to 90
+LED brightness set to 88
+LED brightness set to 86
+LED brightness set to 84
+LED brightness set to 82
+LED brightness set to 80
+LED brightness set to 78
+LED brightness set to 76
+LED brightness set to 74
+LED brightness set to 72
+LED brightness set to 70
+LED brightness set to 68
+LED brightness set to 66
+LED brightness set to 64
+LED brightness set to 62
+LED brightness set to 60
+LED brightness set to 58
+LED brightness set to 56
+LED brightness set to 54
+LED brightness set to 52
+LED brightness set to 50
+LED brightness set to 48
+LED brightness set to 46
+LED brightness set to 44
+LED brightness set to 42
+LED brightness set to 40
+LED brightness set to 38
+LED brightness set to 36
+LED brightness set to 34
+LED brightness set to 32
+LED brightness set to 30
+LED brightness set to 28
+LED brightness set to 26
+LED brightness set to 24
+LED brightness set to 22
+LED brightness set to 20
+LED brightness set to 22
+LED brightness set to 24
+LED brightness set to 26
+LED brightness set to 28
+LED brightness set to 30
+LED brightness set to 32
+LED brightness set to 34
+LED brightness set to 36
+LED brightness set to 38
+LED brightness set to 40
+LED brightness set to 42
+LED brightness set to 44
+LED brightness set to 46
+LED brightness set to 48
+LED brightness set to 50
+LED brightness set to 52
+LED brightness set to 54
+LED brightness set to 56
+LED brightness set to 58
+LED brightness set to 60
+LED brightness set to 62
+LED brightness set to 64
+LED brightness set to 66
+LED brightness set to 68
+LED brightness set to 70
+LED brightness set to 72
+LED brightness set to 74
+LED brightness set to 76
+LED brightness set to 78
+LED brightness set to 80
+LED brightness set to 82
+LED brightness set to 84
+LED brightness set to 86
+LED brightness set to 88
+LED brightness set to 90
+LED brightness set to 92
+LED brightness set to 94
+LED brightness set to 96
+LED brightness set to 98
+LED brightness set to 100
+LED brightness set to 98
+LED brightness set to 96
+LED brightness set to 94
+LED brightness set to 92
+LED brightness set to 90
+LED brightness set to 88
+LED brightness set to 86
+LED brightness set to 84
+LED brightness set to 82
+LED brightness set to 80
+LED brightness set to 78
+LED brightness set to 76
+LED brightness set to 74
+LED brightness set to 72
+LED brightness set to 70
+LED brightness set to 68
+LED brightness set to 66
+LED brightness set to 64
+LED brightness set to 62
+LED brightness set to 60
+LED brightness set to 58
+LED brightness set to 56
+LED brightness set to 54
+LED brightness set to 52
+LED brightness set to 50
+LED brightness set to 48
+LED brightness set to 46
+LED brightness set to 44
+LED brightness set to 42
+LED brightness set to 40
+LED brightness set to 38
+LED brightness set to 36
+LED brightness set to 34
+LED brightness set to 32
+LED brightness set to 30
+LED brightness set to 28
+LED brightness set to 26
+LED brightness set to 24
+LED brightness set to 22
+LED brightness set to 20
+LED brightness set to 22
+LED brightness set to 24
+LED brightness set to 26
+LED brightness set to 28
+LED brightness set to 30
+LED brightness set to 32
+LED brightness set to 34
+LED brightness set to 36
+LED brightness set to 38
+LED brightness set to 40
+LED brightness set to 42
+LED brightness set to 44
+LED brightness set to 46
+LED brightness set to 48
+LED brightness set to 50
+LED brightness set to 52
+LED brightness set to 54
+LED brightness set to 56
+LED brightness set to 58
+LED brightness set to 60
+LED brightness set to 62
+LED brightness set to 64
+LED brightness set to 66
+LED brightness set to 68
+LED brightness set to 70
+LED brightness set to 72
+LED brightness set to 74
+LED brightness set to 76
+LED brightness set to 78
+Warmup: 20 seconds remaining
+LED brightness set to 80
+LED brightness set to 82
+LED brightness set to 84
+LED brightness set to 86
+LED brightness set to 88
+LED brightness set to 90
+LED brightness set to 92
+LED brightness set to 94
+LED brightness set to 96
+LED brightness set to 98
+LED brightness set to 100
+LED brightness set to 98
+LED brightness set to 96
+LED brightness set to 94
+LED brightness set to 92
+LED brightness set to 90
+LED brightness set to 88
+LED brightness set to 86
+LED brightness set to 84
+LED brightness set to 82
+LED brightness set to 80
+LED brightness set to 78
+LED brightness set to 76
+LED brightness set to 74
+LED brightness set to 72
+LED brightness set to 70
+LED brightness set to 68
+LED brightness set to 66
+LED brightness set to 64
+LED brightness set to 62
+LED brightness set to 60
+LED brightness set to 58
+LED brightness set to 56
+LED brightness set to 54
+LED brightness set to 52
+LED brightness set to 50
+LED brightness set to 48
+LED brightness set to 46
+LED brightness set to 44
+LED brightness set to 42
+LED brightness set to 40
+LED brightness set to 38
+LED brightness set to 36
+LED brightness set to 34
+LED brightness set to 32
+LED brightness set to 30
+LED brightness set to 28
+LED brightness set to 26
+LED brightness set to 24
+LED brightness set to 22
+LED brightness set to 20
+LED brightness set to 22
+LED brightness set to 24
+LED brightness set to 26
+LED brightness set to 28
+LED brightness set to 30
+LED brightness set to 32
+LED brightness set to 34
+LED brightness set to 36
+LED brightness set to 38
+LED brightness set to 40
+LED brightness set to 42
+LED brightness set to 44
+LED brightness set to 46
+LED brightness set to 48
+LED brightness set to 50
+LED brightness set to 52
+LED brightness set to 54
+LED brightness set to 56
+LED brightness set to 58
+LED brightness set to 60
+LED brightness set to 62
+LED brightness set to 64
+LED brightness set to 66
+LED brightness set to 68
+LED brightness set to 70
+LED brightness set to 72
+LED brightness set to 74
+LED brightness set to 76
+LED brightness set to 78
+LED brightness set to 80
+LED brightness set to 82
+LED brightness set to 84
+LED brightness set to 86
+LED brightness set to 88
+LED brightness set to 90
+LED brightness set to 92
+LED brightness set to 94
+LED brightness set to 96
+LED brightness set to 98
+LED brightness set to 100
+LED brightness set to 98
+LED brightness set to 96
+LED brightness set to 94
+LED brightness set to 92
+LED brightness set to 90
+LED brightness set to 88
+LED brightness set to 86
+LED brightness set to 84
+LED brightness set to 82
+LED brightness set to 80
+LED brightness set to 78
+LED brightness set to 76
+LED brightness set to 74
+LED brightness set to 72
+LED brightness set to 70
+LED brightness set to 68
+LED brightness set to 66
+LED brightness set to 64
+LED brightness set to 62
+LED brightness set to 60
+LED brightness set to 58
+LED brightness set to 56
+LED brightness set to 54
+LED brightness set to 52
+LED brightness set to 50
+LED brightness set to 48
+LED brightness set to 46
+LED brightness set to 44
+LED brightness set to 42
+LED brightness set to 40
+LED brightness set to 38
+LED brightness set to 36
+LED brightness set to 34
+LED brightness set to 32
+LED brightness set to 30
+LED brightness set to 28
+LED brightness set to 26
+LED brightness set to 24
+LED brightness set to 22
+LED brightness set to 20
+LED brightness set to 22
+LED brightness set to 24
+LED brightness set to 26
+LED brightness set to 28
+LED brightness set to 30
+LED brightness set to 32
+LED brightness set to 34
+LED brightness set to 36
+LED brightness set to 38
+LED brightness set to 40
+LED brightness set to 42
+LED brightness set to 44
+LED brightness set to 46
+LED brightness set to 48
+LED brightness set to 50
+LED brightness set to 52
+LED brightness set to 54
+LED brightness set to 56
+LED brightness set to 58
+LED brightness set to 60
+LED brightness set to 62
+LED brightness set to 64
+LED brightness set to 66
+LED brightness set to 68
+LED brightness set to 70
+LED brightness set to 72
+LED brightness set to 74
+LED brightness set to 76
