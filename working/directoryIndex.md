@@ -416,4 +416,23 @@ Data and analysis logs:
   - Interactive calibration process
   - Multiple debugging display modes
   - Real-time visual feedback through LEDs
-- Current status: Implementation complete, awaiting hardware verification 
+- Current status: Implementation complete, awaiting hardware verification
+
+### Proposed Hybrid Position Detection
+- Enhanced detection approach combining dominant axis and vector-based methods
+- Planned features:
+  - Two-stage detection (dominant axis classification + vector validation)
+  - Hysteresis implementation to prevent position flickering
+  - Adaptive thresholds based on position characteristics
+  - Two-stage calibration process for cross-validation
+  - Enhanced quality control during calibration
+  - Position stability tracking with configurable thresholds
+  - Comparative analysis tools for all detection modes
+  - Visualization enhancements for debugging
+- Implementation plan:
+  - Add `DETECTION_MODE_HYBRID` option to `PositionDetector` class
+  - Create hybrid detection method reusing existing components
+  - Implement position stability tracking and confidence validation
+  - Develop enhanced calibration process with quality control
+  - Build test environment for comparative analysis
+- Current status: Design phase, implementation pending verification results of Hand-Cube model 

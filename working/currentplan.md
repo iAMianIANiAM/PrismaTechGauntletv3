@@ -422,6 +422,91 @@ To properly verify the Hand-Cube Orientation Model implementation, we need to:
 
 Only after completing this verification process can we mark this implementation as fully verified.
 
+## Proposed Enhancement: Hybrid Position Detection Approach
+
+Based on initial testing results of the Hand-Cube Orientation Model, we've identified an opportunity to create a simplified yet more robust approach by combining the strengths of both detection methods. This hybrid approach would use dominant axis detection for primary classification and vector similarity for validation.
+
+### 1. Key Concept: Two-Stage Detection
+
+- **Primary Classification**: Use the proven dominant axis model for initial position determination
+  - Maintain existing calibrated thresholds for axis dominance
+  - Apply simple, efficient classification based on maximum axis values
+  - Leverage the reliability and simplicity of the threshold approach
+
+- **Confidence Validation**: Apply vector similarity as a secondary validation step
+  - Calculate vector similarity only for the classified position
+  - Reject classifications with low similarity scores
+  - Reduce computational overhead by targeted similarity calculations
+
+### 2. Stability Enhancements
+
+- **Hysteresis Implementation**:
+  - Require multiple consecutive samples to confirm position changes
+  - Implement minimum hold time for position switches (200-300ms)
+  - Prevent rapid flickering between adjacent positions
+  - Maintain previous position until new position is stable
+
+- **Adaptive Thresholds**:
+  - Adjust similarity thresholds based on position-specific characteristics
+  - Apply stricter validation for ambiguous positions (like OATH vs CALM)
+  - Relax validation for highly distinctive positions
+
+### 3. Calibration Improvements
+
+- **Two-Stage Calibration Process**:
+  - Stage 1: Collect dominant axis thresholds using existing approach
+  - Stage 2: Generate reference vectors at calibrated positions
+  - Enable cross-validation between the two approaches
+
+- **Quality Control Measures**:
+  - Implement motion detection during calibration to reject excessive movement
+  - Provide visual feedback to guide proper positioning
+  - Extend sampling periods for better stability (3-5 seconds per position)
+
+### 4. Implementation Strategy
+
+- **Code Structure**:
+  - Add `DETECTION_MODE_HYBRID` option to `PositionDetector` class
+  - Create new hybrid detection method that combines both approaches
+  - Maintain separate approaches for testing and comparison
+  - Add position stability tracking with configurable thresholds
+
+- **Minimal Code Impact**:
+  - Reuse existing components from both detection approaches
+  - Add targeted enhancements for stability and confidence
+  - Keep code modular for easy testing and verification
+
+### 5. Testing Methodology
+
+- **Comparative Analysis**:
+  - Test all three detection modes side by side
+  - Measure stability, accuracy, and reliability metrics
+  - Document position transition behavior and edge cases
+
+- **Visualization Enhancements**:
+  - Display confidence levels through LED brightness
+  - Add debug output showing classification stages
+  - Visualize position stability through pulsing patterns
+
+### 6. Expected Benefits
+
+- **Enhanced Reliability**:
+  - More stable position detection through multiple validation criteria
+  - Reduced susceptibility to minor hand variations
+  - Prevention of false transitions
+
+- **Simplified Troubleshooting**:
+  - Clear separation between classification and validation steps
+  - Easier isolation of issues in specific detection stages
+  - More intuitive debugging through visual feedback
+
+- **Optimized Performance**:
+  - Balanced approach combining low-overhead classification with targeted validation
+  - Reduced computational requirements compared to full vector analysis
+  - Graceful degradation if either method has issues
+
+The hybrid approach represents a practical evolution of our position detection system, combining the proven reliability of the dominant axis model with the additional refinement of vector-based validation.
+
 ## Latest Implementation: Hybrid Testing Approach for Position Detection ✅
 
 We have successfully implemented our hybrid approach for testing and verifying the PlatformIO environment reorganization. This implementation includes:
