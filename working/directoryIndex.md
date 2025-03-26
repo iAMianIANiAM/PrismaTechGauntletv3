@@ -381,6 +381,8 @@ Standalone test applications:
 - `/component_tests/PositionDetectorTest.cpp`: Comprehensive position detection testing
 - `HardwareManagerTest.cpp`: Hardware integration test
 - `CalibrationProtocol.cpp`: Calibration data collection application
+- `/component_tests/NormalizedPositionTest.cpp`: Test application for normalized position detection
+- `/component_tests/VectorOrientationTest.cpp`: Test application for the Hand-Cube Orientation Model
 
 ### /utils
 Python utilities for calibration:
@@ -391,3 +393,27 @@ Python utilities for calibration:
 Data and analysis logs:
 - `calibration_data_*.csv`: Raw calibration data
 - `suggested_thresholds.txt`: Generated threshold values 
+
+### /detection
+- Contains position detection logic
+- `PositionDetector.h`: Declares position detection interface
+  - Defines `PositionDetector` class with methods for detecting hand positions
+  - Implements threshold-based dominant axis detection
+  - Provides normalization capabilities for robust detection
+  - Implements Hand-Cube Orientation Model using vector-based detection
+  - Supports dual detection modes with runtime switching
+  - Includes comprehensive calibration methods for both approaches 
+
+### Hand-Cube Orientation Model
+- Vector-based position detection approach implemented in `PositionDetector.h/cpp`
+- Test environment created in `env:vectortest`
+- Test application in `/examples/component_tests/VectorOrientationTest.cpp`
+- Features:
+  - 3D orientation vector representation for hand positions
+  - Reference vectors for six cube faces (hand positions)
+  - Vector similarity calculation using dot product
+  - Confidence calculation based on similarity scores
+  - Interactive calibration process
+  - Multiple debugging display modes
+  - Real-time visual feedback through LEDs
+- Current status: Implementation complete, awaiting hardware verification 

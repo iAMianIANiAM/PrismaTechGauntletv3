@@ -296,6 +296,132 @@ The project has completed a major milestone with the successful implementation o
    - Ensure consistent coding standards across all files
    - Review memory usage and performance
 
+## Implementation: Hand-Cube Orientation Model for Position Detection
+
+We have implemented the Hand-Cube Orientation Model, a vector-based approach for position detection. This model treats the hand as a cube with six faces corresponding to the six hand positions, using normalized gravity vectors to determine orientation. The implementation is complete but awaiting verification on physical hardware.
+
+### 1. Core Implementation in PositionDetector Class ⏳
+
+- **Vector-Based Orientation Detection**:
+  - Added `OrientationVector` structure for 3D vector representation
+  - Implemented `ReferencePosition` structure to define expected vectors for each position
+  - Created `VectorDetectionParams` for configuration management
+  - Implemented vector normalization and similarity calculation methods
+  - Added dot product and vector magnitude calculation utilities
+  - Created reference vector initialization based on theoretical cube model
+
+- **Dual Detection Mode Support**:
+  - Maintained backward compatibility with original Dominant Axis detection
+  - Added new `DETECTION_MODE_VECTOR_ORIENTATION` mode
+  - Implemented dynamic mode switching through `setDetectionMode()`
+  - Ensured both modes can coexist without interference
+
+- **Enhanced Calibration System**:
+  - Created `calibrateNeutral()` for gravity magnitude calibration
+  - Implemented `calibratePosition()` for individual position calibration
+  - Added `calibrateAllPositions()` for comprehensive calibration workflow
+  - Enhanced confidence calculation based on vector similarity
+
+### 2. Vector Orientation Test Environment ⏳
+
+- **Created New PlatformIO Environment**:
+  - Added `env:vectortest` to platformio.ini
+  - Configured with appropriate build flags and dependencies
+  - Set up required source files for testing the new model
+
+- **Developed Comprehensive Test Application**:
+  - Created `VectorOrientationTest.cpp` for interactive testing
+  - Implemented multiple display modes for debugging
+  - Added real-time visualization through LED color feedback
+  - Included calibration interface for easy setup
+  - Created system settings display for model configuration
+  - Added commands for toggling between detection modes
+
+- **Interactive Calibration Process**:
+  - Step-by-step calibration guidance
+  - Visual feedback during calibration
+  - Reference vector display for verification
+  - Automated similarity threshold adjustments
+
+### 3. Feature Enhancements ⏳
+
+- **Normalized Position Detection**:
+  - Replaced fixed thresholds with adaptive vector similarity
+  - Added confidence levels based on vector similarity scores
+  - Improved detection stability during transitions
+  - Enhanced detection reliability at different orientations
+
+- **Visualization Improvements**:
+  - Added real-time vector display during testing
+  - Implemented similarity score visualization
+  - Created ranked position matches display
+  - Enhanced LED feedback based on position confidence
+
+- **User Interface Enhancements**:
+  - Added multiple display modes for different debugging needs
+  - Implemented comprehensive help system
+  - Created detailed system settings visualization
+  - Added mode toggling for comparison testing
+
+### 4. Technical Innovations ⏳
+
+- **Vector Similarity Calculation**:
+  - Used cosine similarity (dot product of unit vectors)
+  - Scaled to 0-1 range for intuitive comparison
+  - Applied minimum confidence thresholds for position matching
+  - Implemented top-match ranking system
+
+- **Adaptive Calibration**:
+  - System adapts to individual device variations
+  - Accounts for sensor mounting differences
+  - Self-adjusts to gravity magnitude
+  - Customizes reference vectors based on actual readings
+
+- **Memory and Performance Optimizations**:
+  - Efficient vector operations using float precision
+  - Minimal memory footprint through compact structures
+  - Non-blocking design for responsive operation
+  - Clear separation between detection modes
+
+### 5. Expected Benefits (Pending Verification) ⏳
+
+- **Improved Detection Accuracy**:
+  - More reliable position detection at varied orientations
+  - Less sensitive to slight hand positioning variations
+  - Better distinction between adjacent positions
+  - Smoother transitions between detected positions
+
+- **Enhanced User Experience**:
+  - More predictable position detection
+  - Intuitive calibration process
+  - Clear visual feedback during operation
+  - Better adaptability to individual users
+
+- **Development Advantages**:
+  - Coexistence with previous detection model for comparison
+  - Easy switching between detection approaches
+  - Comprehensive debugging capabilities
+  - Modular and extensible design
+
+The Hand-Cube Orientation Model represents a potentially significant advancement in the position detection capabilities of the PrismaTech Gauntlet 3.0, but requires proper hardware verification before we can confirm its effectiveness compared to the existing Point Detection Model.
+
+## Verification Plan for Hand-Cube Orientation Model
+
+To properly verify the Hand-Cube Orientation Model implementation, we need to:
+
+1. **Build and Upload**: Compile and upload the `env:vectortest` environment to the physical device
+2. **Run Calibration**: Complete the calibration process for all six hand positions
+3. **Test Detection**: Test all hand positions to verify detection accuracy
+4. **Compare Modes**: Compare performance with the original Dominant Axis detection mode
+5. **Document Findings**: Document the results including:
+   - Detection accuracy for each position
+   - Confidence levels
+   - Stability of detection during transitions
+   - Any problematic positions or edge cases
+6. **Adjust Parameters**: Fine-tune parameters based on testing results if needed
+
+Only after completing this verification process can we mark this implementation as fully verified.
+
 ## Latest Implementation: Hybrid Testing Approach for Position Detection ✅
 
 We have successfully implemented our hybrid approach for testing and verifying the PlatformIO environment reorganization. This implementation includes:
