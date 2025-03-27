@@ -1,0 +1,20 @@
+#!/bin/bash
+# Pre-commit hook to verify file existence
+# Copy this file to .git/hooks/pre-commit to enable it
+
+# Store the root directory of the project
+ROOT_DIR=$(git rev-parse --show-toplevel)
+
+echo "Running file existence verification..."
+python $ROOT_DIR/utils/verify_docs.py --report
+
+# If the verification fails, abort the commit
+if [ $? -ne 0 ]; then
+  echo "ERROR: Documentation references files that don't exist!"
+  echo "Run 'python utils/verify_docs.py --verbose' for details"
+  echo "You can still commit by using the --no-verify option, but this is not recommended."
+  exit 1
+fi
+
+echo "File verification passed."
+exit 0 

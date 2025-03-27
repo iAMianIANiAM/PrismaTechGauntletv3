@@ -134,3 +134,10 @@ After analyzing the issues with the pure vector-based Hand-Cube Orientation Mode
    - Create enhanced calibration process
 
 This approach should provide a more reliable and practical solution that builds on our existing work rather than replacing it entirely.
+
+
+
+1. Oh no, you've discovered my weakness... I do have a higher tolerance for complication if the payoff looks exceptionally cool. I am open to the interpolation proposal, provided it can be done in an elegant and efficient fashion. If it starts to cause issues, I want to be able to revert back to immediate color changes.
+
+2. This is another one of those areas where you're going to have to trust me, and the lessons from the past - we keep the gesture recognition super simple. So the CalmOffer Gesture recognition logic is extremely simple - whenever the gauntlet leaves "Calm" (palm down), begin a 1000ms timer. If the gauntlet detects "Offer" (palm up) before the timer expires, then the gesture is recognized. Otherwise, it fails. Any further complication than that just degraded functionality. Other gesture detections should maintain similar levels of simplicity in their logic. 
+3. In those cirucmstances, it should default to white. 

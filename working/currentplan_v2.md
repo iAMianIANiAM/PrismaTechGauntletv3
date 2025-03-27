@@ -140,4 +140,178 @@ Based on our analysis of the existing codebase:
    - Locate and integrate the missing ECHO document
    - Begin planning for UBPD implementation based on documentation
 
-This plan represents our path forward to recover from the current setback and rebuild the project on a more stable foundation. We will proceed methodically, ensuring that our documentation accurately reflects reality at each step, and that our version control practices prevent similar issues in the future. 
+This plan represents our path forward to recover from the current setback and rebuild the project on a more stable foundation. We will proceed methodically, ensuring that our documentation accurately reflects reality at each step, and that our version control practices prevent similar issues in the future.
+
+## Approved Hybrid Plan: Process Improvement + UBPD Implementation
+
+Based on our project principles of Simplicity, Prudence, and Diligence, we have developed the following hybrid plan to implement both critical process improvements and the Ultra Basic Position Detection system.
+
+### Phase 1: Immediate Process Stabilization (Days 1-2)
+
+#### 1. Git Backup Protocol Implementation
+- Finalize the draft protocol document with clear, actionable steps
+- Implement the simplest effective pre-commit hook that verifies file existence
+- Create a standardized commit message template
+- Test the protocol with a sample commit cycle
+
+#### 2. Working Document Alignment
+- Update directoryIndex.md with accurate [PLANNED] status for missing files
+- Ensure clear status indications for all components
+- Verify that roadmap.md and currentplan_v2.md are consistent with each other
+- Document the current state of all test environments
+
+### Phase 2: UBPD Implementation (Days 3-5)
+
+#### 1. Preparation and Planning
+- Review existing PositionDetector implementation
+- Document the exact changes needed for the UBPD model
+- Outline class structure and method requirements
+- Add env:ultrabasic to platformio.ini
+
+#### 2. Core Implementation
+- Create UltraBasicPositionDetector.h with clear interface definition
+- Implement UltraBasicPositionDetector.cpp with:
+  - Physical unit conversion (raw to m/s²)
+  - 3-sample averaging for noise reduction
+  - Absolute threshold implementation
+  - Position-specific threshold management
+- Thoroughly document code with meaningful comments
+
+#### 3. Test Application Implementation
+- Develop UltraBasicPositionTest.cpp test application
+- Include debug output of physical units
+- Implement LED feedback for detected positions
+- Add simple calibration capability for testing
+
+#### 4. Verification Process
+- Create specific verification steps for each implementation
+- Document expected behavior and test cases
+- Prepare for hardware testing with clear validation criteria
+
+### Phase 3: Documentation and Integration (Days 6-7)
+
+#### 1. Working Document Updates
+- Update all working documents to reflect new implementation
+- Mark appropriate items as [IMPLEMENTED]
+- Document any deviations from original design
+- Update thresholds and calibration parameters
+
+#### 2. Repository Maintenance
+- Commit implementation with proper documentation references
+- Push changes to remote repository
+- Verify branch synchronization
+- Update project status in all documents
+
+#### 3. Integration Planning
+- Outline steps to integrate UBPD with main application
+- Document configuration changes needed
+- Prepare for hardware testing and refinement
+
+## Implementation Details
+
+### UltraBasicPositionDetector Design
+
+```cpp
+// UltraBasicPositionDetector.h (key elements)
+
+class UltraBasicPositionDetector {
+public:
+  bool init(HardwareManager* hardware);
+  PositionReading detectPosition(const SensorData& sensorData);
+  PositionReading getCurrentPosition() const;
+  
+#ifdef TEST_MODE
+  bool calibrate(uint8_t position, uint16_t samples = 50);
+  void setThreshold(uint8_t position, float threshold);
+#endif
+  
+private:
+  // Hardware reference
+  HardwareManager* _hardware = nullptr;
+  
+  // Position reading
+  PositionReading _currentPosition;
+  
+  // Averaging buffer
+  static const uint8_t POSITION_AVERAGE_SAMPLES = 3;
+  SensorData _sampleBuffer[POSITION_AVERAGE_SAMPLES];
+  uint8_t _currentSampleIndex = 0;
+  
+  // Thresholds in m/s² (physical units)
+  float _positiveXThreshold = 7.0f;
+  float _negativeXThreshold = -7.0f;
+  float _positiveYThreshold = 7.0f;
+  float _negativeYThreshold = -7.0f;
+  float _positiveZThreshold = 7.0f;
+  float _negativeZThreshold = -7.0f;
+  
+  // Internal methods
+  void processRawData(const SensorData& raw, ProcessedData& processed);
+  uint8_t detectPosition(const ProcessedData& data);
+  SensorData calculateAveragedData();
+};
+```
+
+### UltraBasicPositionTest Structure
+
+```cpp
+// Key elements of test application
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println("Ultra Basic Position Detection Test");
+  
+  if (!hardware.init()) {
+    Serial.println("Hardware initialization failed!");
+    while (1) { delay(1000); }
+  }
+  
+  if (!positionDetector.init(&hardware)) {
+    Serial.println("Position detector initialization failed!");
+    while (1) { delay(1000); }
+  }
+  
+  // Initialize LED with position colors
+  hardware.getLED()->init();
+  hardware.getLED()->setPositionColors(positionColors);
+  
+  Serial.println("Setup complete. Starting position detection...");
+}
+
+void loop() {
+  // Read sensor data
+  SensorData sensorData = hardware.getSensorData();
+  
+  // Detect position
+  PositionReading reading = positionDetector.detectPosition(sensorData);
+  
+  // Update LED based on position
+  hardware.getLED()->setPositionColor(reading.position);
+  
+  // Display position information at regular intervals
+  static uint32_t lastPrintTime = 0;
+  if (millis() - lastPrintTime > 500) {
+    printPositionInfo(reading, sensorData);
+    lastPrintTime = millis();
+  }
+  
+  // Handle serial commands
+  handleSerialCommands();
+  
+  delay(20);
+}
+```
+
+## Success Criteria
+
+1. Git backup protocol is actively followed for all implementation work
+2. Working documents accurately reflect implementation status at all times
+3. UBPD implementation correctly converts raw values to m/s²
+4. Test application demonstrates position detection capabilities
+5. All code is documented and verification steps are clear
+6. Changes are committed and pushed to remote repository
+7. Repository and working documents remain in sync
+
+## Current Implementation Status
+
+We are now beginning Phase 1 of the hybrid plan: Immediate Process Stabilization. 

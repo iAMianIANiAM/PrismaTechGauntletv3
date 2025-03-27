@@ -12,16 +12,25 @@
   /utils        - Support utilities
 /examples       - Standalone example applications
   /component_tests - Component-specific test applications
-/test           - Structured test directory
-  /utils        - Shared test utilities
-  /fixtures     - Test data and fixtures
-  /archived     - Archived test code
 /utils          - Python utilities for data collection and analysis
 /logs           - Data logs and generated thresholds
-/working        - Working development documents
-  /archive      - Archived working documents
-/reference      - Reference materials and documentation
 ```
+
+## IMPORTANT: Version Control & Implementation Status Notice
+
+**There is currently a discrepancy between this directory index and the actual codebase.** Due to version control issues, several implementations documented here were lost or never fully committed to the repository. See the "Documented But Missing Implementations" section below for details.
+
+We are in the process of reconciling documentation with the actual codebase state. The information in this document is being updated to reflect the actual files present in the repository.
+
+## Implementation Status Indicators
+
+This document uses the following status indicators:
+
+- **[PLANNED]**: Designed but not yet implemented
+- **[IN PROGRESS]**: Implementation started but not complete  
+- **[IMPLEMENTED]**: Code exists but not fully verified
+- **[VERIFIED]**: Implementation exists and has been tested on hardware
+- **[DEPRECATED]**: Was implemented but has been replaced
 
 ## Current Implementation Focus
 
@@ -94,8 +103,6 @@
 
 ### Phase 3: Basic Position Detection ✅
 
-The position detection system has been successfully implemented with the UltraBasicPositionDetector, which provides reliable and accurate position detection through a simple yet effective approach.
-
 #### Completed
 - **Calibration Protocol** (`/examples/CalibrationProtocol.cpp`)
   - Structured calibration sequence with state machine
@@ -122,185 +129,129 @@ The position detection system has been successfully implemented with the UltraBa
   - Documentation of threshold values and ranges
   - **Status**: Thresholds determined and integrated, successfully used in position detection
 
-### Ultra-Basic Position Detection System ✅
+- **Position Detector Implementation** (`/src/detection/PositionDetector.cpp`)
+  - Point Detection Model implementation complete
+  - Position classification based on dominant axis thresholds
+  - Simple averaging for noise reduction (5-sample circular buffer)
+  - No hysteresis initially for clearer testing
+  - No confidence metric per user preference
+  - Integration with hardware manager
+  - TEST_MODE preprocessor guards for separating test and production code
+  - **Status**: [VERIFIED] (2025-03-27, Successfully tested using SimplePositionTest)
+  - **Note**: This is a functional but not optimal implementation. UBPD is intended to replace this.
 
-- **Implementation** (`/src/detection/UltraBasicPositionDetector.*`)
+- **Test Environments** (`platformio.ini`)
+  - Main production environment (env:esp32dev)
+  - Simple position test environment (env:simplepostest)
+  - Position detector test environment (env:postest)
+  - Hardware manager test environment (env:hwmtest)
+  - Calibration environment (env:calibration)
+  - Consistent build configurations and dependencies
+  - **Status**: All environments build successfully and tested on hardware
+
+- **Simple Position Test** (`/examples/component_tests/SimplePositionTest.cpp`)
+  - Direct testing of position detection
+  - Visual LED feedback for detected positions
+  - Serial output of raw sensor data and detected positions
+  - Uses calibrated thresholds from Config.h
+  - **Status**: [VERIFIED] (2025-03-27, Successfully tested on hardware)
+
+#### In Progress Implementation
+- **Idle Mode** (`/src/modes/IdleMode.cpp`)
+  - Position color visualization
+  - Testing and feedback functionality
+  - Position tracking
+  - Performance monitoring
+  - **Status**: Design completed, implementation pending
+
+## Documented But Missing Implementations
+
+### Ultra Basic Position Detection (UBPD) - PRIMARY DETECTION MODEL
+- **Documentation**: Comprehensive documentation available in `working/UBPD.md`
+- **Missing Files**: 
+  - `UltraBasicPositionDetector.h/cpp`
+  - `/examples/component_tests/UltraBasicPositionTest.cpp`
+  - `env:ultrabasic` environment in platformio.ini
+- **Purpose**:
+  - This is the intended PRIMARY detection model for the entire device
+  - Designed to replace the current PositionDetector implementation with a more optimized approach
+  - Key feature is conversion of raw data to meaningful physical units (m/s²)
+- **Key Features**:
   - Direct dominant axis detection with minimal processing
-  - 3-sample averaging for basic noise reduction
-  - No complex vector calculations or confidence metrics
-  - Simple threshold comparison for each axis/position
-  - Clear data path from sensor to position
-  - **Status**: Implementation complete and successfully verified on hardware
+  - Physical units (m/s²) for intuitive thresholds and better debugging
+  - Absolute threshold values rather than relative comparisons
+  - Simplified, consistent processing pipeline
+  - Enhanced calibration protocol with buffer time and sample discarding
+  - Position-specific threshold adjustments
+  - Clear gravity orientation handling
+- **Status**: [PLANNED] (Implementation scheduled for Phase 2 of Hybrid Plan)
 
-- **Test Application** (`/examples/component_tests/UltraBasicPositionTest.cpp`)
-  - Interactive calibration sequence
-  - Real-time position display
-  - Raw sensor data visualization
-  - Threshold adjustment and display
-  - Color-coded LED feedback
-  - **Status**: Tested on hardware with excellent results
+### Experimental Detection Models (NOT NEEDED)
+The following detection models were experimental approaches that proved overly complex and less reliable in testing. These implementations do NOT need to be recovered, as the UBPD model is the intended final approach:
 
-- **Data Processing Flow**
-  - Raw acceleration → Simple averaging → Dominant axis detection → Position assignment
-  - No intermediate calculations or complex processing stages
-  - Direct thresholds applied to find dominant axis
-
-- **Detection Reliability**
-  - Excellent position recognition
-  - Smooth transitions between positions
-  - Consistent detection results
-  - Performance exceeds previous ECHO implementation
-
-### Test Environments
-- **Main Production Environment** (`env:esp32dev`)
-  - Main application environment
-  - **Status**: Ready for next phase implementation
-
-- **Ultra Basic Position Test** (`env:ultrabasic`)
-  - Primary test environment for UltraBasicPositionDetector
-  - **Status**: Successfully verified on hardware
-
-- **Calibration Environment** (`env:calibration`)
-  - Environment for running calibration protocol
-  - **Status**: Successfully used to generate current thresholds
-
-- **Previous Test Environments** (archived but available)
-  - Simple position test environment (`env:simplepostest`)
-  - Position detector test environment (`env:postest`)
-  - Vector orientation test environment (`env:vectortest`)
-  - Hybrid position test environment (`env:hybridtest`)
-  - Hardware manager test environment (`env:hwmtest`)
+- **Hand-Cube Orientation Model**: A vector-based approach that was found to be unnecessarily complex.
+  - **Status**: [DEPRECATED] (Will not be implemented)
+  
+- **Hybrid Position Detection**: A combined approach that added complexity without sufficient reliability improvements.
+  - **Status**: [DEPRECATED] (Will not be implemented)
 
 ## Core Components
 
 ### Hardware Layer
 - `MPU9250Interface`: Sensor communication and data reading
-  - **Status**: Core implementation complete and hardware-verified
+  - **Status**: [VERIFIED] (2025-03-25, Successfully tested on hardware)
   - **Verification**: Successfully tested on hardware
 - `I2CScanner`: I2C diagnostics and connection verification
-  - **Status**: Implementation complete
+  - **Status**: [VERIFIED] (2025-03-25, Successfully tested on hardware)
   - **Verification**: Successfully tested on hardware
 - `LEDInterface`: LED control and animation management
-  - **Status**: Implementation complete and hardware-verified
+  - **Status**: [VERIFIED] (2025-03-26, Successfully tested on hardware with all animations functioning)
   - **Verification**: Successfully tested on hardware with all animations functioning
 - `HardwareManager`: Hardware resource coordination
-  - **Status**: Implementation complete and hardware-verified
+  - **Status**: [VERIFIED] (2025-03-26, Successfully tested with integration of MPU and LED components)
   - **Verification**: Successfully tested with integration of MPU and LED components
 
 ### Position Detection System
-- `UltraBasicPositionDetector`: Ultra-simplified position detection logic
-  - **Status**: Implementation complete, successfully verified on hardware
-  - **Verification**: Provides reliable position detection with excellent accuracy
-  - **Features**: 
-    - Direct dominant axis detection
-    - 3-sample averaging for noise reduction
-    - Simple calibration protocol
-    - Clear position-to-color mapping
-    - Fast and reliable detection
-
-- `PositionDetector`: Previous position detection implementations
-  - **Status**: Implementation complete but superseded by UltraBasicPositionDetector
-  - **Verification**: Tested but UltraBasicPositionDetector provides superior results
+- `PositionDetector`: Position detection logic
+  - **Status**: [VERIFIED] (2025-03-27, Successfully tested using SimplePositionTest)
+  - **Verification**: Successfully tested using SimplePositionTest
   - **Features**: 
     - Point Detection Model with threshold-based classification
-    - Hand-Cube Orientation Model with vector-based approach
-    - Hybrid Position Detection with two-stage detection and hysteresis
+    - 5-sample averaging for noise reduction
+    - Dominant axis detection for six hand positions
+    - TEST_MODE guards for test-specific functionality
+  - **Note**: Planned to be replaced by UltraBasicPositionDetector for production
+  
+- `UltraBasicPositionDetector`: Ultra Basic Position Detection implementation
+  - **Status**: [PLANNED] (Implementation scheduled for Phase 2 of Hybrid Plan)
+  - **Verification**: Not yet implemented
+  - **Features**: 
+    - Will implement physical unit conversion to m/s²
+    - Will use absolute thresholds in physical units
+    - Will implement 3-sample averaging for noise reduction
+    - Will include position-specific threshold management
 
 ### Calibration and Analysis
 - `CalibrationProtocol.cpp`: Calibration sequence implementation
-  - **Status**: Implementation complete and hardware-verified
+  - **Status**: [VERIFIED] (2025-03-26, Successfully collected calibration data for all positions)
   - **Verification**: Successfully collected calibration data for all positions
 - `calibration_logger.py`: Data collection utility
-  - **Status**: Implementation complete with robust error handling
+  - **Status**: [VERIFIED] (2025-03-26, Successfully logged calibration data)
   - **Verification**: Successfully logged calibration data
 - `analyze_calibration.py`: Data analysis utility
-  - **Status**: Implementation complete with statistical analysis capabilities
+  - **Status**: [VERIFIED] (2025-03-26, Successfully generated threshold values from calibration data)
   - **Verification**: Successfully generated threshold values from calibration data
 
 ### Core Systems
 - `GauntletController`: System coordination
-  - **Status**: Header implemented, implementation file exists but functionality pending
+  - **Status**: [IN PROGRESS] (Header implemented, implementation file exists but functionality pending)
   - **Verification**: Not yet verified
 - `GestureRecognizer`: Gesture recognition
-  - **Status**: Header defined, implementation pending
+  - **Status**: [PLANNED] (Header defined, implementation pending)
   - **Verification**: Not yet verified
 - `AnimationSystem`: LED animation management
-  - **Status**: Not yet implemented
+  - **Status**: [PLANNED] (Not yet implemented)
   - **Verification**: Not yet verified
-
-## Working Documents
-
-- `roadmap.md`: Current project goals and timelines
-  - **Status**: Up-to-date with latest developments
-  - **Location**: `/working/roadmap.md`
-
-- `currentplan_v2.md`: Current development plan
-  - **Status**: New document with latest implementation details and next steps
-  - **Location**: `/working/currentplan_v2.md`
-
-- `directoryIndex.md`: Comprehensive index of project structure
-  - **Status**: Updated to reflect latest implementation and file organization
-  - **Location**: `/working/directoryIndex.md`
-
-- `archive/currentplan.md`: Archived previous plan
-  - **Status**: Archived as it exceeded 1300 lines
-  - **Location**: `/working/archive/currentplan.md`
-
-- `reference/MPUdataChart.md`: Documentation of MPU data processing
-  - **Status**: Moved to reference for clarity
-  - **Location**: `/reference/MPUdataChart.md`
-
-## Key File Relationships
-
-### Position Detection System
-- `UltraBasicPositionDetector.h` ↔ `UltraBasicPositionDetector.cpp`: Primary position detection implementation
-- `UltraBasicPositionDetector.h` ↔ `UltraBasicPositionTest.cpp`: Test application for position detection
-- `UltraBasicPositionDetector.h` ↔ `HardwareManager.h`: Hardware layer dependency for sensor data
-- `UltraBasicPositionDetector.h` ↔ `Config.h`: Threshold and configuration values
-
-### Hardware Management
-- `HardwareManager.h` ↔ `MPU9250Interface.h`: Sensor management
-- `HardwareManager.h` ↔ `LEDInterface.h`: LED control management
-- `HardwareManager.h` ↔ `PowerManager.h`: Power state management
-
-### Core System (In Progress)
-- `GauntletController.h` ↔ `HardwareManager.h`: Hardware resource access
-- `GauntletController.h` ↔ `IdleMode.h`: Mode implementation (pending)
-- `GauntletController.h` ↔ `GestureRecognizer.h`: Gesture detection (pending)
-
-## Class Hierarchy
-
-```
-System Level
-└── GauntletController (pending full implementation)
-    ├── HardwareManager
-    │   ├── MPU9250Interface
-    │   ├── LEDInterface
-    │   └── PowerManager
-    ├── UltraBasicPositionDetector
-    ├── GestureRecognizer (pending)
-    └── Mode System (pending)
-        ├── IdleMode
-        ├── GestureMode
-        └── InvocationMode
-```
-
-## Next Implementation Steps
-
-1. **Idle Mode Implementation**
-   - Integrate UltraBasicPositionDetector with IdleMode class
-   - Implement position-to-color mapping with smooth transitions
-   - Create event system for position changes
-
-2. **Gesture Recognition System**
-   - Develop position sequence tracking
-   - Implement gesture pattern matching
-   - Create gesture event system
-
-3. **Gauntlet Controller**
-   - Implement mode state machine
-   - Develop transition handling
-   - Create comprehensive system control
 
 ## Implementation Status
 
@@ -374,6 +325,13 @@ System Level
   - Simple position test application
   - Hardware-verified test environments
 
+### Priority Implementation Needed
+- Ultra Basic Position Detection implementation (PRIMARY FOCUS)
+  - Physical unit conversion (raw to m/s²)
+  - Absolute thresholds in real-world units
+  - Optimized calibration protocol
+  - Simplified detection logic
+
 ### In Progress
 - Position Detection Refinement
   - Fine-tuning thresholds based on testing feedback
@@ -395,6 +353,7 @@ System Level
 - Position detection with LED feedback
 - Uses calibrated thresholds from Config.h
 - Clean TEST_MODE guards for isolation
+**Status**: [VERIFIED] (2025-03-27, Successfully tested on hardware)
 
 ### Position Detector Test
 **File**: `/examples/component_tests/PositionDetectorTest.cpp`
@@ -405,6 +364,7 @@ System Level
 - Transition analysis
 - Duration measurements
 - Extended serial output
+**Status**: [VERIFIED] (2025-03-27, Successfully tested on hardware)
 
 ### Hardware Manager Test
 **File**: `/examples/HardwareManagerTest.cpp`
@@ -415,6 +375,7 @@ System Level
 - Sensor data reading
 - LED control demonstration
 - Power state management
+**Status**: [VERIFIED] (2025-03-26, Successfully tested on hardware)
 
 ### Calibration Protocol
 **File**: `/examples/CalibrationProtocol.cpp`
@@ -425,6 +386,18 @@ System Level
 - Position-specific data collection
 - LED visual indicators
 - Serial CSV output
+**Status**: [VERIFIED] (2025-03-26, Successfully collected calibration data)
+
+### Ultra Basic Position Test (Planned)
+**File**: `/examples/component_tests/UltraBasicPositionTest.cpp`
+**Environment**: env:ultrabasic
+**Purpose**: Testing of UBPD implementation with physical unit display
+**Features**:
+- Real-time sensor data in m/s²
+- Position detection with LED feedback
+- Simple calibration capability
+- Debug output of physical units
+**Status**: [PLANNED] (Implementation scheduled for Phase 2 of Hybrid Plan)
 
 ## Class Relationships
 
@@ -488,8 +461,9 @@ Standalone test applications:
 - `/component_tests/PositionDetectorTest.cpp`: Comprehensive position detection testing
 - `HardwareManagerTest.cpp`: Hardware integration test
 - `CalibrationProtocol.cpp`: Calibration data collection application
-- `/component_tests/NormalizedPositionTest.cpp`: Test application for normalized position detection
-- `/component_tests/VectorOrientationTest.cpp`: Test application for the Hand-Cube Orientation Model
+- `LEDTest.cpp`: LED interface testing
+- `MPUDiagnosticTest.cpp`: MPU sensor diagnostic testing
+- `MPUFilterTest.cpp`: MPU data processing and filtering test
 
 ### /utils
 Python utilities for calibration:
@@ -501,64 +475,17 @@ Data and analysis logs:
 - `calibration_data_*.csv`: Raw calibration data
 - `suggested_thresholds.txt`: Generated threshold values 
 
-### /detection
-- Contains position detection logic
-- `PositionDetector.h`: Declares position detection interface
-  - Defines `PositionDetector` class with methods for detecting hand positions
-  - Implements threshold-based dominant axis detection
-  - Provides normalization capabilities for robust detection
-  - Implements Hand-Cube Orientation Model using vector-based detection
-  - Supports dual detection modes with runtime switching
-  - Includes comprehensive calibration methods for both approaches 
+## Recovery Plan
 
-### Hand-Cube Orientation Model
-- Vector-based position detection approach implemented in `PositionDetector.h/cpp`
-- Test environment created in `env:vectortest`
-- Test application in `/examples/component_tests/VectorOrientationTest.cpp`
-- Features:
-  - 3D orientation vector representation for hand positions
-  - Reference vectors for six cube faces (hand positions)
-  - Vector similarity calculation using dot product
-  - Confidence calculation based on similarity scores
-  - Interactive calibration process
-  - Multiple debugging display modes
-  - Real-time visual feedback through LEDs
-- Current status: Implementation complete, awaiting hardware verification
+To address the missing implementations and restore the project to its intended state, we are following the Hybrid Plan outlined in currentplan_v2.md, which combines process improvements with UBPD implementation.
 
-### Hybrid Position Detection
-- Combined detection approach implemented in `PositionDetector.h/cpp`
-- Test environment created in `env:hybridtest`
-- Test application in `/examples/component_tests/HybridPositionTest.cpp`
-- Features:
-  - Two-stage detection process:
-    1. Primary classification using dominant axis detection
-    2. Vector similarity validation for accuracy
-  - Position stability enhancement through hysteresis:
-    - Sample-based stability tracking
-    - Minimum hold time requirements
-    - Adaptive position-specific thresholds
-  - Real-time visualization of detection stages:
-    - Primary position display
-    - Validated position display
-    - Final position (after hysteresis)
-  - Confidence-based visual feedback:
-    - LED brightness adjusted based on confidence level
-    - Position hold time tracking
-    - Consecutive sample counting
-  - Interactive configuration:
-    - Adaptive threshold adjustment
-    - Hysteresis parameter tuning
-    - Mode switching between detection approaches
-    - Multiple display modes for diagnostics
-- Key Components:
-  - `DETECTION_MODE_HYBRID` detection mode
-  - `HysteresisParams` structure for configuration
-  - `detectHybridPosition()` core detection method
-  - `validatePositionWithVector()` validation method
-  - `applyHysteresis()` stability enhancement method
-  - Position-specific adaptive thresholds
-- Current status: Implementation complete and verified on physical hardware
-  - Demonstrated superior stability compared to other detection approaches
-  - Position transitions are smoother with less flickering
-  - Confidence-based brightness visualization provides clear feedback
-  - Hysteresis implementation prevents unintended position changes 
+### Current Status
+- **Phase 1: Immediate Process Stabilization**: [IN PROGRESS]
+  - Git Backup Protocol finalized
+  - Working documents being updated to reflect accurate status
+  
+- **Phase 2: UBPD Implementation**: [PLANNED]
+  - Scheduled to begin after completion of Phase 1
+  
+- **Phase 3: Documentation and Integration**: [PLANNED]
+  - Will follow successful UBPD implementation 

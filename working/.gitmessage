@@ -1,0 +1,22 @@
+# <type>: <concise description>
+# 
+# <longer description if needed>
+# 
+# <reference to working documents or issues>
+
+# Types: 
+# - feat: New feature or component
+# - fix: Bug fix
+# - docs: Documentation changes
+# - test: Test additions or changes
+# - refactor: Code improvements with no functional changes
+# - chore: Maintenance tasks
+#
+# Example:
+# feat: Implement UltraBasicPositionDetector
+#
+# - Add unit conversion from raw data to m/s²
+# - Implement simplified detection with absolute thresholds
+# - Add position-specific threshold management
+#
+# References: currentplan_v2.md#L205-L220 
