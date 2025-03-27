@@ -1,160 +1,178 @@
 #include <Arduino.h>
-#include "hardware/MPU9250Interface.h"
-#include "hardware/LEDInterface.h"
-#include "utils/I2CScanner.h"
+#include "hardware/HardwareManager.h"
+#include "detection/UltraBasicPositionDetector.h"
 #include "core/Config.h"
 #include "core/SystemTypes.h"
+#include "core/ThresholdManager.h"
 
-// Create global interfaces
-MPU9250Interface mpuSensor;
-LEDInterface ledInterface;
+// Serial communication
+#define SERIAL_BAUD_RATE 115200
 
-// Timer variables for non-blocking operation
-unsigned long lastSensorReadTime = 0;
-unsigned long lastLedUpdateTime = 0;
-const unsigned long SENSOR_READ_INTERVAL = 20;    // 50Hz sensor reading
-const unsigned long LED_UPDATE_INTERVAL = 50;     // 20Hz LED updates
+// Update interval
+#define UPDATE_INTERVAL 100  // ms
 
-// Variables to track orientation
-int16_t maxAccelValue = 0;
-uint8_t dominantAxis = 0;  // 0=X, 1=Y, 2=Z
-bool isPositive = true;    // Direction of the axis
+// Position names for debugging
+const char* positionNames[] = {
+  "NULL (Orange)",   // POS_NULL
+  "SHIELD (Blue)",   // POS_SHIELD
+  "OFFER (Purple)",  // POS_OFFER
+  "OATH (Red)",      // POS_OATH
+  "DIG (Green)",     // POS_DIG
+  "CALM (Yellow)",   // POS_CALM
+  "UNKNOWN (White)"  // POS_UNKNOWN
+};
+
+// Increase Arduino loop task stack size
+#if CONFIG_ARDUINO_LOOP_STACK_SIZE < 16384
+#undef CONFIG_ARDUINO_LOOP_STACK_SIZE
+#define CONFIG_ARDUINO_LOOP_STACK_SIZE 16384
+#endif
+
+// Global objects
+HardwareManager* hardware = nullptr;
+UltraBasicPositionDetector positionDetector;
+unsigned long lastUpdateTime = 0;
+
+// Pre-allocated variables for loop to reduce stack usage
+PositionReading positionReading;
+ProcessedData processedData;
+Color positionColor;
 
 void setup() {
-    // Initialize serial communication
-    Serial.begin(115200);
-    delay(1000);  // Allow time for serial connection to establish
-    
-    Serial.println("\n==================================");
-    Serial.println("PrismaTech Gauntlet 3.0");
-    Serial.println("==================================");
-    
-    // Initialize I2C scanner and scan for devices
-    I2CScanner::begin(Config::I2C_SDA_PIN, Config::I2C_SCL_PIN, 100000);
-    int devicesFound = I2CScanner::scanBus();
-    
-    if (devicesFound == 0) {
-        Serial.println("\nWARNING: No I2C devices found. Check wiring connections.");
+  // Initialize serial communication
+  Serial.begin(SERIAL_BAUD_RATE);
+  delay(1000);
+  
+  Serial.println("\n\n=== PrismaTech Gauntlet 3.0 ===");
+  Serial.println("Ultra Basic Position Detection with Threshold Management");
+  
+  // Initialize hardware
+  hardware = HardwareManager::getInstance();
+  bool hwInitOk = hardware->init();
+  Serial.print("Hardware initialization: ");
+  Serial.println(hwInitOk ? "SUCCESS" : "FAILED");
+  
+  if (!hwInitOk) {
+    Serial.println("Hardware initialization failed. Cannot proceed.");
+    while (1) {
+      delay(1000);  // Wait forever
     }
-    
-    // Try both MPU addresses and set the correct one
-    bool addrLowFound = I2CScanner::testAddress(0x68);
-    bool addrHighFound = I2CScanner::testAddress(0x69);
-    
-    if (addrLowFound) {
-        mpuSensor.setAddress(0x68);
-    } else if (addrHighFound) {
-        mpuSensor.setAddress(0x69);
-    } else {
-        Serial.println("\nWARNING: No MPU sensor found at standard addresses.");
+  }
+  
+  // Add delay after hardware initialization
+  delay(100);
+  
+  // Initialize threshold manager
+  bool tmInitOk = ThresholdManager::init();
+  Serial.print("Threshold manager initialization: ");
+  Serial.println(tmInitOk ? "SUCCESS" : "FAILED");
+  
+  if (!tmInitOk) {
+    Serial.println("Threshold manager initialization failed. Using default thresholds.");
+    // Continue anyway - we'll use defaults
+  }
+  
+  // Add delay after threshold manager initialization
+  delay(100);
+  
+  // Initialize position detector
+  bool pdInitOk = positionDetector.init(hardware);
+  Serial.print("Position detector initialization: ");
+  Serial.println(pdInitOk ? "SUCCESS" : "FAILED");
+  
+  if (!pdInitOk) {
+    Serial.println("Position detector initialization failed. Cannot proceed.");
+    while (1) {
+      delay(1000);  // Wait forever
     }
-    
-    // Initialize MPU sensor
-    Serial.println("\nInitializing MPU sensor...");
-    if (mpuSensor.init()) {
-        Serial.println("MPU sensor initialized successfully.");
-        
-        // Perform calibration
-        Serial.println("\nCalibrating sensor (keep device still)...");
-        if (mpuSensor.calibrate()) {
-            Serial.println("Calibration complete.");
-        } else {
-            Serial.println("Calibration failed. Using uncalibrated values.");
-        }
-    } else {
-        Serial.println("Failed to initialize MPU sensor.");
-    }
-    
-    // Initialize LED interface
-    Serial.println("\nInitializing LED interface...");
-    if (ledInterface.init()) {
-        Serial.println("LED interface initialized successfully.");
-        
-        // Show a startup animation - pulse white three times
-        Color white = {255, 255, 255};
-        ledInterface.pulse(white, 3, 500);
-    } else {
-        Serial.println("Failed to initialize LED interface.");
-    }
-    
-    Serial.println("\nSetup complete. Beginning main loop.");
+  }
+  
+  // Set default brightness
+  hardware->setBrightness(Config::DEFAULT_BRIGHTNESS);
+  
+  // Ready indicator
+  for (int i = 0; i < 3; i++) {
+    hardware->setAllLEDs({0, 255, 0});
+    hardware->updateLEDs();
+    delay(200);
+    hardware->setAllLEDs({0, 0, 0});
+    hardware->updateLEDs();
+    delay(200);
+  }
+  
+  Serial.println("\nGauntlet ready. Detecting hand positions.");
+  Serial.println("------------------------------------------------------");
+  
+  lastUpdateTime = millis();
 }
 
 void loop() {
-    // Non-blocking sensor reading
-    unsigned long currentMillis = millis();
+  unsigned long currentTime = millis();
+  
+  // Update hardware
+  hardware->update();
+  
+  // Process ThresholdManager's deferred operations
+  ThresholdManager::update();
+  
+  // Process at regular intervals
+  if (currentTime - lastUpdateTime >= UPDATE_INTERVAL) {
+    lastUpdateTime = currentTime;
     
-    if (currentMillis - lastSensorReadTime >= SENSOR_READ_INTERVAL) {
-        lastSensorReadTime = currentMillis;
-        
-        // Read from MPU sensor
-        SensorData data;
-        if (mpuSensor.readSensorData(&data)) {
-            // Analyze the accelerometer data to determine orientation
-            int16_t absX = abs(data.accelX);
-            int16_t absY = abs(data.accelY);
-            int16_t absZ = abs(data.accelZ);
-            
-            // Find the maximum absolute value
-            maxAccelValue = max(absX, max(absY, absZ));
-            
-            // Determine the dominant axis
-            if (maxAccelValue == absX) {
-                dominantAxis = 0;  // X-axis
-                isPositive = (data.accelX > 0);
-            } else if (maxAccelValue == absY) {
-                dominantAxis = 1;  // Y-axis
-                isPositive = (data.accelY > 0);
-            } else {
-                dominantAxis = 2;  // Z-axis
-                isPositive = (data.accelZ > 0);
-            }
-            
-            // Print data with reduced frequency for readability
-            static int printCounter = 0;
-            if (++printCounter % 10 == 0) {  // Print every 10th reading
-                Serial.printf("MPU Data: Accel(X=%6d Y=%6d Z=%6d) | ",
-                            data.accelX, data.accelY, data.accelZ);
-                Serial.printf("Gyro(X=%6d Y=%6d Z=%6d) | ",
-                            data.gyroX, data.gyroY, data.gyroZ);
-                
-                // Print orientation info
-                const char* axisNames[] = {"X", "Y", "Z"};
-                Serial.printf("Dominant: %s%s (Value: %6d)\n", 
-                            isPositive ? "+" : "-", 
-                            axisNames[dominantAxis], 
-                            maxAccelValue);
-            }
-        }
+    // Update position detector
+    positionReading = positionDetector.update();
+    
+    // Get processed data for display
+    processedData = positionDetector.getProcessedData();
+    
+    // Display sensor data
+    Serial.print("Accel: X=");
+    Serial.print(processedData.accelX, 2);
+    Serial.print(" Y=");
+    Serial.print(processedData.accelY, 2);
+    Serial.print(" Z=");
+    Serial.print(processedData.accelZ, 2);
+    
+    // Display position
+    Serial.print(" | Position: ");
+    if (positionReading.position < 7) {
+      Serial.print(positionNames[positionReading.position]);
+      Serial.print(" (");
+      Serial.print(positionReading.confidence);
+      Serial.println("%)");
+    } else {
+      Serial.println("INVALID");
     }
     
-    // Non-blocking LED updates
-    if (currentMillis - lastLedUpdateTime >= LED_UPDATE_INTERVAL) {
-        lastLedUpdateTime = currentMillis;
-        
-        // Use maxAccelValue to determine brightness
-        // Map to range 20-180 to avoid too dim or too bright
-        int mappedBrightness = 20 + (maxAccelValue * 160) / 16000;
-        if (mappedBrightness > 180) mappedBrightness = 180;
-        
-        // Set brightness based on overall acceleration
-        ledInterface.setBrightness(mappedBrightness);
-        
-        // Map orientation to hand positions (simplified mapping for now)
-        uint8_t position;
-        if (dominantAxis == 0) {           // X-axis
-            position = isPositive ? POS_SHIELD : POS_NULL;
-        } else if (dominantAxis == 1) {    // Y-axis
-            position = isPositive ? POS_OFFER : POS_CALM;
-        } else {                           // Z-axis
-            position = isPositive ? POS_OATH : POS_DIG;
-        }
-        
-        // Get the color for this position
-        Color posColor = ledInterface.getColorForPosition(position);
-        
-        // Set all LEDs to the position color
-        ledInterface.setAllLEDs(posColor);
-        ledInterface.show();
+    // Update LEDs based on detected position - use predeclared variable
+    switch (positionReading.position) {
+      case POS_NULL:
+        positionColor = {Config::Colors::NULL_COLOR[0], Config::Colors::NULL_COLOR[1], Config::Colors::NULL_COLOR[2]};
+        break;
+      case POS_SHIELD:
+        positionColor = {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]};
+        break;
+      case POS_OFFER:
+        positionColor = {Config::Colors::OFFER_COLOR[0], Config::Colors::OFFER_COLOR[1], Config::Colors::OFFER_COLOR[2]};
+        break;
+      case POS_OATH:
+        positionColor = {Config::Colors::OATH_COLOR[0], Config::Colors::OATH_COLOR[1], Config::Colors::OATH_COLOR[2]};
+        break;
+      case POS_DIG:
+        positionColor = {Config::Colors::DIG_COLOR[0], Config::Colors::DIG_COLOR[1], Config::Colors::DIG_COLOR[2]};
+        break;
+      case POS_CALM:
+        positionColor = {Config::Colors::CALM_COLOR[0], Config::Colors::CALM_COLOR[1], Config::Colors::CALM_COLOR[2]};
+        break;
+      default:
+        positionColor = {Config::Colors::UNKNOWN_COLOR[0], Config::Colors::UNKNOWN_COLOR[1], Config::Colors::UNKNOWN_COLOR[2]};
+        break;
     }
+    
+    hardware->setAllLEDs(positionColor);
+    hardware->updateLEDs();
+  }
+  
+  // Add a small delay to prevent watchdog issues
+  delay(10);
 }

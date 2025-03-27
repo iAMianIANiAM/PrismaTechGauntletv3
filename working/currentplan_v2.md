@@ -142,14 +142,27 @@ Based on our analysis of the existing codebase:
   - `UltraBasicPositionDetector.h` - Interface with physical unit conversion and threshold detection
   - `UltraBasicPositionDetector.cpp` - Implementation with 3-sample averaging and calibration
   - `UltraBasicPositionTest.cpp` - Test application with calibration mode and visualization
-  - `platformio.ini` updated with `env:ultrabasic` environment
+  - `ThresholdManager.h/cpp` - Centralized threshold management and persistent storage
+  - Integration of UBPD with ThresholdManager for streamlined threshold handling
+  - `main.cpp` updated to use the UBPD and ThresholdManager
   
-- Next steps in Phase 2:
-  - Build the implementation with `pio run -e ultrabasic`
-  - Upload to physical hardware with `pio run -e ultrabasic -t upload`
-  - Test position detection accuracy
-  - Compare with original Dominant Axis detection approach
-  - Document findings and adjust if needed
+- All implementations have been successfully built using `pio run -e esp32dev`
+  
+- Next steps for hardware validation:
+  1. Connect the ESP32 device via USB
+  2. Upload the firmware using `pio run -e esp32dev -t upload`
+  3. Open serial monitor to observe device output: `pio device monitor -b 115200`
+  4. Test position detection by moving the device through all positions
+  5. Enter calibration mode by typing 'c' in the serial monitor
+  6. Follow calibration prompts to set thresholds for each position
+  7. Validate that the device correctly identifies positions after calibration
+  8. Document results and compare performance to the original detection approach
+  
+- If the hardware validation is successful:
+  1. Commit the changes to the recovery branch
+  2. Tag the release as v0.1.0-UBPD
+  3. Push to the remote repository
+  4. Update working documents to reflect the successful implementation
 
 3. Prepare for Phase 3: Implementation Recovery
    - Locate and integrate the missing ECHO document
@@ -181,7 +194,7 @@ Based on our project principles of Simplicity, Prudence, and Diligence, we have 
 - [x] Review existing PositionDetector implementation
 - [x] Document the exact changes needed for the UBPD model
 - [x] Outline class structure and method requirements
-- [ ] Add env:ultrabasic to platformio.ini
+- [x] Add env:ultrabasic to platformio.ini
 
 #### 2. Core Implementation
 - [x] Create UltraBasicPositionDetector.h with clear interface definition
@@ -198,14 +211,14 @@ Based on our project principles of Simplicity, Prudence, and Diligence, we have 
 - [x] Implement LED feedback for detected positions
 - [x] Add simple calibration capability for testing
 
-#### 4. Verification Process
-- [x] Add env:ultrabasic to platformio.ini for building the test application
-- [x] Fix UltraBasicPositionTest.cpp to define BUTTON_PIN locally instead of using Config namespace
-- [x] Update calibration method to use serial commands instead of physical button
-- [ ] Test implementation on physical hardware
-- [ ] Verify position detection accuracy
-- [ ] Compare with original Dominant Axis detection approach
-- [ ] Document findings and adjust if needed
+#### 4. Integration and Testing
+- [x] Integrate UBPD with ThresholdManager for persistent threshold storage
+- [x] Update calibratePosition to return float thresholds instead of bool
+- [x] Modify main application to use UBPD and ThresholdManager
+- [x] Successfully build the esp32dev environment
+- [ ] Upload to physical hardware for testing
+- [ ] Validate position detection accuracy
+- [ ] Document performance and compare with original approach
 
 ### Phase 3: Documentation and Integration (Days 6-7)
 
@@ -352,3 +365,179 @@ We are now beginning Phase 1 of the hybrid plan: Immediate Process Stabilization
 - [ ] Develop improved visual feedback during position detection
 
 We are now beginning Phase 1 of the hybrid plan: Immediate Process Stabilization. 
+
+## Phase 4: Environment Consolidation and Threshold Management
+
+Based on the user's concerns about test environment proliferation and threshold management, a new phase has been approved to address these issues directly.
+
+### Approved Plan: Streamline Test Environments and Threshold Management
+
+#### 1. Test Environment Consolidation
+
+**Current Issues:**
+- Too many active test environments (6 active, 4 archived)
+- UBPD implementation exists in `ultrabasic` but not in main build
+- Redundant test environments with overlapping functionality
+- No clear hierarchy between test environments
+
+**Solution:**
+1. **Consolidate Test Environments**
+   ```
+   [env:esp32dev] (Production)
+   ├── [env:ubpd_test] (Primary Test)
+   │   ├── [env:calibration] (Threshold Generation)
+   │   └── [env:hardware_test] (Hardware Verification)
+   └── [env:archive] (Reference Only)
+   ```
+
+2. **Update Production Environment**
+   - Add UBPD to main build
+   - Remove redundant test environments
+   - Ensure proper integration of UBPD with main application
+
+3. **Environment Purposes**
+   - `esp32dev`: Full application with UBPD
+   - `ubpd_test`: UBPD testing and validation
+   - `calibration`: Threshold generation and storage
+   - `hardware_test`: Hardware component verification
+   - Archive others for reference only
+
+#### 2. Threshold Management System
+
+**Current Issues:**
+- Thresholds hardcoded in Config.h
+- No clear process for updating thresholds
+- Calibration data exists but isn't properly integrated
+- No persistence of calibrated values
+
+**Solution:**
+1. **Create ThresholdManager Class**
+   ```cpp
+   class ThresholdManager {
+   public:
+       static bool loadThresholds();
+       static bool saveThresholds();
+       static bool updateThreshold(uint8_t position, float value);
+       static float getThreshold(uint8_t position);
+   private:
+       static const char* THRESHOLD_FILE;
+       static float thresholds[6];  // One per position
+   };
+   ```
+
+2. **Implement Threshold Storage**
+   - Use EEPROM for persistent storage
+   - Add JSON file support for backup/restore
+   - Create threshold validation system
+
+3. **Calibration Integration**
+   - Modify calibration routine to save to EEPROM
+   - Add threshold verification step
+   - Implement threshold backup/restore functionality
+
+#### 3. Implementation Plan
+
+**Phase 1: Environment Consolidation** (Day 1)
+- [ ] Create new environment structure
+- [ ] Migrate UBPD to main build
+- [ ] Update build flags and dependencies
+- [ ] Verify all environments build successfully
+
+**Phase 2: Threshold System** (Day 2)
+- [ ] Implement ThresholdManager
+- [ ] Add EEPROM storage
+- [ ] Create JSON backup/restore
+- [ ] Update calibration routine
+
+**Phase 3: Integration** (Day 3)
+- [ ] Update main application to use ThresholdManager
+- [ ] Verify threshold persistence
+- [ ] Test calibration workflow
+- [ ] Document new procedures
+
+#### 4. Expected Benefits
+
+1. **Simplified Development**
+   - Clear environment hierarchy
+   - Reduced maintenance overhead
+   - Easier to track changes
+
+2. **Improved Threshold Management**
+   - Persistent storage
+   - Backup/restore capability
+   - Validation system
+
+3. **Better Integration**
+   - UBPD properly integrated with main build
+   - Clear separation of concerns
+   - Improved maintainability
+
+## Stack Canary Watchpoint Issue Fix Plan
+
+The system is encountering a stack canary watchpoint error after adding the ThresholdManager implementation. Analysis indicates this is caused by a combination of stack-based memory allocations, recursive function calls, and sequential flash operations that exceed stack boundaries during initialization.
+
+### Root Cause
+- The newly added ThresholdManager implementation uses StaticJsonDocument on the stack
+- Recursive initialization pattern when loadThresholds() calls saveThresholds() during init()
+- Multiple flash operations (EEPROM and SPIFFS) occurring in sequence without synchronization
+- Deep stack growth during initialization error paths
+
+### Approved Fix Plan (IMPLEMENTED ✓ VERIFIED ON HARDWARE ✓)
+1. **Restructure Memory Allocation** ✓
+   - Replace all StaticJsonDocument instances with heap-based DynamicJsonDocument
+   - Move memory-intensive operations from stack to heap
+
+2. **Eliminate Recursive Initialization** ✓
+   - Restructure init() to avoid callbacks during initialization
+   - Set initialization flag before performing operations that might recurse
+   - Separate initialization stages with proper synchronization
+
+3. **Separate Flash Operations** ✓
+   - Implement deferred operations pattern with a needsSave flag
+   - Add an update() method to handle deferred operations in the main loop
+   - Add delays between critical flash operations
+
+4. **Optimize Flash Operations** ✓
+   - Improve error handling for EEPROM and SPIFFS operations
+   - Implement retry mechanism for failed operations
+   - Use temporary buffers to minimize risk of corruption
+
+5. **Enhanced Error Handling** ✓
+   - Make the system more resilient to initialization failures
+   - Improve validation of loaded data
+   - Implement safe fallbacks to defaults
+
+6. **Modify Main Loop Integration** ✓
+   - Add delays after hardware initialization
+   - Call ThresholdManager::update() in the main loop
+   - Continue operation even if ThresholdManager initialization "fails"
+
+### Implementation Details
+The following changes were made to fix the stack canary watchpoint issue:
+
+1. **ThresholdManager.h**:
+   - Added `update()` method to handle deferred operations
+   - Added `needsSave` flag to track pending operations
+   - Converted `readFromEEPROM` and `writeToEEPROM` to template functions to handle generic data types
+   - Added proper error handling and validation
+
+2. **ThresholdManager.cpp**:
+   - Restructured initialization to set initialized flag before operations
+   - Added delays between flash operations
+   - Implemented staged initialization with safe fallbacks
+   - Added validation for threshold values
+   - Deferred EEPROM writes until the main loop update() call
+
+3. **main.cpp**:
+   - Added delay after hardware and ThresholdManager initialization
+   - Added ThresholdManager::update() call to the main loop
+   - Made the system continue even if ThresholdManager initialization fails
+
+### Results
+The implementation has been successfully verified on hardware. The device now:
+- Initializes properly without triggering stack canary watchpoints
+- Successfully transitions from setup() to loop() without crashes
+- Properly manages thresholds with deferred EEPROM operations
+- Demonstrates stable operation with proper error handling
+
+This fix completes the implementation of the ThresholdManager system and ensures stable operation of the UBPD system on the physical hardware.
