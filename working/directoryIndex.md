@@ -168,10 +168,10 @@ This document uses the following status indicators:
 
 ### Ultra Basic Position Detection (UBPD) - PRIMARY DETECTION MODEL
 - **Documentation**: Comprehensive documentation available in `working/UBPD.md`
-- **Missing Files**: 
-  - `UltraBasicPositionDetector.h/cpp`
-  - `/examples/component_tests/UltraBasicPositionTest.cpp`
-  - `env:ultrabasic` environment in platformio.ini
+- **Implemented Files**: 
+  - `UltraBasicPositionDetector.h/cpp` - [IMPLEMENTED] (Build successful, pending hardware validation)
+  - `/examples/component_tests/UltraBasicPositionTest.cpp` - [IMPLEMENTED] (Build successful, pending hardware validation)
+  - `env:ultrabasic` environment in platformio.ini - [IMPLEMENTED]
 - **Purpose**:
   - This is the intended PRIMARY detection model for the entire device
   - Designed to replace the current PositionDetector implementation with a more optimized approach
@@ -184,7 +184,8 @@ This document uses the following status indicators:
   - Enhanced calibration protocol with buffer time and sample discarding
   - Position-specific threshold adjustments
   - Clear gravity orientation handling
-- **Status**: [PLANNED] (Implementation scheduled for Phase 2 of Hybrid Plan)
+  - Serial command-based calibration (type 'c' to enter calibration mode)
+- **Status**: [IMPLEMENTED] (2025-03-27, Build successful, pending hardware validation)
 
 ### Experimental Detection Models (NOT NEEDED)
 The following detection models were experimental approaches that proved overly complex and less reliable in testing. These implementations do NOT need to be recovered, as the UBPD model is the intended final approach:
@@ -223,13 +224,13 @@ The following detection models were experimental approaches that proved overly c
   - **Note**: Planned to be replaced by UltraBasicPositionDetector for production
   
 - `UltraBasicPositionDetector`: Ultra Basic Position Detection implementation
-  - **Status**: [PLANNED] (Implementation scheduled for Phase 2 of Hybrid Plan)
-  - **Verification**: Not yet implemented
+  - **Status**: [IMPLEMENTED] (Implementation completed, build successful)
+  - **Verification**: Not yet validated on hardware
   - **Features**: 
-    - Will implement physical unit conversion to m/s²
-    - Will use absolute thresholds in physical units
-    - Will implement 3-sample averaging for noise reduction
-    - Will include position-specific threshold management
+    - Physical unit conversion to m/s² implemented
+    - Absolute thresholds in physical units implemented
+    - 3-sample averaging for noise reduction implemented
+    - Position-specific threshold management implemented
 
 ### Calibration and Analysis
 - `CalibrationProtocol.cpp`: Calibration sequence implementation

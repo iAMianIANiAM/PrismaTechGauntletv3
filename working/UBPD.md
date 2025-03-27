@@ -257,3 +257,188 @@ According to the project directory index, the Ultra-Simplified Position Detectio
 - Test application in `/examples/component_tests/UltraBasicPositionTest.cpp` **[PLANNED]** (Implementation scheduled for Phase 2 of Hybrid Plan)
 
 There is currently a discrepancy between documentation and actual code implementation. The implementation of these files is scheduled as part of Phase 2 of our Hybrid Plan as outlined in currentplan_v2.md. 
+
+## Approved Implementation Plan
+
+Based on analysis of both the ECHO MPU data processing approach and this UBPD design document, the following implementation plan was approved:
+
+### Core Implementation Components
+
+#### 1. Data Processing Pipeline
+
+```cpp
+class UltraBasicPositionDetector {
+private:
+    // Constants
+    static constexpr int POSITION_AVERAGE_SAMPLES = 3;
+    static constexpr float SCALING_FACTOR = 4.0f * 9.81f / 32768.0f; // For ±4g range to m/s²
+    
+    // Raw data buffer for averaging
+    SensorData _sampleBuffer[POSITION_AVERAGE_SAMPLES];
+    uint8_t _currentSampleIndex = 0;
+    
+    // Position thresholds in m/s²
+    float _positiveXThreshold = 7.0f;
+    float _negativeXThreshold = -7.0f;
+    float _positiveYThreshold = 7.0f;
+    float _negativeYThreshold = -7.0f;
+    float _positiveZThreshold = 7.0f;
+    float _negativeZThreshold = -7.0f;
+    
+    // Current position data
+    PositionReading _currentPosition;
+    
+    // Hardware interface
+    IHardwareInterface* _hardware;
+};
+```
+
+#### 2. Position Detection Logic
+
+```cpp
+uint8_t UltraBasicPositionDetector::detectPosition(const ProcessedData& data) {
+    // Z-axis positions
+    if (data.accelZ > _positiveZThreshold) {
+        return POS_OFFER;     // Z strongly positive
+    }
+    if (data.accelZ < _negativeZThreshold) {
+        return POS_CALM;      // Z strongly negative
+    }
+    
+    // Y-axis positions
+    if (data.accelY > _positiveYThreshold) {
+        return POS_OATH;      // Y strongly positive
+    }
+    if (data.accelY < _negativeYThreshold) {
+        return POS_DIG;       // Y strongly negative
+    }
+    
+    // X-axis positions
+    if (data.accelX > _positiveXThreshold) {
+        return POS_NULL;      // X strongly positive
+    }
+    if (data.accelX < _negativeXThreshold) {
+        return POS_SHIELD;    // X strongly negative
+    }
+    
+    return POS_UNKNOWN;
+}
+```
+
+#### 3. Data Processing Function
+
+```cpp
+void UltraBasicPositionDetector::processRawData(const SensorData& raw, ProcessedData& processed) {
+    // Apply scaling to convert to m/s²
+    processed.accelX = raw.accelX * SCALING_FACTOR;
+    processed.accelY = -raw.accelY * SCALING_FACTOR;  // Invert for face-down mounting
+    processed.accelZ = raw.accelZ * SCALING_FACTOR;
+}
+```
+
+#### 4. Main Detection Method
+
+```cpp
+PositionReading UltraBasicPositionDetector::update() {
+    // 1. Get raw sensor data
+    SensorData rawData = _hardware->getSensorData();
+    
+    // 2. Add to averaging buffer
+    _sampleBuffer[_currentSampleIndex] = rawData;
+    _currentSampleIndex = (_currentSampleIndex + 1) % POSITION_AVERAGE_SAMPLES;
+    
+    // 3. Calculate averaged data
+    SensorData averagedData = calculateAveragedData();
+    
+    // 4. Process to physical units
+    ProcessedData processedData;
+    processRawData(averagedData, processedData);
+    
+    // 5. Detect position
+    uint8_t position = detectPosition(processedData);
+    
+    // 6. Update position reading
+    _currentPosition.position = position;
+    _currentPosition.confidence = 100; // Simple system always 100% confident
+    _currentPosition.timestamp = millis();
+    
+    return _currentPosition;
+}
+```
+
+#### 5. Calibration Implementation
+
+```cpp
+bool UltraBasicPositionDetector::calibratePosition(uint8_t position, uint16_t samples) {
+    // 1. Visual feedback that calibration is starting
+    _hardware->setLED(position, true);
+    
+    // 2. Discard initial samples to avoid transition motion
+    for (uint8_t i = 0; i < 10; i++) {
+        _hardware->getSensorData();
+        delay(20);
+    }
+    
+    // 3. Collect and average samples
+    ProcessedData sum = {0, 0, 0};
+    for (uint16_t i = 0; i < samples; i++) {
+        SensorData raw = _hardware->getSensorData();
+        ProcessedData processed;
+        processRawData(raw, processed);
+        
+        sum.accelX += processed.accelX;
+        sum.accelY += processed.accelY;
+        sum.accelZ += processed.accelZ;
+        
+        // Visual feedback of progress
+        if (i % 10 == 0) {
+            _hardware->toggleLED(position);
+        }
+        
+        delay(20);
+    }
+    
+    // 4. Compute average
+    ProcessedData avg = {
+        sum.accelX / samples,
+        sum.accelY / samples,
+        sum.accelZ / samples
+    };
+    
+    // 5. Set threshold at 80% of measured value
+    float threshold = 0.8f;
+    
+    // 6. Assign to appropriate threshold
+    switch (position) {
+        case POS_OFFER:   _positiveZThreshold = avg.accelZ * threshold; break;
+        case POS_CALM:    _negativeZThreshold = avg.accelZ * threshold; break;
+        case POS_OATH:    _positiveYThreshold = avg.accelY * threshold; break;
+        case POS_DIG:     _negativeYThreshold = avg.accelY * threshold; break;
+        case POS_SHIELD:  _negativeXThreshold = avg.accelX * threshold; break;
+        case POS_NULL:    _positiveXThreshold = avg.accelX * threshold; break;
+    }
+    
+    // 7. Visual feedback that calibration is complete
+    _hardware->setLED(position, false);
+    
+    return true;
+}
+```
+
+### Key Advantages
+
+1. **Simplicity**: Straightforward detection logic with minimal processing
+2. **Physical Units**: All thresholds and values in meaningful m/s² units
+3. **Reliability**: Direct threshold comparison with clear axis prioritization
+4. **Debuggability**: Clear data flow and simple averaging
+5. **Standard Scale**: Consistent -10 to +10 scale matching ECHO approach
+6. **Easy Calibration**: Interactive calibration with visual feedback
+
+### Implementation Strategy
+
+1. Create `UltraBasicPositionDetector.h` with class definition, enums, and method declarations
+2. Implement `UltraBasicPositionDetector.cpp` with the core detection logic
+3. Create `UltraBasicPositionTest.cpp` in the examples/component_tests directory
+4. Update the platformio.ini file to include the ultrabasic environment
+
+This implementation maintains the core design philosophy of maximum simplicity while incorporating the best practices from the ECHO implementation regarding physical unit standardization and threshold handling. 
