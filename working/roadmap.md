@@ -1,5 +1,9 @@
 # PrismaTech Gauntlet 3.0 - Development Roadmap
 
+## IMPORTANT NOTICE: Version Control Issue
+
+**This roadmap is being updated to reflect the current state of the codebase.** Due to version control issues, the Ultra Basic Position Detection (UBPD) system, which is the primary detection model for the entire device, was lost or never fully committed to the repository. We are focusing our recovery efforts on implementing this key component, which is essential for the device's functionality.
+
 ## Project Overview
 The PrismaTech Gauntlet 3.0 is a wearable electronic device that enables users to "cast spells" through specific hand positions and gestures. This roadmap outlines the development plan to implement the functionality described in the TrueFunctionGuide.
 
@@ -53,33 +57,28 @@ The PrismaTech Gauntlet 3.0 is a wearable electronic device that enables users t
   - [x] Confirm core system integration
   - [x] Update directory index
 
-### Phase 3: Basic Position Detection ✅
+### Phase 3: Basic Position Detection ⏳
 - [x] Implement Position Detector Core
   - [x] Implement Calibration Protocol
   - [x] Develop calibration data logging utilities
   - [x] Create calibration data analysis tools
   - [x] Generate position detection thresholds
   - [x] Integrate thresholds into Config.h
-  - [x] Implement initial position detection model
+  - [x] Implement PositionDetector.cpp with Point Detection Model
   - [x] Implement basic position visualization in testing mode
   - [x] Debug output system
   - [x] Test and refine thresholds
-- [x] Explore Advanced Position Detection Models
-  - [x] Design vector-based orientation detection approach (Hand-Cube Model)
-  - [x] Implement 3D vector representation and operations
-  - [x] Create reference position vectors for cube faces
-  - [x] Implement vector similarity calculation methods
-  - [x] Add confidence calculation based on vector similarity
-  - [x] Create dual detection mode support
-  - [x] Design hybrid position detection approach
-  - [x] Verify performance on physical hardware
-- [x] Implement Ultra-Basic Position Detection System
-  - [x] Create minimalist position detection approach
-  - [x] Implement direct dominant axis detection with minimal processing
-  - [x] Add 3-sample averaging for basic noise reduction
-  - [x] Create simple calibration procedure
-  - [x] Implement color-coded LED feedback
-  - [x] Test and validate on physical hardware
+- [ ] Implement Ultra-Basic Position Detection (PRIMARY FOCUS)
+  - [x] Design minimalist approach with direct axis detection
+  - [x] Define physical unit conversion and thresholds
+  - [ ] Implement UltraBasicPositionDetector class with:
+    - [ ] Physical unit conversion (raw data to m/s²)
+    - [ ] Absolute threshold values in real-world units
+    - [ ] Simplified detection logic
+    - [ ] Position-specific threshold management
+  - [ ] Create simplified calibration procedure
+  - [ ] Develop UltraBasicPositionTest application
+  - [ ] Verify on physical hardware
 - [ ] Implement Data Structures and Storage
   - [ ] Position data storage format
   - [ ] Calibration parameter storage
@@ -92,13 +91,16 @@ The PrismaTech Gauntlet 3.0 is a wearable electronic device that enables users t
   - [ ] System state recovery
   - [ ] User feedback system
   - [ ] Error logging and reporting
-- [x] Phase 3 Verification
-  - [x] Validate position detection accuracy
-  - [x] Verify calibration procedure effectiveness
-  - [x] Test system on physical hardware
-  - [x] Compare detection methods and select best approach
+- [ ] Phase 3 Verification
+  - [x] Validate position detection accuracy (basic implementation)
+  - [ ] Verify UBPD implementation accuracy and performance
+  - [ ] Review data structure implementations
+  - [ ] Check error handling coverage
+  - [ ] Verify memory management
   - [x] Confirm hardware layer integration
   - [x] Update documentation
+
+> **NOTE**: The Hand-Cube Orientation Model and Hybrid Position Detection approaches were experimental implementations that proved unnecessarily complex and less reliable in testing. These are NOT needed for the final device and have been removed from the roadmap. The Ultra-Basic Position Detection (UBPD) is the intended final detection approach for the device.
 
 ### Phase 4: Calibration Preparation ✅
 - [x] Implement Serial Communication
@@ -173,123 +175,55 @@ The PrismaTech Gauntlet 3.0 is a wearable electronic device that enables users t
   - [x] Ensure production/test code separation
   - [x] Archive obsolete test environments
   - [x] Document environment purposes and usage
-- [x] Implement Vector Orientation Test Environment
-  - [x] Create env:vectortest environment
-  - [x] Implement vector visualization and debugging
-  - [x] Add interactive calibration interface
-  - [x] Include comparison between detection modes
-- [x] Implement Hybrid Position Test Environment
-  - [x] Create env:hybridtest environment
-  - [x] Implement two-stage detection visualization
-  - [x] Add hysteresis configuration interface
-  - [x] Implement adaptive threshold adjustment
-  - [x] Add confidence-based visual feedback
-- [x] Implement Ultra-Basic Position Test Environment
-  - [x] Create env:ultrabasic environment
-  - [x] Implement minimalist position detection test
-  - [x] Add interactive calibration interface
-  - [x] Test and verify on physical hardware
 
-### Phase 7: Mode Implementation ⏳
-- [ ] Implement Idle Mode
-  - [ ] Implement position-to-color mapping
-  - [ ] Create smooth transitions between colors
-  - [ ] Add position change event detection
-  - [ ] Implement animation variations
-  - [ ] Add debug interface
-- [ ] Implement Gesture Recognition
-  - [ ] Position history tracking
-  - [ ] Time-based sequence detection
-  - [ ] CalmOffer gesture recognition
-  - [ ] LongNull gesture recognition
-  - [ ] Gesture feedback animations
-- [ ] Implement Invocation Mode
-  - [ ] State machine for spell invocation
-  - [ ] Animation effects for active spells
-  - [ ] Timeout handling
-  - [ ] Transition back to Idle Mode
-- [ ] Implement Mode Transitions
-  - [ ] Idle to Gesture mode transition
-  - [ ] Gesture to Invocation mode transition
-  - [ ] Timeout behaviors
-  - [ ] Error recovery transitions
-- [ ] Phase 7 Verification
-  - [ ] Test mode transitions
-  - [ ] Verify gesture recognition
-  - [ ] Test invocation animations
-  - [ ] Validate state machine behavior
-  - [ ] Confirm integration with position detection
-
-### Phase 8: System Integration
-- [ ] Implement GauntletController
-  - [ ] Mode state machine
-  - [ ] Hardware resource management
-  - [ ] Power state coordination
-  - [ ] Event handling system
-  - [ ] Error management
-- [ ] Implement System Settings
-  - [ ] Brightness control
-  - [ ] Sensitivity adjustment
-  - [ ] Power management settings
-  - [ ] Calibration access
-  - [ ] Debug mode toggle
-- [ ] Finalize Hardware Integration
-  - [ ] Optimize power consumption
-  - [ ] Enhance error recovery
-  - [ ] Improve startup sequence
-  - [ ] Add self-test routine
-  - [ ] Verify hardware stability
-- [ ] Phase 8 Verification
-  - [ ] System stress testing
-  - [ ] Long-duration testing
-  - [ ] Power consumption analysis
-  - [ ] Error recovery verification
-  - [ ] Complete functionality review
-
-### Phase 9: Optimization and Finalization
-- [ ] Optimize Performance
-  - [ ] Memory usage analysis
-  - [ ] CPU utilization review
-  - [ ] Power consumption optimization
-  - [ ] Response time improvements
-  - [ ] Animation smoothness enhancement
-- [ ] Enhance User Experience
-  - [ ] Refine animations
-  - [ ] Improve feedback clarity
-  - [ ] Add user guidance features
-  - [ ] Enhance error indication
-  - [ ] Simplify calibration process
-- [ ] Final Documentation
-  - [ ] Complete user manual
-  - [ ] Finalize technical documentation
-  - [ ] Document known issues
-  - [ ] Create maintenance guide
-  - [ ] Add future enhancement recommendations
-- [ ] Phase 9 Verification
-  - [ ] Complete system review
-  - [ ] Full functionality testing
-  - [ ] Documentation validation
-  - [ ] Final hardware verification
-  - [ ] User experience evaluation
+### Phase 7: Recovery and UBPD Implementation ⏳
+- [ ] Project Stabilization ✓
+  - [x] Create UBPD.md to preserve Ultra-Basic Position Detection documentation
+  - [x] Update directoryIndex.md to reflect actual codebase state
+  - [x] Update roadmap.md to refocus on UBPD implementation
+  - [x] Create currentplan_v2.md with recovery plan
+  - [x] Verify local git repository state
+  - [x] Check remote repository synchronization
+  - [x] Establish proper backup procedures
+    - [x] Create git_backup_protocol_draft.md
+    - [x] Define commit, push, and branch management guidelines
+  - [x] Create recovery branch for rebuilding
+    - [x] 'recovery-phase1' branch created and active
+- [ ] Workflow Review and Improvement
+  - [ ] Analyze version control practices
+  - [ ] Create formal git backup protocol
+  - [ ] Enhance documentation verification processes
+  - [ ] Implement file existence verification
+- [ ] UBPD Implementation
+  - [ ] Recover/integrate ECHO document for insights
+  - [ ] Create UltraBasicPositionDetector.h/.cpp implementation
+  - [ ] Implement physical unit conversion (raw to m/s²)
+  - [ ] Create position-specific threshold management
+  - [ ] Add streamlined calibration protocol
+  - [ ] Implement UltraBasicPositionTest.cpp
+  - [ ] Add ultrabasic environment to platformio.ini
+  - [ ] Test and verify on physical hardware
 
 ## Current Status
-We have completed Phase 1 (Architecture and Foundation), Phase 2 (Hardware Interface Foundation), Phase 3 (Basic Position Detection), Phase 4 (Calibration Preparation), Phase 5 (Calibration Protocol Implementation), and Phase 6 (Test Environment Implementation).
+We have completed Phase 1 (Architecture and Foundation), Phase 2 (Hardware Interface Foundation), Phase 4 (Calibration Preparation), Phase 5 (Calibration Protocol Implementation), and much of Phase 6 (Test Environment Implementation). We've also made progress on Phase 3 (Basic Position Detection) with a functional but not optimal implementation.
 
-The position detection system has been successfully implemented with the UltraBasicPositionDetector, which provides reliable and accurate position detection using a simple yet effective approach. After multiple iterations and testing different approaches, the ultra-simplified position detection system has proven to be the most reliable and effective solution, exceeding the performance of the previous ECHO implementation.
+The basic PositionDetector class has been successfully implemented with the Point Detection Model (dominant axis approach) and tested on physical hardware. However, the Ultra Basic Position Detection (UBPD) system, which is the intended primary detection model for the entire device, is missing from the codebase despite being documented in detail.
 
-We're now ready to begin implementation of Phase 7 (Mode Implementation), starting with the Idle Mode that will use our successful position detection system to provide real-time visual feedback based on hand position.
+We're currently focusing on Phase 7, which aims to recover and implement the UBPD system as the primary detection model for the device. This implementation is critical as it will:
+1. Convert sensor data into meaningful real-world units (m/s²)
+2. Use absolute threshold values for more intuitive detection
+3. Implement a streamlined calibration protocol
+4. Provide better reliability through clear, direct data processing
 
 ## Key Milestones
 
 1. ✅ Architecture design and documentation complete
 2. ✅ Hardware Interface Foundation complete (MPU9250 interface ✅, LED interface ✅, Hardware Manager ✅)
-3. ✅ Basic Position Detection complete (Calibration Protocol ✅, Data Collection Utilities ✅, Thresholds Generated ✅, Position Detector ✅, Ultra-Basic Position Detection ✅)
+3. ⏳ Basic Position Detection (Calibration Protocol ✅, Data Collection Utilities ✅, Thresholds Generated ✅, Position Detector ✅, Ultra-Basic Position Detection ⏳)
 4. ✅ Calibration Preparation complete
-5. ✅ Calibration Protocol implementation complete
-6. ✅ Test environment implementation complete
-7. ⏳ Mode Implementation (Idle Mode ⏳, Gesture Recognition ⏳, Invocation Mode ⏳)
-8. ⏳ System Integration
-9. ⏳ Optimization and Finalization
+5. ✅ Calibration Protocol implementation ready
+6. ✅ Test environment implementation (Basic environments ✅)
+7. ⏳ Recovery and UBPD Implementation (Documentation harmonization ✅, Repository stabilization ⏳, Workflow improvement ⏳, UBPD implementation ⏳)
 
 ## Dependencies
 - ESP32 development environment
