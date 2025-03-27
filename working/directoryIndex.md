@@ -172,6 +172,7 @@ This document uses the following status indicators:
   - `UltraBasicPositionDetector.h/cpp` - [IMPLEMENTED] (Build successful, pending hardware validation)
   - `/examples/component_tests/UltraBasicPositionTest.cpp` - [IMPLEMENTED] (Build successful, pending hardware validation)
   - `env:ultrabasic` environment in platformio.ini - [IMPLEMENTED]
+  - Main application integration in `src/main.cpp` - [IMPLEMENTED] (Build successful)
 - **Purpose**:
   - This is the intended PRIMARY detection model for the entire device
   - Designed to replace the current PositionDetector implementation with a more optimized approach
@@ -185,7 +186,25 @@ This document uses the following status indicators:
   - Position-specific threshold adjustments
   - Clear gravity orientation handling
   - Serial command-based calibration (type 'c' to enter calibration mode)
-- **Status**: [IMPLEMENTED] (2025-03-27, Build successful, pending hardware validation)
+  - Integration with ThresholdManager for persistent threshold storage
+  - Updated calibratePosition method returns float thresholds instead of bool
+- **Status**: [IMPLEMENTED] (2025-03-27, Successfully built in main environment, pending hardware validation)
+
+### Threshold Management
+- **Documentation**: Implementation details in currentplan_v2.md
+- **Implemented Files**:
+  - `ThresholdManager.h/cpp` - [IMPLEMENTED] (Build successful, pending hardware validation)
+- **Purpose**:
+  - Centralized management of thresholds for position detection
+  - Persistent storage of calibration thresholds using EEPROM/SPIFFS
+  - Simplification of threshold updates and retrieval
+- **Key Features**:
+  - Singleton pattern for global access
+  - Methods for updating and retrieving thresholds
+  - Persistent storage to maintain thresholds across reboots
+  - Simple interface for position detection systems
+  - Integration with UBPD for streamlined calibration
+- **Status**: [IMPLEMENTED] (2025-03-27, Successfully built in main environment, pending hardware validation)
 
 ### Experimental Detection Models (NOT NEEDED)
 The following detection models were experimental approaches that proved overly complex and less reliable in testing. These implementations do NOT need to be recovered, as the UBPD model is the intended final approach:

@@ -79,8 +79,11 @@ The PrismaTech Gauntlet 3.0 is a wearable electronic device that enables users t
     - [x] Position-specific threshold management
   - [x] Create simplified calibration procedure
   - [x] Develop UltraBasicPositionTest application
+  - [x] Integrate with ThresholdManager for persistent storage
+  - [x] Update main application to use UBPD and ThresholdManager
+  - [x] Successfully build main application environment
   - [ ] Verify on physical hardware
-  - **Status**: [IMPLEMENTED] (2025-03-27, Pending hardware validation)
+  - **Status**: [IMPLEMENTED] (2025-03-27, Successful build, pending hardware validation)
 - [ ] Implement Data Structures and Storage
   - [ ] Position data storage format
   - [ ] Calibration parameter storage
@@ -198,14 +201,14 @@ The PrismaTech Gauntlet 3.0 is a wearable electronic device that enables users t
     - [x] 'recovery-phase1' branch created and active
   - **Status**: [VERIFIED] (2025-03-27)
 - [x] UBPD Implementation
-  - [x] Create detailed implementation plan for UBPD system
-  - [x] Implement `UltraBasicPositionDetector.h/cpp` files
-  - [x] Implement `UltraBasicPositionTest.cpp`
-  - [x] Add `env:ultrabasic` environment to platformio.ini
-  - [x] Fix build issues in UltraBasicPositionTest.cpp (BUTTON_PIN definition)
-  - [x] Improve calibration to use serial commands instead of physical button
-  - [ ] Test and validate the implementation on physical hardware
-  - **Status**: [IMPLEMENTED] (2025-03-27, Build successful, pending hardware validation)
+  - [x] Create UltraBasicPositionDetector.h and .cpp files
+  - [x] Implement calibration with threshold return value
+  - [x] Create UltraBasicPositionTest.cpp test environment
+  - [x] Integrate with ThresholdManager
+  - [x] Update main application to use UBPD system
+  - [x] Successfully build project with UBPD implementation
+  - [ ] Test on physical hardware
+  - **Status**: [IMPLEMENTED] (2025-03-27, Successful build, pending hardware validation)
 - [ ] Workflow Review and Improvement
   - [x] Analyze version control practices
   - [x] Create formal git backup protocol
@@ -216,6 +219,34 @@ The PrismaTech Gauntlet 3.0 is a wearable electronic device that enables users t
   - [ ] Enhance documentation verification processes
   - [ ] Implement file existence verification
   - **Status**: [IN PROGRESS] (Part of Hybrid Plan Phase 1)
+
+### Phase 8: Environment Consolidation and Threshold Management ⏳
+- [ ] Test Environment Consolidation
+  - [ ] Design simplified environment hierarchy
+  - [ ] Create `ubpd_test` as primary test environment
+  - [ ] Consolidate redundant environments
+  - [ ] Update production build with UBPD integration
+  - [ ] Archive obsolete test environments
+  - **Status**: [PLANNED] (2025-03-27)
+- [ ] Threshold Management System
+  - [ ] Design ThresholdManager class
+  - [ ] Implement EEPROM-based threshold storage
+  - [ ] Create JSON threshold backup/restore functionality
+  - [ ] Add threshold validation system
+  - [ ] Integrate with calibration routine
+  - **Status**: [PLANNED] (2025-03-27)
+- [ ] System Integration
+  - [ ] Integrate ThresholdManager with main application
+  - [ ] Update calibration workflow
+  - [ ] Create documentation for threshold management
+  - [ ] Test threshold persistence across power cycles
+  - **Status**: [PLANNED] (2025-03-27)
+- [ ] Phase 8 Verification
+  - [ ] Verify production build with UBPD
+  - [ ] Test threshold persistence
+  - [ ] Validate calibration workflow
+  - [ ] Document new procedures
+  - **Status**: [PLANNED] (2025-03-27)
 
 ## Current Status
 We have completed Phase 1 (Architecture and Foundation), Phase 2 (Hardware Interface Foundation), Phase 4 (Calibration Preparation), Phase 5 (Calibration Protocol Implementation), and Phase 6 (Test Environment Implementation). We've also made progress on Phase 3 (Basic Position Detection) with a functional but not optimal implementation.
@@ -248,6 +279,7 @@ The basic PositionDetector class has been successfully implemented with the Poin
 5. ✅ Calibration Protocol implementation ready
 6. ✅ Test environment implementation (Basic environments ✅)
 7. ⏳ Recovery and UBPD Implementation (Documentation harmonization ✅, Repository stabilization ⏳, Workflow improvement ⏳, UBPD implementation ⏳)
+8. ⏳ Environment Consolidation and Threshold Management (Test Environment Consolidation ⏳, Threshold Management System ⏳, System Integration ⏳)
 
 ## Dependencies
 - ESP32 development environment
