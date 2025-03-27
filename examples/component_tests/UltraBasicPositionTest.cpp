@@ -38,6 +38,7 @@ bool calibrationMode = false;
 void handleCalibration();
 void displaySensorData(const ProcessedData& data, uint8_t position);
 Color getPositionColor(uint8_t position);
+void outputCalibrationValues();
 
 void setup() {
   // Initialize serial communication
@@ -107,6 +108,9 @@ void setup() {
         Serial.println("\n=== Entering Calibration Mode ===");
         handleCalibration();
         calibrationMode = false;
+        
+        // Output calibration values in Config.h format
+        outputCalibrationValues();
       }
       
       receivedCommand = true;
@@ -140,6 +144,16 @@ void loop() {
   
   // Update hardware
   hardware->update();
+  
+  // Check for serial commands
+  if (Serial.available()) {
+    char cmd = Serial.read();
+    if (cmd == 't' || cmd == 'T') {
+      // Redisplay threshold values
+      Serial.println("\n=== CURRENT THRESHOLD VALUES ===");
+      outputCalibrationValues();
+    }
+  }
   
   // Process at regular intervals
   if (currentTime - lastUpdateTime >= UPDATE_INTERVAL) {
@@ -211,7 +225,13 @@ void handleCalibration() {
     hardware->updateLEDs();
     
     // Perform actual calibration (50 samples)
-    positionDetector.calibratePosition(pos, 50);
+    float threshold = positionDetector.calibratePosition(pos, 50);
+    
+    // Display the calibrated threshold
+    Serial.print("Calibrated threshold for position ");
+    Serial.print(posNames[pos]);
+    Serial.print(": ");
+    Serial.println(threshold);
     
     // Confirm completion
     Serial.println("Position calibrated successfully!");
@@ -229,21 +249,52 @@ void handleCalibration() {
     hardware->updateLEDs();
   }
   
-  Serial.println("\nCalibration complete! All positions calibrated.");
-  Serial.println("The device will now operate using your calibrated values.");
-  Serial.println("Move between positions to see detection results.");
+  Serial.println("\n=== Calibration Complete ===");
+  Serial.println("All positions have been calibrated and thresholds are set for this session.");
+  Serial.println("These thresholds will be used until power is cycled.");
+  Serial.println("Proceeding to normal operation with new thresholds.\n");
   
-  // Final success indication
-  for (int i = 0; i < 5; i++) {
+  // Confirm calibration completion with RGB
+  for (int i = 0; i < 2; i++) {
+    hardware->setAllLEDs({255, 0, 0});
+    hardware->updateLEDs();
+    delay(200);
     hardware->setAllLEDs({0, 255, 0});
+    hardware->updateLEDs();
+    delay(200);
+    hardware->setAllLEDs({0, 0, 255});
     hardware->updateLEDs();
     delay(200);
     hardware->setAllLEDs({0, 0, 0});
     hardware->updateLEDs();
     delay(200);
   }
+}
+
+void outputCalibrationValues() {
+  Serial.println("\n// ======= CALIBRATED THRESHOLD VALUES =======");
+  Serial.println("// Copy these values directly into Config.h");
+  Serial.print("// Generated on ");
+  // We'd normally print date/time here, but not available on ESP32 without RTC
+  Serial.println("device boot");
+  Serial.println("");
+  Serial.println("// UBPD Default position thresholds in m/s² (for UltraBasicPositionDetector)");
+  Serial.println("// Update these values after calibration with values from serial output");
+  Serial.println("constexpr float DEFAULT_POSITION_THRESHOLDS[6] = {");
   
-  delay(1000);
+  // Get thresholds from the detector
+  for (int i = 0; i < 6; i++) {
+    Serial.print("  ");
+    Serial.print(positionDetector.getThreshold(i), 2);
+    Serial.print("f,  // ");
+    Serial.print(positionNames[i]);
+    Serial.println(i < 5 ? "," : "");
+  }
+  
+  Serial.println("};");
+  Serial.println("// ===========================================");
+  Serial.println("\nIMPORTANT: Copy these values to src/core/Config.h to make them permanent!");
+  Serial.println("After updating Config.h, rebuild and upload the application.");
 }
 
 void displaySensorData(const ProcessedData& data, uint8_t position) {
@@ -253,10 +304,15 @@ void displaySensorData(const ProcessedData& data, uint8_t position) {
   Serial.print(data.accelY, 2);
   Serial.print(" Z=");
   Serial.print(data.accelZ, 2);
-  Serial.print(" | Position: ");
   
-  if (position <= POS_UNKNOWN) {
-    Serial.println(positionNames[position]);
+  Serial.print(" | Position: ");
+  if (position < 7) {
+    Serial.print(positionNames[position]);
+    Serial.print(" (");
+    if (position < 6) {
+      Serial.print(positionDetector.getThreshold(position), 2);
+    }
+    Serial.println(")");
   } else {
     Serial.println("INVALID");
   }

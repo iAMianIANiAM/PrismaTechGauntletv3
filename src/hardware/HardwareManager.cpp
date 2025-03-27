@@ -48,9 +48,11 @@ bool HardwareManager::init() {
     configurePins();
     
     // CRITICAL FIX: Explicitly initialize I2C bus with correct parameters
+    Wire.end(); // Ensure clean state
+    delay(50);
     Wire.begin(Config::I2C_SDA_PIN, Config::I2C_SCL_PIN);
     Wire.setClock(100000); // 100kHz clock speed as specified in reference
-    delay(100); // Wait for I2C to stabilize
+    delay(150); // Wait for I2C to stabilize
     
     DEBUG_PRINTLN("Initializing MPU sensor...");
     
@@ -81,15 +83,29 @@ bool HardwareManager::init() {
             Wire.beginTransmission(addr);
             Wire.write(0x6B); // PWR_MGMT_1 register
             Wire.write(0x80); // Set reset bit
-            Wire.endTransmission();
-            delay(100); // Wait for reset to complete
+            error = Wire.endTransmission();
+            if (error != 0) {
+                DEBUG_PRINT("Reset transmission error: ");
+                char errorStr[8];
+                sprintf(errorStr, "%d", error);
+                DEBUG_PRINTLN(errorStr);
+                continue;
+            }
+            delay(150); // Wait for reset to complete
             
             // CRITICAL FIX: Wake up the device
             Wire.beginTransmission(addr);
             Wire.write(0x6B); // PWR_MGMT_1 register
             Wire.write(0x00); // Clear sleep bit
-            Wire.endTransmission();
-            delay(100); // Wait for wake up
+            error = Wire.endTransmission();
+            if (error != 0) {
+                DEBUG_PRINT("Wake transmission error: ");
+                char errorStr[8];
+                sprintf(errorStr, "%d", error);
+                DEBUG_PRINTLN(errorStr);
+                continue;
+            }
+            delay(150); // Wait for wake up
             
             // Now initialize the sensor through our interface
             if (imu.init()) {

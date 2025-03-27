@@ -31,7 +31,7 @@ bool MPU9250Interface::init() {
     Serial.printf("Initializing MPU sensor on I2C address 0x%02X\n", sensorAddress);
     
     // Delay for stable power-up
-    delay(100);
+    delay(150);
     
     // Check if sensor is responding
     if (!isConnected()) {
@@ -71,7 +71,7 @@ bool MPU9250Interface::init() {
     }
     
     // Wait for reset to complete
-    delay(100);
+    delay(150);
     
     // Wake up the sensor (clear sleep bit and use X-axis gyro as clock reference)
     Serial.println("Waking up sensor...");
@@ -79,7 +79,7 @@ bool MPU9250Interface::init() {
         Serial.println("Failed to wake up device");
         return false;
     }
-    delay(50);
+    delay(100);
     
     // Configure sample rate divider (register 0x19)
     // Calculate: sample_rate = 1kHz / (1 + divider)
@@ -89,6 +89,7 @@ bool MPU9250Interface::init() {
         Serial.println("Failed to set sample rate");
         return false;
     }
+    delay(10); // Add short delay between I2C operations
     
     // Configure accelerometer range to ±4g (register 0x1C)
     Serial.println("Configuring accelerometer to ±4g range...");
@@ -96,6 +97,7 @@ bool MPU9250Interface::init() {
         Serial.println("Failed to configure accelerometer");
         return false;
     }
+    delay(10); // Add short delay between I2C operations
     
     // Configure gyroscope range to ±500 deg/s (register 0x1B)
     Serial.println("Configuring gyroscope to ±500 deg/s range...");
@@ -103,6 +105,7 @@ bool MPU9250Interface::init() {
         Serial.println("Failed to configure gyroscope");
         return false;
     }
+    delay(10); // Add short delay between I2C operations
     
     // Configure digital low pass filter
     Serial.println("Configuring digital low pass filter...");
@@ -110,6 +113,7 @@ bool MPU9250Interface::init() {
         Serial.println("Failed to configure DLPF");
         return false;
     }
+    delay(10); // Add short delay between I2C operations
     
     Serial.println("MPU sensor initialization complete");
     return true;
@@ -228,59 +232,81 @@ bool MPU9250Interface::calibrate() {
 
 // I2C helper methods
 bool MPU9250Interface::writeRegister(uint8_t reg, uint8_t value) {
-    Wire.beginTransmission(sensorAddress);
-    Wire.write(reg);
-    Wire.write(value);
-    uint8_t error = Wire.endTransmission();
-    if (error != 0) {
-        Serial.printf("I2C write error: %d (register 0x%02X, value 0x%02X, address 0x%02X)\n", 
-                     error, reg, value, sensorAddress);
-        return false;
+    // Try up to 3 times for reliability
+    for (int attempt = 0; attempt < 3; attempt++) {
+        Wire.beginTransmission(sensorAddress);
+        Wire.write(reg);
+        Wire.write(value);
+        uint8_t error = Wire.endTransmission();
+        if (error == 0) {
+            return true;
+        }
+        
+        // Log error and retry
+        Serial.printf("I2C write error: %d (register 0x%02X, value 0x%02X, address 0x%02X) - attempt %d\n", 
+                    error, reg, value, sensorAddress, attempt+1);
+        delay(10); // Wait before retry
     }
-    return true;
+    
+    // Failed after multiple attempts
+    return false;
 }
 
 uint8_t MPU9250Interface::readRegister(uint8_t reg) {
-    Wire.beginTransmission(sensorAddress);
-    Wire.write(reg);
-    uint8_t error = Wire.endTransmission(false);
-    if (error != 0) {
-        Serial.printf("I2C read error during address setup: %d (register 0x%02X, address 0x%02X)\n", 
-                     error, reg, sensorAddress);
-        return 0;  // Error condition
+    for (int attempt = 0; attempt < 3; attempt++) {
+        Wire.beginTransmission(sensorAddress);
+        Wire.write(reg);
+        uint8_t error = Wire.endTransmission(false);
+        if (error != 0) {
+            Serial.printf("I2C read error during address setup: %d (register 0x%02X, address 0x%02X) - attempt %d\n", 
+                         error, reg, sensorAddress, attempt+1);
+            delay(10);
+            continue;
+        }
+        
+        // Fix ambiguity by explicitly casting to the correct types
+        uint8_t bytesReceived = Wire.requestFrom((uint8_t)sensorAddress, (uint8_t)1);
+        if (bytesReceived != 1) {
+            Serial.printf("I2C read error: requested 1 byte, received %d bytes - attempt %d\n", bytesReceived, attempt+1);
+            delay(10);
+            continue;
+        }
+        
+        return Wire.read();
     }
     
-    // Fix ambiguity by explicitly casting to the correct types
-    uint8_t bytesReceived = Wire.requestFrom((uint8_t)sensorAddress, (uint8_t)1);
-    if (bytesReceived != 1) {
-        Serial.printf("I2C read error: requested 1 byte, received %d bytes\n", bytesReceived);
-        return 0;  // Error condition
-    }
-    
-    return Wire.read();
+    // Failed after multiple attempts
+    return 0;
 }
 
 bool MPU9250Interface::readRegisters(uint8_t reg, uint8_t* buffer, uint8_t count) {
-    Wire.beginTransmission(sensorAddress);
-    Wire.write(reg);
-    uint8_t error = Wire.endTransmission(false);
-    if (error != 0) {
-        Serial.printf("I2C read error during multi-read address setup: %d (register 0x%02X, address 0x%02X)\n", 
-                     error, reg, sensorAddress);
-        return false;  // Error condition
+    for (int attempt = 0; attempt < 3; attempt++) {
+        Wire.beginTransmission(sensorAddress);
+        Wire.write(reg);
+        uint8_t error = Wire.endTransmission(false);
+        if (error != 0) {
+            Serial.printf("I2C read error during multi-read address setup: %d (register 0x%02X, address 0x%02X) - attempt %d\n", 
+                         error, reg, sensorAddress, attempt+1);
+            delay(10);
+            continue;
+        }
+        
+        uint8_t bytesReceived = Wire.requestFrom((uint8_t)sensorAddress, (uint8_t)count);
+        if (bytesReceived != count) {
+            Serial.printf("I2C multi-read error: requested %d bytes, received %d bytes - attempt %d\n", count, bytesReceived, attempt+1);
+            delay(10);
+            continue;
+        }
+        
+        for (uint8_t i = 0; i < count; i++) {
+            buffer[i] = Wire.read();
+        }
+        
+        return true;
     }
     
-    uint8_t bytesReceived = Wire.requestFrom((uint8_t)sensorAddress, (uint8_t)count);
-    if (bytesReceived != count) {
-        Serial.printf("I2C multi-read error: requested %d bytes, received %d bytes\n", count, bytesReceived);
-        return false;  // Error condition
-    }
-    
-    for (uint8_t i = 0; i < count; i++) {
-        buffer[i] = Wire.read();
-    }
-    
-    return true;
+    // Failed after multiple attempts
+    return false;
 }
 
 // Enhanced error handling and connection verification

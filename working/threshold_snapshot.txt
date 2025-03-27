@@ -1,0 +1,468 @@
+./.pio/libdeps/calibration/FastLED/examples/Chromancer/net.h:        if (gyroTotal < gyroThreshold && lastIrReading >= reading) {
+./.pio/libdeps/calibration/FastLED/src/fx/1d/pacifica.h:    uint8_t basethreshold = beatsin8(9, 55, 65);
+./.pio/libdeps/calibration/FastLED/src/fx/1d/pacifica.h:        uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
+./.pio/libdeps/calibration/FastLED/src/fx/1d/pacifica.h:        if (l > threshold) {
+./.pio/libdeps/calibration/FastLED/src/fx/1d/pacifica.h:            uint8_t overage = l - threshold;
+./.pio/libdeps/calibration/FastLED/src/platforms/apollo3/clockless_apollo3.h:				if((next_mark - __am_hal_systick_count()) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/calibration/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/d51/clockless_arm_d51.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/giga/clockless_arm_giga.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/k20/clockless_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/k20/clockless_block_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return ARM_DWT_CYCCNT; }
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/k66/clockless_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/k66/clockless_block_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/mxrt1062/block_clockless_arm_mxrt1062.h:        uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD));
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/mxrt1062/clockless_arm_mxrt1062.h:	uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD)*1000);
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/renesas/clockless_arm_renesas.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/sam/clockless_arm_sam.h:				if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/sam/clockless_block_arm_sam.h:                if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/stm32/clockless_arm_stm32.h:                if((DWT->CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/calibration/FastLED/src/platforms/avr/led_sysdefs_avr.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/calibration/FastLED/src/platforms/avr/led_sysdefs_avr.h:#define INTERRUPT_THRESHOLD 2
+./.pio/libdeps/calibration/FastLED/src/platforms/esp/32/clockless_block_esp32.h:		if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { interrupt_unlock(); return 0; }
+./.pio/libdeps/calibration/FastLED/src/platforms/esp/32/led_sysdefs_esp32.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/calibration/FastLED/src/platforms/esp/8266/clockless_block_esp8266.h:				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { os_intr_unlock(); return 0; }
+./.pio/libdeps/calibration/FastLED/src/platforms/esp/8266/clockless_esp8266.h:					if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) {
+./.pio/libdeps/calibration/FastLED/src/platforms/esp/8266/led_sysdefs_esp8266.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/calibration/FastLED/src/platforms/stub/led_sysdefs_stub_generic.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/calibration/FastLED/src/platforms/wasm/led_sysdefs_wasm.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/calibration/FastLED/src/power_mgt.h:/// below the power threshold.
+./.pio/libdeps/calibration/FastLED/src/power_mgt.h:/// threshold.
+./.pio/libdeps/calibration/FastLED/src/simplex.cpp:    // We use a thresholding to set the coordinates in turn from the largest magnitude.
+./.pio/libdeps/esp32dev/FastLED/examples/Chromancer/net.h:        if (gyroTotal < gyroThreshold && lastIrReading >= reading) {
+./.pio/libdeps/esp32dev/FastLED/src/fx/1d/pacifica.h:    uint8_t basethreshold = beatsin8(9, 55, 65);
+./.pio/libdeps/esp32dev/FastLED/src/fx/1d/pacifica.h:        uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
+./.pio/libdeps/esp32dev/FastLED/src/fx/1d/pacifica.h:        if (l > threshold) {
+./.pio/libdeps/esp32dev/FastLED/src/fx/1d/pacifica.h:            uint8_t overage = l - threshold;
+./.pio/libdeps/esp32dev/FastLED/src/platforms/apollo3/clockless_apollo3.h:				if((next_mark - __am_hal_systick_count()) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/esp32dev/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/d51/clockless_arm_d51.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/giga/clockless_arm_giga.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/k20/clockless_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/k20/clockless_block_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return ARM_DWT_CYCCNT; }
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/k66/clockless_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/k66/clockless_block_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/mxrt1062/block_clockless_arm_mxrt1062.h:        uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD));
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/mxrt1062/clockless_arm_mxrt1062.h:	uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD)*1000);
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/renesas/clockless_arm_renesas.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/sam/clockless_arm_sam.h:				if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/sam/clockless_block_arm_sam.h:                if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/stm32/clockless_arm_stm32.h:                if((DWT->CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/esp32dev/FastLED/src/platforms/avr/led_sysdefs_avr.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/esp32dev/FastLED/src/platforms/avr/led_sysdefs_avr.h:#define INTERRUPT_THRESHOLD 2
+./.pio/libdeps/esp32dev/FastLED/src/platforms/esp/32/clockless_block_esp32.h:		if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { interrupt_unlock(); return 0; }
+./.pio/libdeps/esp32dev/FastLED/src/platforms/esp/32/led_sysdefs_esp32.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/esp32dev/FastLED/src/platforms/esp/8266/clockless_block_esp8266.h:				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { os_intr_unlock(); return 0; }
+./.pio/libdeps/esp32dev/FastLED/src/platforms/esp/8266/clockless_esp8266.h:					if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) {
+./.pio/libdeps/esp32dev/FastLED/src/platforms/esp/8266/led_sysdefs_esp8266.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/esp32dev/FastLED/src/platforms/stub/led_sysdefs_stub_generic.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/esp32dev/FastLED/src/platforms/wasm/led_sysdefs_wasm.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/esp32dev/FastLED/src/power_mgt.h:/// below the power threshold.
+./.pio/libdeps/esp32dev/FastLED/src/power_mgt.h:/// threshold.
+./.pio/libdeps/esp32dev/FastLED/src/simplex.cpp:    // We use a thresholding to set the coordinates in turn from the largest magnitude.
+./.pio/libdeps/hwmtest/FastLED/examples/Chromancer/net.h:        if (gyroTotal < gyroThreshold && lastIrReading >= reading) {
+./.pio/libdeps/hwmtest/FastLED/src/fx/1d/pacifica.h:    uint8_t basethreshold = beatsin8(9, 55, 65);
+./.pio/libdeps/hwmtest/FastLED/src/fx/1d/pacifica.h:        uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
+./.pio/libdeps/hwmtest/FastLED/src/fx/1d/pacifica.h:        if (l > threshold) {
+./.pio/libdeps/hwmtest/FastLED/src/fx/1d/pacifica.h:            uint8_t overage = l - threshold;
+./.pio/libdeps/hwmtest/FastLED/src/platforms/apollo3/clockless_apollo3.h:				if((next_mark - __am_hal_systick_count()) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hwmtest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/d51/clockless_arm_d51.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/giga/clockless_arm_giga.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/k20/clockless_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/k20/clockless_block_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return ARM_DWT_CYCCNT; }
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/k66/clockless_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/k66/clockless_block_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/mxrt1062/block_clockless_arm_mxrt1062.h:        uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD));
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/mxrt1062/clockless_arm_mxrt1062.h:	uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD)*1000);
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/renesas/clockless_arm_renesas.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/sam/clockless_arm_sam.h:				if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/sam/clockless_block_arm_sam.h:                if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/stm32/clockless_arm_stm32.h:                if((DWT->CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hwmtest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hwmtest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#define INTERRUPT_THRESHOLD 2
+./.pio/libdeps/hwmtest/FastLED/src/platforms/esp/32/clockless_block_esp32.h:		if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { interrupt_unlock(); return 0; }
+./.pio/libdeps/hwmtest/FastLED/src/platforms/esp/32/led_sysdefs_esp32.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/hwmtest/FastLED/src/platforms/esp/8266/clockless_block_esp8266.h:				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { os_intr_unlock(); return 0; }
+./.pio/libdeps/hwmtest/FastLED/src/platforms/esp/8266/clockless_esp8266.h:					if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) {
+./.pio/libdeps/hwmtest/FastLED/src/platforms/esp/8266/led_sysdefs_esp8266.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/hwmtest/FastLED/src/platforms/stub/led_sysdefs_stub_generic.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/hwmtest/FastLED/src/platforms/wasm/led_sysdefs_wasm.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/hwmtest/FastLED/src/power_mgt.h:/// below the power threshold.
+./.pio/libdeps/hwmtest/FastLED/src/power_mgt.h:/// threshold.
+./.pio/libdeps/hwmtest/FastLED/src/simplex.cpp:    // We use a thresholding to set the coordinates in turn from the largest magnitude.
+./.pio/libdeps/hybridtest/FastLED/examples/Chromancer/net.h:        if (gyroTotal < gyroThreshold && lastIrReading >= reading) {
+./.pio/libdeps/hybridtest/FastLED/src/fx/1d/pacifica.h:    uint8_t basethreshold = beatsin8(9, 55, 65);
+./.pio/libdeps/hybridtest/FastLED/src/fx/1d/pacifica.h:        uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
+./.pio/libdeps/hybridtest/FastLED/src/fx/1d/pacifica.h:        if (l > threshold) {
+./.pio/libdeps/hybridtest/FastLED/src/fx/1d/pacifica.h:            uint8_t overage = l - threshold;
+./.pio/libdeps/hybridtest/FastLED/src/platforms/apollo3/clockless_apollo3.h:				if((next_mark - __am_hal_systick_count()) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hybridtest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/d51/clockless_arm_d51.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/giga/clockless_arm_giga.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/k20/clockless_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/k20/clockless_block_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return ARM_DWT_CYCCNT; }
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/k66/clockless_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/k66/clockless_block_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/mxrt1062/block_clockless_arm_mxrt1062.h:        uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD));
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/mxrt1062/clockless_arm_mxrt1062.h:	uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD)*1000);
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/renesas/clockless_arm_renesas.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/sam/clockless_arm_sam.h:				if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/sam/clockless_block_arm_sam.h:                if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/stm32/clockless_arm_stm32.h:                if((DWT->CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/hybridtest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/hybridtest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#define INTERRUPT_THRESHOLD 2
+./.pio/libdeps/hybridtest/FastLED/src/platforms/esp/32/clockless_block_esp32.h:		if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { interrupt_unlock(); return 0; }
+./.pio/libdeps/hybridtest/FastLED/src/platforms/esp/32/led_sysdefs_esp32.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/hybridtest/FastLED/src/platforms/esp/8266/clockless_block_esp8266.h:				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { os_intr_unlock(); return 0; }
+./.pio/libdeps/hybridtest/FastLED/src/platforms/esp/8266/clockless_esp8266.h:					if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) {
+./.pio/libdeps/hybridtest/FastLED/src/platforms/esp/8266/led_sysdefs_esp8266.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/hybridtest/FastLED/src/platforms/stub/led_sysdefs_stub_generic.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/hybridtest/FastLED/src/platforms/wasm/led_sysdefs_wasm.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/hybridtest/FastLED/src/power_mgt.h:/// below the power threshold.
+./.pio/libdeps/hybridtest/FastLED/src/power_mgt.h:/// threshold.
+./.pio/libdeps/hybridtest/FastLED/src/simplex.cpp:    // We use a thresholding to set the coordinates in turn from the largest magnitude.
+./.pio/libdeps/idletest/FastLED/examples/Chromancer/net.h:        if (gyroTotal < gyroThreshold && lastIrReading >= reading) {
+./.pio/libdeps/idletest/FastLED/src/fx/1d/pacifica.h:    uint8_t basethreshold = beatsin8(9, 55, 65);
+./.pio/libdeps/idletest/FastLED/src/fx/1d/pacifica.h:        uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
+./.pio/libdeps/idletest/FastLED/src/fx/1d/pacifica.h:        if (l > threshold) {
+./.pio/libdeps/idletest/FastLED/src/fx/1d/pacifica.h:            uint8_t overage = l - threshold;
+./.pio/libdeps/idletest/FastLED/src/platforms/apollo3/clockless_apollo3.h:				if((next_mark - __am_hal_systick_count()) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/idletest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/d51/clockless_arm_d51.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/giga/clockless_arm_giga.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/k20/clockless_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/k20/clockless_block_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return ARM_DWT_CYCCNT; }
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/k66/clockless_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/k66/clockless_block_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/mxrt1062/block_clockless_arm_mxrt1062.h:        uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD));
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/mxrt1062/clockless_arm_mxrt1062.h:	uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD)*1000);
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/renesas/clockless_arm_renesas.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/sam/clockless_arm_sam.h:				if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/sam/clockless_block_arm_sam.h:                if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/stm32/clockless_arm_stm32.h:                if((DWT->CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/idletest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/idletest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#define INTERRUPT_THRESHOLD 2
+./.pio/libdeps/idletest/FastLED/src/platforms/esp/32/clockless_block_esp32.h:		if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { interrupt_unlock(); return 0; }
+./.pio/libdeps/idletest/FastLED/src/platforms/esp/32/led_sysdefs_esp32.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/idletest/FastLED/src/platforms/esp/8266/clockless_block_esp8266.h:				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { os_intr_unlock(); return 0; }
+./.pio/libdeps/idletest/FastLED/src/platforms/esp/8266/clockless_esp8266.h:					if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) {
+./.pio/libdeps/idletest/FastLED/src/platforms/esp/8266/led_sysdefs_esp8266.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/idletest/FastLED/src/platforms/stub/led_sysdefs_stub_generic.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/idletest/FastLED/src/platforms/wasm/led_sysdefs_wasm.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/idletest/FastLED/src/power_mgt.h:/// below the power threshold.
+./.pio/libdeps/idletest/FastLED/src/power_mgt.h:/// threshold.
+./.pio/libdeps/idletest/FastLED/src/simplex.cpp:    // We use a thresholding to set the coordinates in turn from the largest magnitude.
+./.pio/libdeps/ledtest/FastLED/examples/Chromancer/net.h:        if (gyroTotal < gyroThreshold && lastIrReading >= reading) {
+./.pio/libdeps/ledtest/FastLED/src/fx/1d/pacifica.h:    uint8_t basethreshold = beatsin8(9, 55, 65);
+./.pio/libdeps/ledtest/FastLED/src/fx/1d/pacifica.h:        uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
+./.pio/libdeps/ledtest/FastLED/src/fx/1d/pacifica.h:        if (l > threshold) {
+./.pio/libdeps/ledtest/FastLED/src/fx/1d/pacifica.h:            uint8_t overage = l - threshold;
+./.pio/libdeps/ledtest/FastLED/src/platforms/apollo3/clockless_apollo3.h:				if((next_mark - __am_hal_systick_count()) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ledtest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/d51/clockless_arm_d51.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/giga/clockless_arm_giga.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/k20/clockless_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/k20/clockless_block_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return ARM_DWT_CYCCNT; }
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/k66/clockless_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/k66/clockless_block_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/mxrt1062/block_clockless_arm_mxrt1062.h:        uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD));
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/mxrt1062/clockless_arm_mxrt1062.h:	uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD)*1000);
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/renesas/clockless_arm_renesas.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/sam/clockless_arm_sam.h:				if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/sam/clockless_block_arm_sam.h:                if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/stm32/clockless_arm_stm32.h:                if((DWT->CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ledtest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ledtest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#define INTERRUPT_THRESHOLD 2
+./.pio/libdeps/ledtest/FastLED/src/platforms/esp/32/clockless_block_esp32.h:		if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { interrupt_unlock(); return 0; }
+./.pio/libdeps/ledtest/FastLED/src/platforms/esp/32/led_sysdefs_esp32.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/ledtest/FastLED/src/platforms/esp/8266/clockless_block_esp8266.h:				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { os_intr_unlock(); return 0; }
+./.pio/libdeps/ledtest/FastLED/src/platforms/esp/8266/clockless_esp8266.h:					if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) {
+./.pio/libdeps/ledtest/FastLED/src/platforms/esp/8266/led_sysdefs_esp8266.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/ledtest/FastLED/src/platforms/stub/led_sysdefs_stub_generic.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/ledtest/FastLED/src/platforms/wasm/led_sysdefs_wasm.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/ledtest/FastLED/src/power_mgt.h:/// below the power threshold.
+./.pio/libdeps/ledtest/FastLED/src/power_mgt.h:/// threshold.
+./.pio/libdeps/ledtest/FastLED/src/simplex.cpp:    // We use a thresholding to set the coordinates in turn from the largest magnitude.
+./.pio/libdeps/postest/FastLED/examples/Chromancer/net.h:        if (gyroTotal < gyroThreshold && lastIrReading >= reading) {
+./.pio/libdeps/postest/FastLED/src/fx/1d/pacifica.h:    uint8_t basethreshold = beatsin8(9, 55, 65);
+./.pio/libdeps/postest/FastLED/src/fx/1d/pacifica.h:        uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
+./.pio/libdeps/postest/FastLED/src/fx/1d/pacifica.h:        if (l > threshold) {
+./.pio/libdeps/postest/FastLED/src/fx/1d/pacifica.h:            uint8_t overage = l - threshold;
+./.pio/libdeps/postest/FastLED/src/platforms/apollo3/clockless_apollo3.h:				if((next_mark - __am_hal_systick_count()) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/postest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/postest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/postest/FastLED/src/platforms/arm/d51/clockless_arm_d51.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/postest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/postest/FastLED/src/platforms/arm/giga/clockless_arm_giga.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/postest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/postest/FastLED/src/platforms/arm/k20/clockless_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/postest/FastLED/src/platforms/arm/k20/clockless_block_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return ARM_DWT_CYCCNT; }
+./.pio/libdeps/postest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/postest/FastLED/src/platforms/arm/k66/clockless_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/postest/FastLED/src/platforms/arm/k66/clockless_block_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/postest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/postest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/postest/FastLED/src/platforms/arm/mxrt1062/block_clockless_arm_mxrt1062.h:        uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD));
+./.pio/libdeps/postest/FastLED/src/platforms/arm/mxrt1062/clockless_arm_mxrt1062.h:	uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD)*1000);
+./.pio/libdeps/postest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/postest/FastLED/src/platforms/arm/renesas/clockless_arm_renesas.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/postest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/postest/FastLED/src/platforms/arm/sam/clockless_arm_sam.h:				if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/postest/FastLED/src/platforms/arm/sam/clockless_block_arm_sam.h:                if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/postest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/postest/FastLED/src/platforms/arm/stm32/clockless_arm_stm32.h:                if((DWT->CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/postest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/postest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/postest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#define INTERRUPT_THRESHOLD 2
+./.pio/libdeps/postest/FastLED/src/platforms/esp/32/clockless_block_esp32.h:		if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { interrupt_unlock(); return 0; }
+./.pio/libdeps/postest/FastLED/src/platforms/esp/32/led_sysdefs_esp32.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/postest/FastLED/src/platforms/esp/8266/clockless_block_esp8266.h:				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { os_intr_unlock(); return 0; }
+./.pio/libdeps/postest/FastLED/src/platforms/esp/8266/clockless_esp8266.h:					if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) {
+./.pio/libdeps/postest/FastLED/src/platforms/esp/8266/led_sysdefs_esp8266.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/postest/FastLED/src/platforms/stub/led_sysdefs_stub_generic.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/postest/FastLED/src/platforms/wasm/led_sysdefs_wasm.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/postest/FastLED/src/power_mgt.h:/// below the power threshold.
+./.pio/libdeps/postest/FastLED/src/power_mgt.h:/// threshold.
+./.pio/libdeps/postest/FastLED/src/simplex.cpp:    // We use a thresholding to set the coordinates in turn from the largest magnitude.
+./.pio/libdeps/simplepostest/FastLED/examples/Chromancer/net.h:        if (gyroTotal < gyroThreshold && lastIrReading >= reading) {
+./.pio/libdeps/simplepostest/FastLED/src/fx/1d/pacifica.h:    uint8_t basethreshold = beatsin8(9, 55, 65);
+./.pio/libdeps/simplepostest/FastLED/src/fx/1d/pacifica.h:        uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
+./.pio/libdeps/simplepostest/FastLED/src/fx/1d/pacifica.h:        if (l > threshold) {
+./.pio/libdeps/simplepostest/FastLED/src/fx/1d/pacifica.h:            uint8_t overage = l - threshold;
+./.pio/libdeps/simplepostest/FastLED/src/platforms/apollo3/clockless_apollo3.h:				if((next_mark - __am_hal_systick_count()) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/simplepostest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/d51/clockless_arm_d51.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/giga/clockless_arm_giga.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/k20/clockless_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/k20/clockless_block_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return ARM_DWT_CYCCNT; }
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/k66/clockless_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/k66/clockless_block_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/mxrt1062/block_clockless_arm_mxrt1062.h:        uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD));
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/mxrt1062/clockless_arm_mxrt1062.h:	uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD)*1000);
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/renesas/clockless_arm_renesas.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/sam/clockless_arm_sam.h:				if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/sam/clockless_block_arm_sam.h:                if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/stm32/clockless_arm_stm32.h:                if((DWT->CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/simplepostest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/simplepostest/FastLED/src/platforms/avr/led_sysdefs_avr.h:#define INTERRUPT_THRESHOLD 2
+./.pio/libdeps/simplepostest/FastLED/src/platforms/esp/32/clockless_block_esp32.h:		if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { interrupt_unlock(); return 0; }
+./.pio/libdeps/simplepostest/FastLED/src/platforms/esp/32/led_sysdefs_esp32.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/simplepostest/FastLED/src/platforms/esp/8266/clockless_block_esp8266.h:				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { os_intr_unlock(); return 0; }
+./.pio/libdeps/simplepostest/FastLED/src/platforms/esp/8266/clockless_esp8266.h:					if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) {
+./.pio/libdeps/simplepostest/FastLED/src/platforms/esp/8266/led_sysdefs_esp8266.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/simplepostest/FastLED/src/platforms/stub/led_sysdefs_stub_generic.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/simplepostest/FastLED/src/platforms/wasm/led_sysdefs_wasm.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/simplepostest/FastLED/src/power_mgt.h:/// below the power threshold.
+./.pio/libdeps/simplepostest/FastLED/src/power_mgt.h:/// threshold.
+./.pio/libdeps/simplepostest/FastLED/src/simplex.cpp:    // We use a thresholding to set the coordinates in turn from the largest magnitude.
+./.pio/libdeps/ultrabasic/FastLED/examples/Chromancer/net.h:        if (gyroTotal < gyroThreshold && lastIrReading >= reading) {
+./.pio/libdeps/ultrabasic/FastLED/src/fx/1d/pacifica.h:    uint8_t basethreshold = beatsin8(9, 55, 65);
+./.pio/libdeps/ultrabasic/FastLED/src/fx/1d/pacifica.h:        uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
+./.pio/libdeps/ultrabasic/FastLED/src/fx/1d/pacifica.h:        if (l > threshold) {
+./.pio/libdeps/ultrabasic/FastLED/src/fx/1d/pacifica.h:            uint8_t overage = l - threshold;
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/apollo3/clockless_apollo3.h:				if((next_mark - __am_hal_systick_count()) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/apollo3/led_sysdefs_apollo3.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/d21/led_sysdefs_arm_d21.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/d51/clockless_arm_d51.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/d51/led_sysdefs_arm_d51.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/giga/clockless_arm_giga.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/giga/led_sysdef_arm_giga.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/k20/clockless_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/k20/clockless_block_arm_k20.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return ARM_DWT_CYCCNT; }
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/k20/led_sysdefs_arm_k20.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/k66/clockless_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/k66/clockless_block_arm_k66.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/k66/led_sysdefs_arm_k66.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/kl26/led_sysdefs_arm_kl26.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/mxrt1062/block_clockless_arm_mxrt1062.h:        uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD));
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/mxrt1062/clockless_arm_mxrt1062.h:	uint32_t wait_off = _FASTLED_NS_TO_DWT((WAIT_TIME-INTERRUPT_THRESHOLD)*1000);
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/mxrt1062/led_sysdefs_arm_mxrt1062.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/renesas/clockless_arm_renesas.h:				if((ARM_DWT_CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/renesas/led_sysdef_arm_renesas.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/sam/clockless_arm_sam.h:				if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/sam/clockless_block_arm_sam.h:                if((DUE_TIMER_VAL - next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) {
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/sam/led_sysdefs_arm_sam.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/stm32/clockless_arm_stm32.h:                if((DWT->CYCCNT-next_mark) > ((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US)) { sei(); return 0; }
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/arm/stm32/led_sysdefs_arm_stm32.h:#define INTERRUPT_THRESHOLD 1
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/avr/led_sysdefs_avr.h:#ifndef INTERRUPT_THRESHOLD
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/avr/led_sysdefs_avr.h:#define INTERRUPT_THRESHOLD 2
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/esp/32/clockless_block_esp32.h:		if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { interrupt_unlock(); return 0; }
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/esp/32/led_sysdefs_esp32.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/esp/8266/clockless_block_esp8266.h:				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { os_intr_unlock(); return 0; }
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/esp/8266/clockless_esp8266.h:					if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) {
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/esp/8266/led_sysdefs_esp8266.h:# define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/stub/led_sysdefs_stub_generic.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/ultrabasic/FastLED/src/platforms/wasm/led_sysdefs_wasm.h:#define INTERRUPT_THRESHOLD 0
+./.pio/libdeps/ultrabasic/FastLED/src/power_mgt.h:/// below the power threshold.
+./.pio/libdeps/ultrabasic/FastLED/src/power_mgt.h:/// threshold.
+./.pio/libdeps/ultrabasic/FastLED/src/simplex.cpp:    // We use a thresholding to set the coordinates in turn from the largest magnitude.

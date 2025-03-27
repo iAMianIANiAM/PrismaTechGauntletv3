@@ -22,35 +22,26 @@ bool UltraBasicPositionDetector::init(HardwareManager* hardware) {
     _sampleBuffer[i] = {0, 0, 0, 0, 0, 0, 0};
   }
   
-  // Set default thresholds and dominant axes if not calibrated
-  // OFFER - Z axis positive
-  _thresholds[POS_OFFER] = 7.0f;
-  _dominantAxes[POS_OFFER] = 2; // Z-axis
-  
-  // CALM - Z axis negative
-  _thresholds[POS_CALM] = -7.0f;
-  _dominantAxes[POS_CALM] = 2; // Z-axis
-  
-  // OATH - Y axis positive
-  _thresholds[POS_OATH] = 7.0f;
-  _dominantAxes[POS_OATH] = 1; // Y-axis
-  
-  // DIG - Y axis negative
-  _thresholds[POS_DIG] = -7.0f;
-  _dominantAxes[POS_DIG] = 1; // Y-axis
-  
-  // SHIELD - X axis negative
-  _thresholds[POS_SHIELD] = -7.0f;
+  // Initialize dominant axes
+  _dominantAxes[POS_OFFER] = 2;  // Z-axis
+  _dominantAxes[POS_CALM] = 2;   // Z-axis
+  _dominantAxes[POS_OATH] = 1;   // Y-axis
+  _dominantAxes[POS_DIG] = 1;    // Y-axis
   _dominantAxes[POS_SHIELD] = 0; // X-axis
+  _dominantAxes[POS_NULL] = 0;   // X-axis
   
-  // NULL - X axis positive
-  _thresholds[POS_NULL] = 7.0f;
-  _dominantAxes[POS_NULL] = 0; // X-axis
-  
-  // Load calibration data if available, otherwise use defaults
-  loadCalibration();
+  // Load thresholds from defaults
+  loadDefaultThresholds();
   
   return true;
+}
+
+void UltraBasicPositionDetector::loadDefaultThresholds() {
+  // Load default thresholds from Config.h
+  for (int i = 0; i < 6; i++) {
+    _thresholds[i] = Config::DEFAULT_POSITION_THRESHOLDS[i];
+  }
+  Serial.println("Using default thresholds from Config.h");
 }
 
 PositionReading UltraBasicPositionDetector::update() {
@@ -176,9 +167,9 @@ SensorData UltraBasicPositionDetector::calculateAveragedData() {
   return result;
 }
 
-bool UltraBasicPositionDetector::calibratePosition(uint8_t position, uint16_t samples) {
+float UltraBasicPositionDetector::calibratePosition(uint8_t position, uint16_t samples) {
   // Validate position is in range
-  if (position >= 6) return false;
+  if (position >= 6) return 0.0f;
   
   // 1. Visual feedback that calibration is starting
   Color positionColor;
@@ -202,7 +193,7 @@ bool UltraBasicPositionDetector::calibratePosition(uint8_t position, uint16_t sa
       positionColor = {Config::Colors::NULL_COLOR[0], Config::Colors::NULL_COLOR[1], Config::Colors::NULL_COLOR[2]};
       break;
     default:
-      return false; // Invalid position
+      return 0.0f; // Invalid position
   }
   
   // 2. Collect and average samples for calibration
@@ -238,10 +229,10 @@ bool UltraBasicPositionDetector::calibratePosition(uint8_t position, uint16_t sa
     minY = min(minY, data.accelY);
     minZ = min(minZ, data.accelZ);
     
-    // Visual feedback of progress (flash LED)
-    if (i % 10 == 0) {
+    // Flash LED to indicate sampling
+    if (i % 5 == 0) {
       _hardware->setAllLEDs(positionColor);
-    } else if (i % 10 == 5) {
+    } else {
       _hardware->setAllLEDs({0, 0, 0});
     }
     _hardware->updateLEDs();
@@ -249,51 +240,50 @@ bool UltraBasicPositionDetector::calibratePosition(uint8_t position, uint16_t sa
     delay(20);
   }
   
-  // Calculate averages
+  // Calculate average
   float avgX = sumX / samples;
   float avgY = sumY / samples;
   float avgZ = sumZ / samples;
   
-  // Output debug information
-  Serial.print("Position ");
-  Serial.print(position);
-  Serial.print(" calibration data: X=");
+  Serial.print("Position average: X=");
   Serial.print(avgX, 2);
   Serial.print(" Y=");
   Serial.print(avgY, 2);
   Serial.print(" Z=");
   Serial.println(avgZ, 2);
   
-  // Determine which axis is dominant
-  float absX = abs(avgX);
-  float absY = abs(avgY);
-  float absZ = abs(avgZ);
+  Serial.print("Position range: X=[");
+  Serial.print(minX, 2);
+  Serial.print(" to ");
+  Serial.print(maxX, 2);
+  Serial.print("] Y=[");
+  Serial.print(minY, 2);
+  Serial.print(" to ");
+  Serial.print(maxY, 2);
+  Serial.print("] Z=[");
+  Serial.print(minZ, 2);
+  Serial.print(" to ");
+  Serial.print(maxZ, 2);
+  Serial.println("]");
   
-  if (absX >= absY && absX >= absZ) {
-    // X is dominant
-    _thresholds[position] = avgX * THRESHOLD_SCALE;
-    _dominantAxes[position] = 0; // X-axis
-    Serial.print("X axis dominant: ");
-  } 
-  else if (absY >= absX && absY >= absZ) {
-    // Y is dominant
-    _thresholds[position] = avgY * THRESHOLD_SCALE;
-    _dominantAxes[position] = 1; // Y-axis
-    Serial.print("Y axis dominant: ");
+  // 3. Calculate the threshold based on dominant axis average
+  float newThreshold = 0;
+  int axis = _dominantAxes[position];
+  switch (axis) {
+    case 0: newThreshold = avgX * THRESHOLD_SCALE; break;
+    case 1: newThreshold = avgY * THRESHOLD_SCALE; break;
+    case 2: newThreshold = avgZ * THRESHOLD_SCALE; break;
   }
-  else {
-    // Z is dominant
-    _thresholds[position] = avgZ * THRESHOLD_SCALE;
-    _dominantAxes[position] = 2; // Z-axis
-    Serial.print("Z axis dominant: ");
-  }
   
-  Serial.print("Set threshold: ");
-  Serial.print(_thresholds[position], 2);
-  Serial.print(" for position ");
-  Serial.println(position);
+  // 4. Update threshold locally for testing
+  _thresholds[position] = newThreshold;
   
-  // Visual feedback that calibration is complete
+  Serial.print("Calibrated threshold for position ");
+  Serial.print(position);
+  Serial.print(": ");
+  Serial.println(newThreshold, 2);
+  
+  // 5. Complete indication
   for (int i = 0; i < 3; i++) {
     _hardware->setAllLEDs({0, 255, 0});
     _hardware->updateLEDs();
@@ -303,90 +293,31 @@ bool UltraBasicPositionDetector::calibratePosition(uint8_t position, uint16_t sa
     delay(100);
   }
   
-  return true;
+  return newThreshold;
 }
 
 bool UltraBasicPositionDetector::calibrateAllPositions(uint16_t samplesPerPosition) {
-  // 1. Calibrate OFFER (showing purple color)
-  Serial.println("\nCalibrating OFFER position (PURPLE):");
-  Serial.println("Hold your hand in the OFFER position (palm up, fingers extended)");
-  calibratePosition(POS_OFFER, samplesPerPosition);
-  delay(2000); // Rest before next position
-  
-  // 2. Calibrate CALM (showing yellow color)
-  Serial.println("\nCalibrating CALM position (YELLOW):");
-  Serial.println("Hold your hand in the CALM position (palm down, fingers extended)");
-  calibratePosition(POS_CALM, samplesPerPosition);
-  delay(2000); // Rest before next position
-  
-  // 3. Calibrate OATH (showing red color)
-  Serial.println("\nCalibrating OATH position (RED):");
-  Serial.println("Hold your hand in the OATH position (hand vertical, palm facing inward)");
-  calibratePosition(POS_OATH, samplesPerPosition);
-  delay(2000); // Rest before next position
-  
-  // 4. Calibrate DIG (showing green color)
-  Serial.println("\nCalibrating DIG position (GREEN):");
-  Serial.println("Hold your hand in the DIG position (hand vertical, palm facing outward)");
-  calibratePosition(POS_DIG, samplesPerPosition);
-  delay(2000); // Rest before next position
-  
-  // 5. Calibrate SHIELD (showing blue color)
-  Serial.println("\nCalibrating SHIELD position (BLUE):");
-  Serial.println("Hold your hand in the SHIELD position (arm extended forward, palm facing forward)");
-  calibratePosition(POS_SHIELD, samplesPerPosition);
-  delay(2000); // Rest before next position
-  
-  // 6. Calibrate NULL (showing orange color)
-  Serial.println("\nCalibrating NULL position (ORANGE):");
-  Serial.println("Hold your hand in the NULL position (arm extended backward, palm facing back)");
-  calibratePosition(POS_NULL, samplesPerPosition);
-  
-  // All positions calibrated
-  Serial.println("\nAll positions have been calibrated!");
-  Serial.println("Final calibration values:");
-  
-  // Display final calibration values for reference
-  for (int i = 0; i < 6; i++) {
-    Serial.print("Position ");
-    Serial.print(i);
-    Serial.print(": Axis ");
-    Serial.print(_dominantAxes[i]);
-    Serial.print(" Threshold ");
-    Serial.println(_thresholds[i], 2);
-  }
-  
-  // Save calibration
-  saveCalibration();
-  
-  return true;
-}
-
-bool UltraBasicPositionDetector::saveCalibration() {
-  // For now, just print values - would normally save to flash or EEPROM
-  Serial.println("Calibration values for Config.h:");
-  Serial.println("// Position detection thresholds (calibrated)");
-  
-  for (int i = 0; i < 6; i++) {
-    // Generate a descriptive comment and threshold name
-    const char* posNames[] = {"OFFER", "CALM", "OATH", "DIG", "SHIELD", "NULL"};
-    const char* axisNames[] = {"X", "Y", "Z"};
-    
-    Serial.print("constexpr float THRESHOLD_");
-    Serial.print(posNames[i]);
-    Serial.print(" = ");
-    Serial.print(_thresholds[i], 2);
-    Serial.print("f;");
-    Serial.print(" // ");
-    Serial.print(axisNames[_dominantAxes[i]]);
-    Serial.println("-axis threshold");
+  // Calibrate each position in sequence
+  for (uint8_t pos = 0; pos < 6; pos++) {
+    float threshold = calibratePosition(pos, samplesPerPosition);
+    if (threshold == 0.0f) {
+      return false;
+    }
+    delay(1000); // Pause between positions
   }
   
   return true;
 }
 
-bool UltraBasicPositionDetector::loadCalibration() {
-  // Would normally load from flash or EEPROM
-  // For now, just use the default values set in init()
-  return true;
+void UltraBasicPositionDetector::setThreshold(uint8_t position, float threshold) {
+  if (position < 6) {
+    _thresholds[position] = threshold;
+  }
+}
+
+float UltraBasicPositionDetector::getThreshold(uint8_t position) const {
+  if (position < 6) {
+    return _thresholds[position];
+  }
+  return 0.0f;
 } 

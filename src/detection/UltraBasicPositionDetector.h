@@ -3,6 +3,7 @@
 
 #include "../core/SystemTypes.h"
 #include "../hardware/HardwareManager.h"
+#include "../core/Config.h"
 
 // Number of samples to average for position detection
 #define POSITION_AVERAGE_SAMPLES 3
@@ -49,9 +50,9 @@ public:
    * @brief Calibrate the position detection thresholds for a specific position
    * @param position Position to calibrate (from HandPosition enum)
    * @param samples Number of samples to collect for calibration
-   * @return True if calibration was successful
+   * @return The calibrated threshold value
    */
-  bool calibratePosition(uint8_t position, uint16_t samples = 50);
+  float calibratePosition(uint8_t position, uint16_t samples = 50);
   
   /**
    * @brief Calibrate all positions in sequence
@@ -61,16 +62,18 @@ public:
   bool calibrateAllPositions(uint16_t samplesPerPosition = 50);
   
   /**
-   * @brief Save calibration data to non-volatile storage
-   * @return True if save was successful
+   * @brief Set a threshold for a specific position
+   * @param position Position to set threshold for
+   * @param threshold New threshold value
    */
-  bool saveCalibration();
+  void setThreshold(uint8_t position, float threshold);
   
   /**
-   * @brief Load calibration data from non-volatile storage
-   * @return True if load was successful
+   * @brief Get the threshold for a specific position
+   * @param position Position to get threshold for
+   * @return Threshold value for the specified position
    */
-  bool loadCalibration();
+  float getThreshold(uint8_t position) const;
 
 private:
   // Constants
@@ -97,6 +100,9 @@ private:
   void processRawData(const SensorData& raw, ProcessedData& processed);
   PositionReading detectPosition(const ProcessedData& data);
   SensorData calculateAveragedData();
+  
+  // Load thresholds from defaults
+  void loadDefaultThresholds();
 };
 
 #endif // ULTRA_BASIC_POSITION_DETECTOR_H 

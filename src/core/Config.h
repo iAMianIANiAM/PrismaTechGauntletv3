@@ -36,6 +36,17 @@ namespace Config {
   constexpr float THRESHOLD_SHIELD = -14224.77f;  // accelX < threshold
   constexpr float THRESHOLD_NULL = 1281.05f;      // accelX > threshold
   
+  // UBPD Default position thresholds in m/s² (for UltraBasicPositionDetector)
+  // Update these values after calibration with values from serial output
+  constexpr float DEFAULT_POSITION_THRESHOLDS[6] = {
+    7.97f,  // POS_OFFER (Z axis positive)
+    -7.53f, // POS_CALM (Z axis negative)
+    6.50f,  // POS_OATH (Y axis positive) - Lowered from 10.28f to make it easier to trigger
+    -4.32f, // POS_DIG (Y axis negative)
+    -5.09f, // POS_SHIELD (X axis negative)
+    7.19f,  // POS_NULL (X axis positive)
+  };
+  
   // Timing parameters
   constexpr uint16_t CALMOFFER_WINDOW_MS = 1000;  // Time window for CalmOffer gesture
   constexpr uint16_t LONGNULL_TIME_MS = 5000;     // Time required for LongNull gesture

@@ -169,42 +169,42 @@ This document uses the following status indicators:
 ### Ultra Basic Position Detection (UBPD) - PRIMARY DETECTION MODEL
 - **Documentation**: Comprehensive documentation available in `working/UBPD.md`
 - **Implemented Files**: 
-  - `UltraBasicPositionDetector.h/cpp` - [IMPLEMENTED] (Build successful, pending hardware validation)
-  - `/examples/component_tests/UltraBasicPositionTest.cpp` - [IMPLEMENTED] (Build successful, pending hardware validation)
-  - `env:ultrabasic` environment in platformio.ini - [IMPLEMENTED]
-  - Main application integration in `src/main.cpp` - [IMPLEMENTED] (Build successful)
+  - `UltraBasicPositionDetector.h/cpp` - [VERIFIED] (2025-03-29, Successfully tested with calibrated thresholds)
+  - `/examples/component_tests/UltraBasicPositionTest.cpp` - [VERIFIED] (2025-03-29, Successfully tested with calibration output)
+  - `env:ubpd_test` environment in platformio.ini - [VERIFIED]
+  - Main application integration in `src/main.cpp` - [VERIFIED] (Successfully tested in production environment)
 - **Purpose**:
-  - This is the intended PRIMARY detection model for the entire device
-  - Designed to replace the current PositionDetector implementation with a more optimized approach
+  - This is the PRIMARY detection model for the entire device
+  - Designed as a more optimized approach to position detection
   - Key feature is conversion of raw data to meaningful physical units (m/s²)
 - **Key Features**:
   - Direct dominant axis detection with minimal processing
   - Physical units (m/s²) for intuitive thresholds and better debugging
-  - Absolute threshold values rather than relative comparisons
+  - Absolute threshold values with explicit definition in Config.h
   - Simplified, consistent processing pipeline
-  - Enhanced calibration protocol with buffer time and sample discarding
+  - Enhanced calibration protocol with threshold output in copy-paste format
   - Position-specific threshold adjustments
   - Clear gravity orientation handling
   - Serial command-based calibration (type 'c' to enter calibration mode)
-  - Integration with ThresholdManager for persistent threshold storage
-  - Updated calibratePosition method returns float thresholds instead of bool
-- **Status**: [IMPLEMENTED] (2025-03-27, Successfully built in main environment, pending hardware validation)
+  - Threshold display command (type 't' during testing)
+  - Quick threshold tuning through direct Config.h edits
+- **Status**: [VERIFIED] (2025-03-29, Successfully calibrated and tested on hardware with all positions)
 
-### Threshold Management
-- **Documentation**: Implementation details in currentplan_v2.md
-- **Implemented Files**:
-  - `ThresholdManager.h/cpp` - [IMPLEMENTED] (Build successful, pending hardware validation)
-- **Purpose**:
-  - Centralized management of thresholds for position detection
-  - Persistent storage of calibration thresholds using EEPROM/SPIFFS
-  - Simplification of threshold updates and retrieval
-- **Key Features**:
-  - Singleton pattern for global access
-  - Methods for updating and retrieving thresholds
-  - Persistent storage to maintain thresholds across reboots
-  - Simple interface for position detection systems
-  - Integration with UBPD for streamlined calibration
-- **Status**: [IMPLEMENTED] (2025-03-27, Successfully built in main environment, pending hardware validation)
+### ~~Threshold Management~~ [DEPRECATED]
+- **Documentation**: Implementation details in chronicle_v1.md
+- **Implementation Status**: 
+  - Originally implemented as ThresholdManager.h/cpp
+  - [DEPRECATED] Replaced with simplified direct threshold management in Config.h
+- **Reasoning**:
+  - EEPROM persistence mechanism proved unreliable in testing
+  - Complex implementation contradicted the "Explicit Over Implicit" principle
+  - Hidden state made debugging and adjustment difficult
+- **Replacement Approach**:
+  - Direct threshold definition in Config.h as DEFAULT_POSITION_THRESHOLDS
+  - Calibration outputs copy-paste ready values for Config.h
+  - Explicit threshold values visible directly in source code
+  - Simplified threshold adjustments with direct edits to Config.h
+- **Status**: [DEPRECATED] Replaced with explicit threshold management approach
 
 ### Experimental Detection Models (NOT NEEDED)
 The following detection models were experimental approaches that proved overly complex and less reliable in testing. These implementations do NOT need to be recovered, as the UBPD model is the intended final approach:

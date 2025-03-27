@@ -3,7 +3,6 @@
 #include "detection/UltraBasicPositionDetector.h"
 #include "core/Config.h"
 #include "core/SystemTypes.h"
-#include "core/ThresholdManager.h"
 
 // Serial communication
 #define SERIAL_BAUD_RATE 115200
@@ -44,7 +43,7 @@ void setup() {
   delay(1000);
   
   Serial.println("\n\n=== PrismaTech Gauntlet 3.0 ===");
-  Serial.println("Ultra Basic Position Detection with Threshold Management");
+  Serial.println("Ultra Basic Position Detection System");
   
   // Initialize hardware
   hardware = HardwareManager::getInstance();
@@ -60,19 +59,6 @@ void setup() {
   }
   
   // Add delay after hardware initialization
-  delay(100);
-  
-  // Initialize threshold manager
-  bool tmInitOk = ThresholdManager::init();
-  Serial.print("Threshold manager initialization: ");
-  Serial.println(tmInitOk ? "SUCCESS" : "FAILED");
-  
-  if (!tmInitOk) {
-    Serial.println("Threshold manager initialization failed. Using default thresholds.");
-    // Continue anyway - we'll use defaults
-  }
-  
-  // Add delay after threshold manager initialization
   delay(100);
   
   // Initialize position detector
@@ -111,9 +97,6 @@ void loop() {
   
   // Update hardware
   hardware->update();
-  
-  // Process ThresholdManager's deferred operations
-  ThresholdManager::update();
   
   // Process at regular intervals
   if (currentTime - lastUpdateTime >= UPDATE_INTERVAL) {
