@@ -222,8 +222,8 @@ The calibration protocol was enhanced with:
 
 ### Implementation Strategy
 
-1. Update UltraBasicPositionDetector.h/.cpp with the new design
-2. Modify UltraBasicPositionTest.cpp to display physical unit values
+1. Update [PLANNED] UltraBasicPositionDetector.h/.cpp with the new design
+2. Modify [PLANNED] UltraBasicPositionTest.cpp to display physical unit values
 3. Maintain the same simple 3-sample averaging for noise reduction
 4. Provide clear documentation about the conversion to m/s² units
 

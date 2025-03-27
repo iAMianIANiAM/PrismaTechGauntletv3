@@ -33,8 +33,15 @@ void GauntletController::initialize() {
     }
     
     // Initialize position detector
-    positionDetector = new PositionDetector(hardwareManager->getMPU());
-    positionDetector->initialize();
+#ifdef USE_ULTRA_BASIC_POSITION_DETECTOR
+    // Use UBPD implementation which has better physical unit thresholds
+    positionDetector = new UltraBasicPositionDetector();
+    static_cast<UltraBasicPositionDetector*>(positionDetector)->init(hardwareManager);
+#else
+    // Use original position detector implementation
+    positionDetector = new PositionDetector();
+    positionDetector->init(hardwareManager);
+#endif
     
     // Initialize Idle Mode
     idleMode = new IdleMode(positionDetector, hardwareManager->getLEDs());
@@ -52,7 +59,12 @@ void GauntletController::update() {
     hardwareManager->update();
     
     // Update position detector
-    positionDetector->update();
+#ifdef USE_ULTRA_BASIC_POSITION_DETECTOR
+    PositionReading reading = static_cast<UltraBasicPositionDetector*>(positionDetector)->update();
+#else
+    SensorData data = hardwareManager->getSensorData();
+    PositionReading reading = positionDetector->detectPosition(data);
+#endif
     
     // Handle current mode
     switch (currentMode) {
