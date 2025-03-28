@@ -1,285 +1,182 @@
 # PrismaTech Gauntlet 3.0 - Development Roadmap
 
-## IMPORTANT NOTICE: Version Control Issue
+> Last Updated: 2025-03-31
 
-**This roadmap is being updated to reflect the current state of the codebase.** Due to version control issues, the Ultra Basic Position Detection (UBPD) system, which is the primary detection model for the entire device, was lost or never fully committed to the repository. We are focusing our recovery efforts on implementing this key component, which is essential for the device's functionality.
+This roadmap provides a mid-weight summary of the project's direction, priority features, and development backlog, aligned with the detailed tracking in the chronicle and the specifications in the TrueFunctionGuide.
+
+## Completed Development
+
+- [VERIFIED] **Ultra Basic Position Detection (UBPD)**: Fully implemented, calibrated, and verified in test environments and production context.
+- [VERIFIED] **Simplified Threshold Management**: Implemented with explicit Config.h values instead of EEPROM persistence.
+- [VERIFIED] **Documentation System**: Implemented structured process for chronicle transitions and documentation maintenance.
+- [VERIFIED] **Code-Documentation Alignment**: Completed systematic audit of directoryIndex, roadmap, and chronicle against codebase.
+
+## Current Development Focus
+
+### [IN PROGRESS] Idle Mode Implementation
+
+The Idle Mode implementation is currently in progress with a focused plan divided into phases:
+
+1. **Phase 1: UBPD Integration** (2 days)
+   - Refactor IdleMode to use UltraBasicPositionDetector instead of PositionDetector
+   - Update position handling to use PositionReading struct
+   - Align with Config namespace constants
+   - Ensure consistent CRGB color usage with FastLED
+
+2. **Phase 2: Gesture Detection Refinement** (1 day)
+   - Refine CalmOffer gesture detection according to TrueFunctionGuide
+   - Update LongNull gesture detection with non-blocking countdown
+   - Implement proper animation feedback for gestures
+
+3. **Phase 3: GauntletController Integration** (1 day)
+   - Update GauntletController to work exclusively with UBPD
+   - Remove conditional compilation for position detection
+   - Enhance mode transition handling
+
+4. **Phase 4: Testing Environment Enhancement** (1 day)
+   - Update test application with comprehensive functionality
+   - Add diagnostic commands and tools
+   - Create verification test suite
+
+**Timeline**: 6 days total including verification (Target completion: 2025-04-06)
+
+### [IN PROGRESS] Architecture Mapping
+
+- Building accurate mental model of codebase structure
+- Documenting component relationships and communication patterns
+- Creating sequence diagrams for key operations
+- Identifying potential areas for simplification
+
+## Next Immediate Steps
+
+1. [PLANNED] **Begin Phase 1 of Idle Mode Implementation**: Start UBPD integration following the approved plan
+2. [PLANNED] **Complete Animation System Architecture Documentation**: Map animation system to ensure proper integration with Idle Mode
+3. [PLANNED] **Enhance Pre-Proposal Checklist**: Create standardized implementation proposal verification checklist
+
+## Future Development
+
+- [PLANNED] **Invocation Mode Development**: Implement mode for activating prime functions
+- [PLANNED] **Resolution Mode Development**: Implement mode for active function execution
+- [PLANNED] **Freecast Mode Development**: Implement mode for custom function definition
+
+## Reference Links
+
+- [Chronicle v2](./chronicle_v2.md) - Current development chronicle
+- [TrueFunctionGuide](../reference/TrueFunctionGuide.md) - Authoritative specification for system behavior
+- [DirectoryIndex](./directoryIndex.md) - Codebase structure mapping
+- [Glossary](./glossary.md) - Project terminology and protocols
 
 ## Project Overview
 The PrismaTech Gauntlet 3.0 is a wearable electronic device that enables users to "cast spells" through specific hand positions and gestures. This roadmap outlines the development plan to implement the functionality described in the TrueFunctionGuide.
 
-## Development Phases
+## Current Status Overview
+
+- **[COMPLETED]** Core Hardware Interface Foundation
+- **[COMPLETED]** Position Detection System (UBPD)
+- **[COMPLETED]** Calibration Protocol
+- **[COMPLETED]** Threshold Management (Simplified)
+- **[IN PROGRESS]** Idle Mode Implementation
+- **[IN PROGRESS]** Architecture Mapping
+- **[PLANNED]** Invocation, Resolution, and Freecast Modes
+
+## Completed Phases
 
 ### Phase 1: Architecture and Foundation ✅
-- [x] Analyze requirements from TrueFunctionGuide
-- [x] Design system architecture
-- [x] Create directory structure
-- [x] Implement core data structures and interfaces
-- [x] Setup debugging infrastructure
-- [x] Define hardware interfaces
-- [x] Document architecture and implementation plan
+- ✅ System architecture design
+- ✅ Core data structures and interfaces
+- ✅ Debugging infrastructure
+- ✅ Hardware interface definitions
 
 ### Phase 2: Hardware Interface Foundation ✅
-- [x] Implement MPU9250 Core Interface
-  - [x] Basic I2C communication setup
-  - [x] Sensor initialization and configuration
-  - [x] Raw data reading functions
-  - [x] Basic error handling
-  - [x] Debug logging integration
-- [x] Verify MPU9250 Implementation
-  - [x] Hardware testing with actual device
-  - [x] Validation of sensor readings
-  - [x] Confirmation of appropriate sensitivity
-  - [x] Verification of raw integer data approach
-- [x] Implement LED Interface Foundation
-  - [x] Switch from Adafruit_NeoPixel to FastLED
-  - [x] WS2812 driver initialization
-  - [x] Basic color control
-  - [x] Simple animation framework
-  - [x] Position color mapping
-  - [x] Advanced animations (rainbow, pulse)
-- [x] Implement MPU9250 Data Processing
-  - [x] Raw data processing without complex scaling
-  - [x] Basic filtering implementation
-  - [x] Data validation checks
-  - [x] Error state management
-  - [x] Unit tests for data processing
-- [x] Implement Hardware Manager Integration
-  - [x] Unified hardware initialization
-  - [x] Resource management
-  - [x] Power state control
-  - [x] Error recovery system
-  - [x] Hardware status monitoring
-- [x] Phase 2 Verification
-  - [x] Review hardware interface implementations
-  - [x] Verify error handling and recovery
-  - [x] Validate hardware abstraction layer
-  - [x] Check memory usage and performance
-  - [x] Confirm core system integration
-  - [x] Update directory index
+- ✅ MPU9250 IMU sensor integration
+- ✅ LED control system (FastLED)
+- ✅ Hardware Manager implementation
+- ✅ Sensor data processing
 
-### Phase 3: Basic Position Detection ⏳
-- [x] Implement Position Detector Core
-  - [x] Implement Calibration Protocol
-  - [x] Develop calibration data logging utilities
-  - [x] Create calibration data analysis tools
-  - [x] Generate position detection thresholds
-  - [x] Integrate thresholds into Config.h
-  - [x] Implement PositionDetector.cpp with Point Detection Model
-  - [x] Implement basic position visualization in testing mode
-  - [x] Debug output system
-  - [x] Test and refine thresholds
-  - **Status**: [VERIFIED] (2025-03-27, Tested with SimplePositionTest)
-- [x] Implement Ultra-Basic Position Detection (PRIMARY FOCUS)
-  - [x] Design minimalist approach with direct axis detection
-  - [x] Define physical unit conversion and thresholds
-  - [x] Implement UltraBasicPositionDetector class with:
-    - [x] Physical unit conversion (raw data to m/s²)
-    - [x] Absolute threshold values in real-world units
-    - [x] Simplified detection logic
-    - [x] Position-specific threshold management
-  - [x] Create simplified calibration procedure
-  - [x] Develop UltraBasicPositionTest application
-  - [x] Integrate with ThresholdManager for persistent storage
-  - [x] Update main application to use UBPD and ThresholdManager
-  - [x] Successfully build main application environment
-  - [ ] Verify on physical hardware
-  - **Status**: [IMPLEMENTED] (2025-03-27, Successful build, pending hardware validation)
-- [ ] Implement Data Structures and Storage
-  - [ ] Position data storage format
-  - [ ] Calibration parameter storage
-  - [ ] Non-volatile memory interface
-  - [ ] Data validation system
-  - [ ] Backup/restore functionality
-  - **Status**: [PLANNED]
-- [ ] Implement Basic Error Handling
-  - [ ] Sensor error recovery
-  - [ ] Position detection error handling
-  - [ ] System state recovery
-  - [ ] User feedback system
-  - [ ] Error logging and reporting
-  - **Status**: [PLANNED]
-- [ ] Phase 3 Verification
-  - [x] Validate position detection accuracy (basic implementation)
-  - [ ] Verify UBPD implementation accuracy and performance
-  - [ ] Review data structure implementations
-  - [ ] Check error handling coverage
-  - [ ] Verify memory management
-  - [x] Confirm hardware layer integration
-  - [x] Update documentation
+### Phase 3: Position Detection ✅
+- ✅ Ultra Basic Position Detection (UBPD)
+- ✅ Simplified threshold management via Config.h
+- ✅ Position visualization
+- ✅ Hardware validation
 
-> **NOTE**: The Hand-Cube Orientation Model and Hybrid Position Detection approaches were experimental implementations that proved unnecessarily complex and less reliable in testing. These are NOT needed for the final device and have been removed from the roadmap. The Ultra-Basic Position Detection (UBPD) is the intended final detection approach for the device.
+### Phase 4: Calibration System ✅
+- ✅ Serial communication and data collection
+- ✅ Testing infrastructure
+- ✅ Calibration protocol and utilities
+- ✅ LED visual feedback
 
-### Phase 4: Calibration Preparation ✅
-- [x] Implement Serial Communication
-  - [x] Serial command parser
-  - [x] Data output formatting
-  - [x] Command validation
-  - [x] Error reporting
-  - [x] Debug mode implementation
-- [x] Implement Testing Infrastructure
-  - [x] Mock sensor interface
-  - [x] Data collection tools
-  - [x] Analysis utilities
-  - [x] Validation scripts
-  - [x] Performance monitoring
-- [x] Complete Documentation
-  - [x] Calibration protocol specification
-  - [x] Data format documentation
-  - [x] Error handling procedures
-  - [x] Testing procedures
-  - [x] Implementation guidelines
-- [x] Phase 4 Verification
-  - [x] Review documentation completeness
-  - [x] Validate testing infrastructure
-  - [x] Check serial communication
-  - [x] Verify data collection tools
-  - [x] Confirm position detection integration
-  - [x] Update working documents
-  - **Status**: [VERIFIED] (2025-03-26)
+### Phase 5: Test Environment Implementation ✅
+- ✅ Hardware test environments
+- ✅ Position detection test environments
+- ✅ Simple position test application
+- ✅ Environment organization
 
-### Phase 5: Calibration Protocol Implementation ✅
-- [x] Implement LED Visual Feedback
-  - [x] Position color indicators
-  - [x] Transition animations
-  - [x] Status indicators
-  - [x] Completion feedback
-- [x] Implement Data Collection
-  - [x] CSV data formatting
-  - [x] Sensor data acquisition
-  - [x] Position labeling
-  - [x] Timestamp integration
-- [x] Analyze Calibration Data
-  - [x] Collect sample data sets
-  - [x] Determine axis thresholds
-  - [x] Calculate statistics for readings
-  - [x] Document findings
-- [x] Phase 5 Verification
-  - [x] Test with current sensor placement
-  - [x] Generate position detection thresholds
-  - [x] Document threshold values
-  - [x] Prepare for position detection implementation
-  - **Status**: [VERIFIED] (2025-03-26)
-- [x] Calibration Process Improvements
-  - [x] Create comprehensive calibration guide
-  - [x] Add sensor placement metadata tracking
-  - [x] Improve threshold analysis output
-  - [x] Update platformio.ini with dedicated calibration environment
-  - [x] Ensure calibration is repeatable and adaptable to hardware changes
-  - **Status**: [VERIFIED] (2025-03-26)
+## Current Phase: Operational Modes Implementation
 
-### Phase 6: Test Environment Implementation ✅
-- [x] Implement Hardware Test Environment
-  - [x] Create env:hwmtest environment for hardware verification
-  - [x] Implement hardware integration tests
-  - [x] Verify proper hardware initialization
-- [x] Implement Position Detection Test Environment
-  - [x] Create env:postest environment for position detection testing
-  - [x] Implement position detection visualization
-  - [x] Test position transitions and stability
-- [x] Implement Simple Position Test Environment
-  - [x] Create env:simplepostest environment for straightforward testing
-  - [x] Implement visual feedback for detected positions
-  - [x] Test with calibrated threshold values
-- [x] Environment Reorganization
-  - [x] Update preprocessor guards for test isolation
-  - [x] Ensure production/test code separation
-  - [x] Archive obsolete test environments
-  - [x] Document environment purposes and usage
+### [IN PROGRESS] Idle Mode Implementation
+- **Priority**: High
+- **Dependencies**: UBPD [COMPLETED]
+- **Key Components**:
+  - [ ] State management in GauntletController
+  - [ ] Position-based LED visualization
+  - [ ] Gesture detection (CalmOffer, LongNull)
+  - [ ] Mode transition effects
+  - [ ] LED management (4 evenly-spaced LEDs at 80% brightness)
 
-### Phase 7: Recovery and UBPD Implementation ⏳
-- [x] Project Stabilization
-  - [x] Create UBPD.md to preserve Ultra-Basic Position Detection documentation
-  - [x] Update directoryIndex.md to reflect actual codebase state
-  - [x] Update roadmap.md to refocus on UBPD implementation
-  - [x] Create currentplan_v2.md with recovery plan
-  - [x] Verify local git repository state
-  - [x] Check remote repository synchronization
-  - [x] Establish proper backup procedures
-    - [x] Create git_backup_protocol_draft.md
-    - [x] Define commit, push, and branch management guidelines
-  - [x] Create recovery branch for rebuilding
-    - [x] 'recovery-phase1' branch created and active
-  - **Status**: [VERIFIED] (2025-03-27)
-- [x] UBPD Implementation
-  - [x] Create UltraBasicPositionDetector.h and .cpp files
-  - [x] Implement calibration with threshold return value
-  - [x] Create UltraBasicPositionTest.cpp test environment
-  - [x] Integrate with ThresholdManager
-  - [x] Update main application to use UBPD system
-  - [x] Successfully build project with UBPD implementation
-  - [ ] Test on physical hardware
-  - **Status**: [IMPLEMENTED] (2025-03-27, Successful build, pending hardware validation)
-- [ ] Workflow Review and Improvement
-  - [x] Analyze version control practices
-  - [x] Create formal git backup protocol
-    - [x] Finalize git_backup_protocol.md
-    - [x] Create commit message template
-    - [x] Develop file existence verification script
-    - [x] Implement pre-commit hook
-  - [ ] Enhance documentation verification processes
-  - [ ] Implement file existence verification
-  - **Status**: [IN PROGRESS] (Part of Hybrid Plan Phase 1)
+### [IN PROGRESS] Architecture Mapping
+- **Priority**: Medium
+- **Description**: Building comprehensive understanding of the codebase structure to enable targeted enhancements
+- **Key Activities**:
+  - [ ] Component relationship documentation
+  - [ ] Data flow analysis
+  - [ ] State transition mapping
+  - [ ] Documentation alignment with implementation
 
-### Phase 8: Environment Consolidation and Threshold Management ⏳
-- [ ] Test Environment Consolidation
-  - [ ] Design simplified environment hierarchy
-  - [ ] Create `ubpd_test` as primary test environment
-  - [ ] Consolidate redundant environments
-  - [ ] Update production build with UBPD integration
-  - [ ] Archive obsolete test environments
-  - **Status**: [PLANNED] (2025-03-27)
-- [ ] Threshold Management System
-  - [ ] Design ThresholdManager class
-  - [ ] Implement EEPROM-based threshold storage
-  - [ ] Create JSON threshold backup/restore functionality
-  - [ ] Add threshold validation system
-  - [ ] Integrate with calibration routine
-  - **Status**: [PLANNED] (2025-03-27)
-- [ ] System Integration
-  - [ ] Integrate ThresholdManager with main application
-  - [ ] Update calibration workflow
-  - [ ] Create documentation for threshold management
-  - [ ] Test threshold persistence across power cycles
-  - **Status**: [PLANNED] (2025-03-27)
-- [ ] Phase 8 Verification
-  - [ ] Verify production build with UBPD
-  - [ ] Test threshold persistence
-  - [ ] Validate calibration workflow
-  - [ ] Document new procedures
-  - **Status**: [PLANNED] (2025-03-27)
+## Upcoming Phases
 
-## Current Status
-We have completed Phase 1 (Architecture and Foundation), Phase 2 (Hardware Interface Foundation), Phase 4 (Calibration Preparation), Phase 5 (Calibration Protocol Implementation), and Phase 6 (Test Environment Implementation). We've also made progress on Phase 3 (Basic Position Detection) with a functional but not optimal implementation.
+### [PLANNED] Invocation Mode Implementation
+- **Estimated Start**: After Idle Mode completion
+- **Dependencies**: Idle Mode, Gesture Detection
+- **Key Components**:
+  - [ ] Circular LED pattern (one-third brightness)
+  - [ ] Position tracking and visualization
+  - [ ] Calibrated detection thresholds
+  - [ ] Transition to Resolution Mode
 
-We are currently in Phase 7, which focuses on recovery and UBPD implementation, following our Hybrid Plan that combines process improvements with the implementation of the Ultra Basic Position Detection system:
+### [PLANNED] Resolution Mode Implementation
+- **Estimated Start**: After Invocation Mode completion
+- **Dependencies**: Invocation Mode
+- **Key Components**:
+  - [ ] Visual feedback (full brightness, position colors)
+  - [ ] Transition animations
+  - [ ] Position validation
+  - [ ] Return to Idle Mode
 
-1. **Phase 1: Immediate Process Stabilization** [IN PROGRESS]
-   - Git Backup Protocol finalization
-   - Working Document Alignment
-   - File verification system implementation
+### [PLANNED] Freecast Mode Implementation
+- **Estimated Start**: After basic mode cycle completion
+- **Dependencies**: Idle Mode
+- **Key Components**:
+  - [ ] Persistent position detection
+  - [ ] Dynamic LED visualization
+  - [ ] Long-running mode management
+  - [ ] Return to Idle Mode
 
-2. **Phase 2: UBPD Implementation** [PLANNED]
-   - Core UltraBasicPositionDetector development
-   - Test application implementation
-   - Hardware verification
+## Next Immediate Steps
 
-3. **Phase 3: Documentation and Integration** [PLANNED]
-   - Final working document updates
-   - Repository maintenance
-   - Integration with main application
+1. **Complete Idle Mode Implementation**:
+   - Finish GauntletController state management
+   - Implement position-to-LED mapping
+   - Add gesture detection for mode transitions
 
-The basic PositionDetector class has been successfully implemented with the Point Detection Model (dominant axis approach) and tested on physical hardware. However, the Ultra Basic Position Detection (UBPD) system, which is the intended primary detection model for the entire device, still needs to be implemented based on our documented design.
+2. **Complete Architecture Mapping**:
+   - Document current component relationships
+   - Map state transitions between modes
+   - Identify potential refactoring opportunities
 
-## Key Milestones
-
-1. ✅ Architecture design and documentation complete
-2. ✅ Hardware Interface Foundation complete (MPU9250 interface ✅, LED interface ✅, Hardware Manager ✅)
-3. ⏳ Basic Position Detection (Calibration Protocol ✅, Data Collection Utilities ✅, Thresholds Generated ✅, Position Detector ✅, Ultra-Basic Position Detection ⏳)
-4. ✅ Calibration Preparation complete
-5. ✅ Calibration Protocol implementation ready
-6. ✅ Test environment implementation (Basic environments ✅)
-7. ⏳ Recovery and UBPD Implementation (Documentation harmonization ✅, Repository stabilization ⏳, Workflow improvement ⏳, UBPD implementation ⏳)
-8. ⏳ Environment Consolidation and Threshold Management (Test Environment Consolidation ⏳, Threshold Management System ⏳, System Integration ⏳)
+3. **Prepare for Invocation Mode**:
+   - Review TrueFunctionGuide specifications
+   - Design gesture detection algorithm
+   - Plan visual feedback implementation
 
 ## Dependencies
 - ESP32 development environment
@@ -287,15 +184,29 @@ The basic PositionDetector class has been successfully implemented with the Poin
 - WS2812 12-LED RGB ring
 - PlatformIO build system
 - FastLED library
-- USB serial connection (COM7) for calibration data collection
-- Python 3.6+ with PySerial, Pandas, and NumPy libraries for data analysis
 
-## Position Detection System
+## Reference Documentation
+- [TrueFunctionGuide](../reference/TrueFunctionGuide.md) - Authoritative specification for system behavior
+- [Chronicle v2](./chronicle_v2.md) - Current development history
+- [DirectoryIndex](./directoryIndex.md) - Codebase structure mapping
+- [Glossary](./glossary.md) - Project terminology and protocols
 
-- [x] Implement initial position detection prototype
-- [x] Design calibration protocol
-- [x] Implement on-device calibration
-- [x] Develop Ultra Basic Position Detection with physical unit thresholds
-- [x] Integrate UBPD into main application
-- [ ] Add position gesture recording
-- [ ] Refine position confidence scoring 
+### Recently Completed Tasks
+
+- **✅ Roadmap Restructuring (2025-03-27)**
+  - Eliminated outdated/contradictory information
+  - Restructured for clarity and actionable guidance
+  - Aligned statuses with chronicle verification
+  - Standardized terminology with glossary
+
+- **✅ DirectoryIndex Audit (2025-03-27)**
+  - Resolved inconsistencies with actual codebase
+  - Updated component status information
+  - Removed outdated warning banners
+  - Enhanced directory structure documentation
+  
+- **✅ Config.cpp Investigation (2025-03-28)**
+  - Identified Config.h as header-only implementation
+  - Documented vestigial build system references
+  - Confirmed no functional issues related to discrepancy
+  - Updated directoryIndex with corrected information 
