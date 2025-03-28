@@ -80,9 +80,9 @@ The Ultra Basic Position Detection (UBPD) system is documented but missing from 
 
 The migration to Global Rules v2.3 has been successfully completed. Key accomplishments:
 
-1. Created and populated `chronicle_v1.md` with project history and decisions
+1. Created and populated `chronicle_v1.md` [CURRENT] with project history and decisions
 2. Updated `glossary.md` with project-specific terminology and status indicators
-3. Removed obsolete workflow documents (`workflow_improvement_plan.md`, `git_backup_protocol.md`)
+3. Removed obsolete workflow documents (`workflow_improvement_plan.md` [REMOVED], `git_backup_protocol.md` [REMOVED])
 4. Verified that `roadmap.md` and `directoryIndex.md` already use standardized status indicators
 5. Established tagging conventions in the chronicle (🧠 INSIGHT, ⚠️ ISSUE, ✅ RESOLUTION, etc.)
 
@@ -213,4 +213,41 @@ User testing revealed that the OATH position was difficult to trigger in the mai
 2. Lowered the value to 6.50f directly in Config.h
 3. Quickly rebuilt and uploaded the main application
 
-This kind of rapid fine-tuning is precisely why the explicit threshold management approach is valuable - we can make targeted adjustments to improve specific positions without complex calibration procedures or hidden state. The direct visualization of threshold values made it immediately apparent that the OATH threshold was an outlier compared to other positions. 
+This kind of rapid fine-tuning is precisely why the explicit threshold management approach is valuable - we can make targeted adjustments to improve specific positions without complex calibration procedures or hidden state. The direct visualization of threshold values made it immediately apparent that the OATH threshold was an outlier compared to other positions.
+
+## Workspace Housekeeping Plan - 2024-03-28
+
+📌 DECISION: Conduct a systematic cleanup of the project workspace, starting with the @working directory and 4 other critical folders to be identified. We will:
+1. Review each directory's contents together
+2. Evaluate each file for relevance and current value
+3. Determine what to keep, archive, or delete
+4. Organize remaining content more effectively
+
+The goal is to reduce clutter while preserving all valuable project information in a more accessible structure. 
+
+## Workspace Cleanup Implementation - 2024-03-28
+
+✅ RESOLUTION: Completed the first phase of workspace cleanup, focusing on the working directory with the following actions:
+
+1. **Relocated Technical Documentation to /reference:**
+   - UBPD.md → /reference/UBPD.md
+   - MPUdataChart.md → /reference/MPUdataChart.md
+
+2. **Archived Obsolete Files:**
+   - currentplan_v2.md → /working/archive/currentplan_v2.md
+   - code_verification_plan.md → /working/archive/code_verification_plan.md
+   - thresholds/threshold_snapshot.md → /working/archive/threshold_snapshot.md
+   - rules/PrinciplesAdherence.mdc → /working/archive/PrinciplesAdherence.mdc
+
+3. **Deleted Redundant Files:**
+   - threshold_snapshot.txt (search results file, not core documentation)
+
+4. **Retained Core Documents:**
+   - chronicle_v1.md - Primary project journal
+   - directoryIndex.md - Codebase structure reference
+   - glossary.md - Project terminology
+   - roadmap.md - Project priorities
+   - .gitmessage - Git commit template
+   - UserScratchpad.md - User's working notes
+
+This cleanup organizes the project files according to their purpose and current relevance while maintaining all valuable project information in a more structured manner. 
