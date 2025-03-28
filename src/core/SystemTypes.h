@@ -5,6 +5,11 @@
 
 /**
  * @brief Defines the system operational modes
+ * Operational modes as defined in the TrueFunctionGuide:
+ * - Idle Mode: Default state monitoring hand positions
+ * - Invocation Mode: Structured sequence recording positions into three slots
+ * - Resolution Mode: Spell effect activation based on recorded positions
+ * - Freecast Mode: Creative motion-to-pattern translation
  */
 enum SystemMode {
   MODE_IDLE,         // Default monitoring state
@@ -15,6 +20,13 @@ enum SystemMode {
 
 /**
  * @brief Defines the recognized hand positions
+ * Hand positions as defined in the TrueFunctionGuide:
+ * - Offer: Hand forward, Palm Up (Purple - RGB: 128, 0, 128)
+ * - Calm: Hand forward, Palm Down (Yellow - RGB: 255, 255, 0)
+ * - Oath: Hand pointing upwards (Red - RGB: 255, 0, 0)
+ * - Dig: Hand pointing downwards (Green - RGB: 0, 255, 0)
+ * - Shield: Hand to the side, Palm Out (Blue - RGB: 0, 0, 255)
+ * - Null: Hand to the side, Palm In (Orange - RGB: 255, 165, 0)
  */
 enum HandPosition {
   POS_OFFER,    // Hand forward, Palm Up (Purple)

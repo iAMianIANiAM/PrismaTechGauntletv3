@@ -141,4 +141,8 @@ void GauntletController::maintainLoopTiming() {
     }
     
     lastUpdateTime = millis();
+}
+
+SystemMode GauntletController::getCurrentMode() const {
+    return currentMode;
 } 

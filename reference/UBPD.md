@@ -121,51 +121,6 @@ uint8_t detectPosition(const ProcessedData& data) {
 }
 ```
 
-#### 3. Calibration Approach
-
-```cpp
-bool calibratePosition(uint8_t position, uint16_t samples) {
-  // 1. Discard initial samples to avoid transition motion
-  for (uint8_t i = 0; i < 10; i++) {
-    _hardware->getSensorData();
-    delay(20);
-  }
-  
-  // 2. Collect samples and compute average in m/s²
-  ProcessedData sum = {0, 0, 0};
-  for (uint16_t i = 0; i < samples; i++) {
-    SensorData raw = _hardware->getSensorData();
-    ProcessedData processed;
-    processRawData(raw, processed);
-    
-    sum.accelX += processed.accelX;
-    sum.accelY += processed.accelY;
-    sum.accelZ += processed.accelZ;
-    delay(20);
-  }
-  
-  // 3. Compute average
-  ProcessedData avg = {
-    sum.accelX / samples,
-    sum.accelY / samples,
-    sum.accelZ / samples
-  };
-  
-  // 4. Set appropriate threshold based on position
-  // Use 80% of detected value as threshold for stability
-  switch (position) {
-    case POS_OFFER:   positiveZThreshold = avg.accelZ * 0.8f; break;
-    case POS_CALM:    negativeZThreshold = avg.accelZ * 0.8f; break;
-    case POS_OATH:    positiveYThreshold = avg.accelY * 0.8f; break;
-    case POS_DIG:     negativeYThreshold = avg.accelY * 0.8f; break;
-    case POS_SHIELD:  negativeXThreshold = avg.accelX * 0.8f; break;
-    case POS_NULL:    positiveXThreshold = avg.accelX * 0.8f; break;
-  }
-  
-  return true;
-}
-```
-
 #### 4. Default Thresholds
 
 ```cpp
@@ -204,35 +159,230 @@ PositionReading detectPosition(const SensorData& sensorData) {
 }
 ```
 
-### Key Differences from Previous Implementation
+### Implemented Calibration Process
 
-1. **Physical Units**: Data converted to meaningful m/s² units instead of percentage-based normalization
-2. **Fixed Detection Logic**: Consistent use of absolute thresholds throughout
-3. **Calibration & Detection Alignment**: Calibration directly updates the thresholds used in detection
-4. **Gravity Orientation**: Clear handling of gravity's constant effect
+The actual implementation includes these enhancements to the calibration procedure:
 
-### Improved Calibration Protocol
+#### 1. Interactive Visual Feedback
+- Position-specific colors used during calibration
+- LED flashing to indicate sampling progress
+- Green flashes on calibration completion
 
-The calibration protocol was enhanced with:
+#### 2. Threshold Scaling
+- Uses a constant `THRESHOLD_SCALE` (0.8f) to set thresholds at 80% of measured values
+- This constant is defined in the UltraBasicPositionDetector class
 
-1. **Buffer time between positions**: A 3-second countdown to give the user time to get into position
-2. **Initial sample discarding**: Discards the first 10 samples to avoid capturing transition motion
-3. **Improved user guidance**: Better visual and serial feedback during calibration
-4. **Position-specific threshold adjustment**: Thresholds are stored separately for each axis direction
+#### 3. Enhanced Calibration Command Interface
+- 'c' command to enter calibration mode
+- 't' command to display current thresholds
+- Countdown with visual cues before each position calibration
 
-### Implementation Strategy
+#### 4. Direct Config.h Output
+- Generates copy-paste ready code for Config.h
+- Outputs thresholds in format compatible with DEFAULT_POSITION_THRESHOLDS array
+- Clear instructions for users to update Config.h after calibration
 
-1. Update [PLANNED] UltraBasicPositionDetector.h/.cpp with the new design
-2. Modify [PLANNED] UltraBasicPositionTest.cpp to display physical unit values
-3. Maintain the same simple 3-sample averaging for noise reduction
-4. Provide clear documentation about the conversion to m/s² units
+#### 5. Enhanced Verification
+- Min/max value reporting during calibration
+- Verification flash pattern after each position is calibrated
+- REST period between position calibrations
 
-### Expected Benefits of Redesign
+Here's the actual implementation of the calibration process:
 
-1. **Improved Position Detection**: More reliable position detection with clear physical thresholds
-2. **Intuitive Debugging**: Physical units make it easier to understand sensor readings
-3. **Consistent Thresholds**: Using absolute thresholds provides more consistent detection
-4. **Better Stability**: Clear handling of gravity and sensor orientation
+```cpp
+float UltraBasicPositionDetector::calibratePosition(uint8_t position, uint16_t samples) {
+  // Validate position is in range
+  if (position >= 6) return 0.0f;
+  
+  // 1. Visual feedback that calibration is starting
+  Color positionColor = getPositionColor(position);
+  
+  // 2. Collect and average samples for calibration
+  float sumX = 0, sumY = 0, sumZ = 0;
+  float maxX = -9999, maxY = -9999, maxZ = -9999;
+  float minX = 9999, minY = 9999, minZ = 9999;
+  
+  // Discard first 10 samples (stabilization)
+  for (int i = 0; i < 10; i++) {
+    _hardware->update();
+    delay(20);
+  }
+  
+  // Collect samples for averaging
+  for (int i = 0; i < samples; i++) {
+    _hardware->update();
+    
+    // Get sensor data and process
+    SensorData raw = _hardware->getSensorData();
+    ProcessedData data;
+    processRawData(raw, data);
+    
+    // Track running sums
+    sumX += data.accelX;
+    sumY += data.accelY;
+    sumZ += data.accelZ;
+    
+    // Track min/max values
+    maxX = max(maxX, data.accelX);
+    maxY = max(maxY, data.accelY);
+    maxZ = max(maxZ, data.accelZ);
+    minX = min(minX, data.accelX);
+    minY = min(minY, data.accelY);
+    minZ = min(minZ, data.accelZ);
+    
+    // Flash LED to indicate sampling
+    if (i % 5 == 0) {
+      _hardware->setAllLEDs(positionColor);
+    } else {
+      _hardware->setAllLEDs({0, 0, 0});
+    }
+    _hardware->updateLEDs();
+    
+    delay(20);
+  }
+  
+  // Calculate average
+  float avgX = sumX / samples;
+  float avgY = sumY / samples;
+  float avgZ = sumZ / samples;
+  
+  // Output detailed calibration data
+  Serial.print("Position average: X=");
+  Serial.print(avgX, 2);
+  Serial.print(" Y=");
+  Serial.print(avgY, 2);
+  Serial.print(" Z=");
+  Serial.println(avgZ, 2);
+  
+  Serial.print("Position range: X=[");
+  Serial.print(minX, 2);
+  Serial.print(" to ");
+  Serial.print(maxX, 2);
+  Serial.print("] Y=[");
+  Serial.print(minY, 2);
+  Serial.print(" to ");
+  Serial.print(maxY, 2);
+  Serial.print("] Z=[");
+  Serial.print(minZ, 2);
+  Serial.print(" to ");
+  Serial.print(maxZ, 2);
+  Serial.println("]");
+  
+  // Calculate the threshold based on dominant axis average
+  float newThreshold = 0;
+  int axis = _dominantAxes[position];
+  switch (axis) {
+    case 0: newThreshold = avgX * THRESHOLD_SCALE; break;
+    case 1: newThreshold = avgY * THRESHOLD_SCALE; break;
+    case 2: newThreshold = avgZ * THRESHOLD_SCALE; break;
+  }
+  
+  // Update threshold locally for testing
+  _thresholds[position] = newThreshold;
+  
+  Serial.print("Calibrated threshold for position ");
+  Serial.print(position);
+  Serial.print(": ");
+  Serial.println(newThreshold, 2);
+  
+  // Complete indication
+  for (int i = 0; i < 3; i++) {
+    _hardware->setAllLEDs({0, 255, 0});
+    _hardware->updateLEDs();
+    delay(100);
+    _hardware->setAllLEDs({0, 0, 0});
+    _hardware->updateLEDs();
+    delay(100);
+  }
+  
+  return newThreshold;
+}
+```
+
+### Additional Calibration User Interface
+
+The UltraBasicPositionTest.cpp implements an enhanced user experience:
+
+```cpp
+void handleCalibration() {
+  Serial.println("Starting position calibration process...");
+  Serial.println("Follow the LED prompts and instructions for each position.");
+  Serial.println("Hold each position steady when instructed.\n");
+  delay(3000);
+  
+  // Position names for clearer instructions
+  const char* posNames[] = {
+    "OFFER (Purple - Palm up, fingers extended)",
+    "CALM (Yellow - Palm down, fingers extended)",
+    "OATH (Red - Hand vertical, palm facing inward)",
+    "DIG (Green - Hand vertical, palm facing outward)",
+    "SHIELD (Blue - Arm extended forward, palm facing forward)",
+    "NULL (Orange - Arm extended backward, palm facing back)"
+  };
+  
+  // Calibrate each position with better timing
+  for (uint8_t pos = 0; pos < 6; pos++) {
+    // Announce next position with countdown
+    Serial.print("\n=== NEXT POSITION: ");
+    Serial.print(posNames[pos]);
+    Serial.println(" ===");
+    Serial.println("Get ready in:");
+    
+    // Countdown with distinct color
+    Color prepColor = getPositionColor(pos);
+    for (int i = 5; i > 0; i--) {
+      Serial.print(i);
+      Serial.println(" seconds...");
+      
+      // Pulse LEDs to indicate preparation
+      for (int j = 0; j < 5; j++) {
+        hardware->setAllLEDs({prepColor.r/2, prepColor.g/2, prepColor.b/2});
+        hardware->updateLEDs();
+        delay(100);
+        hardware->setAllLEDs({0, 0, 0});
+        hardware->updateLEDs();
+        delay(100);
+      }
+    }
+    
+    // Actual calibration with clear visual feedback
+    Serial.println("\nHOLD POSITION NOW!");
+    Serial.println("Collecting samples...");
+    
+    // Solid color during sample collection
+    hardware->setAllLEDs(prepColor);
+    hardware->updateLEDs();
+    
+    // Perform actual calibration (50 samples)
+    float threshold = positionDetector.calibratePosition(pos, 50);
+    
+    // Display the calibrated threshold
+    Serial.print("Calibrated threshold for position ");
+    Serial.print(posNames[pos]);
+    Serial.print(": ");
+    Serial.println(threshold);
+    
+    // Confirm completion
+    Serial.println("Position calibrated successfully!");
+    Serial.println("You can relax now while we prepare for the next position.");
+    
+    // Rest period with relaxing blue pulse
+    Serial.println("Rest for a moment...");
+    for (int i = 0; i < 10; i++) {
+      uint8_t brightness = 50 + 50 * sin(i * 0.6);
+      hardware->setAllLEDs({0, 0, brightness});
+      hardware->updateLEDs();
+      delay(200);
+    }
+    hardware->setAllLEDs({0, 0, 0});
+    hardware->updateLEDs();
+  }
+  
+  Serial.println("\n=== Calibration Complete ===");
+}
+```
+
+This documentation accurately reflects the actual implemented calibration procedure, including the enhanced visual feedback, position-specific calibration approaches, and user interface elements.
 
 ## Verification Plan
 

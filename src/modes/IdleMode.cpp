@@ -185,4 +185,33 @@ void IdleMode::renderLEDs() {
         ledInterface->setPixel(IDLE_LEDS[i], currentColor, IDLE_BRIGHTNESS);
     }
     ledInterface->show();
-} 
+}
+
+#ifdef DEBUG_MODE
+void IdleMode::printStatus() const {
+    Serial.println(F("=== Idle Mode Status ==="));
+    Serial.print(F("Current Position: "));
+    
+    switch (currentPosition) {
+        case Position::OFFER:    Serial.println(F("OFFER (Purple)")); break;
+        case Position::CALM:     Serial.println(F("CALM (Yellow)")); break;
+        case Position::OATH:     Serial.println(F("OATH (Red)")); break;
+        case Position::DIG:      Serial.println(F("DIG (Green)")); break;
+        case Position::SHIELD:   Serial.println(F("SHIELD (Blue)")); break;
+        case Position::NULL_POS: Serial.println(F("NULL (Orange)")); break;
+        default:                 Serial.println(F("DEFAULT (White)")); break;
+    }
+    
+    Serial.print(F("In Null Countdown: "));
+    Serial.println(inNullCountdown ? F("YES") : F("NO"));
+    
+    if (currentPosition == Position::NULL_POS) {
+        unsigned long nullDuration = millis() - nullPositionStartTime;
+        Serial.print(F("Null Duration: "));
+        Serial.print(nullDuration);
+        Serial.println(F("ms"));
+    }
+    
+    Serial.println(F("====================="));
+}
+#endif 

@@ -115,7 +115,7 @@ Each hand position has a primary axis that shows significantly higher values tha
 2. **Calm (Yellow)**: Z-axis dominant negative
 3. **Oath (Red)**: Y-axis dominant negative
 4. **Dig (Green)**: Y-axis dominant positive
-5. **Shield (Blue)**: X-axis dominant negative with specific Z-axis requirements
+5. **Shield (Blue)**: X-axis dominant negative
 6. **Null (Orange)**: X-axis dominant positive
 7. **Default (White)**: When no dominant axis is detected
 
