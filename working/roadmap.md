@@ -1,8 +1,173 @@
 # PrismaTech Gauntlet 3.0 - Development Roadmap
 
-> Last Updated: 2025-03-31
+> *This roadmap outlines the current development priorities, planned features, and implementation timeline for the PrismaTech Gauntlet 3.0 project.*
 
-This roadmap provides a mid-weight summary of the project's direction, priority features, and development backlog, aligned with the detailed tracking in the chronicle and the specifications in the TrueFunctionGuide.
+## 🚨 Critical Priority Issues
+
+1. **[CRITICAL] MPU Sensor Communication Issue** (Target resolution: immediate)
+   - Investigate and resolve MPU data reading failure
+   - Implement I2C diagnostic tools for testing hardware connectivity
+   - Verify correct pin assignments and I2C bus configuration
+   - Resolve position detection limitations caused by sensor communication failure
+
+## 🏁 Current Development Phase: Basic Position Detection
+
+### 🔄 Active Work Streams
+
+1. **Ultra Basic Position Detection Refinement** (Est. completion: 3 days)
+   - [IMPLEMENTED] Core position detection algorithm
+   - [IMPLEMENTED] Threshold-based detection with physical units
+   - [IMPLEMENTED] Integration with Idle Mode controller
+   - [BLOCKED] Hardware testing and threshold calibration (blocked by MPU sensor issue)
+   - [BLOCKED] User feedback and adjustment mechanism (blocked by MPU sensor issue)
+
+2. **Idle Mode Implementation** (Est. completion: 1 week)
+   - [IMPLEMENTED] Position visualization with LED colors
+   - [IMPLEMENTED] CalmOffer gesture for Invocation Mode transition
+   - [IMPLEMENTED] LongNull gesture for Freecast Mode transition
+   - [BLOCKED] Optimization of transition detection (blocked by MPU sensor issue)
+   - [TODO] Add debugging features to track gesture recognition rate
+
+3. **Diagnostic Tools Development** (Est. completion: 2 days)
+   - [ACTIVE] I2C scanner implementation for hardware diagnosis
+   - [TODO] Enhanced MPU sensor debugging tools
+   - [TODO] Hardware connection verification utilities
+
+## 🗓️ Upcoming Development Phases
+
+### Phase 2: Gesture Recognition (Est. duration: 2 weeks)
+
+1. **Invocation Mode Implementation**
+   - Gesture sequence detection for spell casting
+   - Transition animations and feedback
+   - Spell recognition algorithm
+
+2. **Resolution Mode Implementation**
+   - Spell effect selection and visualization
+   - Duration control and cancellation
+   - Integration with other modes
+
+3. **Freecast Mode Implementation**
+   - Direct gesture-to-effect mapping
+   - Continuous motion tracking
+   - Quick-access favorite effects
+
+### Phase 3: System Refinement (Est. duration: 3 weeks)
+
+1. **Power Management Optimization**
+   - Battery life monitoring
+   - Power saving features
+   - Sleep/wake mechanism
+
+2. **User Experience Enhancements**
+   - Calibration workflow
+   - User configuration storage
+   - Improved visual feedback
+
+3. **Performance Optimization**
+   - Code profiling and optimization
+   - Memory usage reduction
+   - Response time improvements
+
+### Phase 4: Feature Extensions (Est. duration: 2 weeks)
+
+1. **Advanced Effects**
+   - More complex LED animations
+   - Enhanced spell combinations
+   - Environmental responsive effects
+
+2. **Connectivity Features**
+   - Bluetooth integration
+   - Mobile app companion
+   - Data logging and export
+
+## 📊 Implementation Status
+
+| Feature | Status | Dependencies | Notes |
+|---------|--------|--------------|-------|
+| Hardware Interface | ⚠️ ISSUE | N/A | MPU sensor communication failure needs resolution |
+| Ultra Basic Position Detection | 🟢 IMPLEMENTED | Hardware Interface | Core algorithm works but needs real-world testing |
+| Idle Mode | 🟢 IMPLEMENTED | UBPD | Ready for integration testing |
+| Gesture Detection | 🟡 IN PROGRESS | UBPD, Idle Mode | Basic gestures implemented, advanced pending |
+| Invocation Mode | 🟠 PLANNED | Gesture Detection | Design finalized, implementation pending |
+| Resolution Mode | 🟠 PLANNED | Invocation Mode | Design in progress |
+| Freecast Mode | 🟠 PLANNED | UBPD | Initial design completed |
+| Power Management | 🟠 PLANNED | All Modes | Initial implementation in place |
+| User Configuration | 🔴 NOT STARTED | All Modes | Pending design decisions |
+
+## 🎯 Milestone Timeline
+
+| Milestone | Target Date | Status | Dependencies |
+|-----------|-------------|--------|--------------|
+| MPU Sensor Issue Resolution | 2025-03-30 | 🟡 IN PROGRESS | N/A |
+| Basic Position Detection | 2025-03-31 | ⚠️ AT RISK | MPU Sensor Issue |
+| Idle Mode Complete | 2025-04-02 | ⚠️ AT RISK | Basic Position Detection |
+| Gesture Detection Complete | 2025-04-09 | ⚠️ AT RISK | Idle Mode |
+| Invocation Mode Complete | 2025-04-16 | 🟠 PLANNED | Gesture Detection |
+| Resolution Mode Complete | 2025-04-23 | 🟠 PLANNED | Invocation Mode |
+| Freecast Mode Complete | 2025-04-30 | 🟠 PLANNED | Basic Position Detection |
+| System Refinement Complete | 2025-05-21 | 🟠 PLANNED | All Modes |
+| Advanced Features Complete | 2025-06-04 | 🟠 PLANNED | System Refinement |
+| Project Completion | 2025-06-11 | 🟠 PLANNED | All Previous Milestones |
+
+## 🔧 Technical Debt & Refactoring
+
+1. **Documentation Updates**
+   - Align all documentation with implementation changes
+   - Update diagrams and flowcharts for accuracy
+   - Create additional user-facing documentation
+
+2. **Testing Infrastructure**
+   - Expand unit testing coverage
+   - Create integration tests
+   - Develop automated test harnesses
+
+3. **Code Quality**
+   - Consistent error handling strategy
+   - Memory usage optimization
+   - Performance profiling and bottleneck resolution
+
+## 🧪 Experimental Features (Post-v1)
+
+1. **Machine Learning Enhancement**
+   - User-specific gesture recognition
+   - Adaptive calibration
+   - Custom gesture training
+
+2. **Extended Connectivity**
+   - Wi-Fi capabilities
+   - Cloud synchronization
+   - Over-the-air updates
+
+3. **Multi-Gauntlet Coordination**
+   - Inter-gauntlet communication
+   - Synchronized effects
+   - Collaborative spellcasting
+
+## 📝 Decision Log
+
+| Date | Decision | Rationale | Status |
+|------|----------|-----------|--------|
+| 2025-03-28 | Focus resources on resolving MPU sensor issue | Critical path dependency | ACTIVE |
+| 2025-03-26 | Use UBPD exclusively without compatibility layer | Simplify architecture | IMPLEMENTED |
+| 2025-03-24 | Non-blocking architecture for animations | Improve responsiveness | IMPLEMENTED |
+| 2025-03-22 | Physical unit thresholds for position detection | Improved accuracy | IMPLEMENTED |
+| 2025-03-20 | Standardized position naming conventions | Better documentation | IMPLEMENTED |
+
+## 📈 Risk Assessment
+
+| Risk | Impact | Likelihood | Mitigation |
+|------|--------|------------|------------|
+| MPU sensor issue persists | HIGH | MEDIUM | Develop advanced diagnostic tools, test with alternative hardware configurations |
+| Position detection accuracy insufficient | MEDIUM | MEDIUM | Implement calibration procedure, add filtering options |
+| Gesture recognition unreliable | HIGH | MEDIUM | Increase averaging, implement confidence thresholds |
+| LED driver compatibility issues | MEDIUM | LOW | Abstract LED interface, test with multiple hardware variants |
+| Power consumption too high | MEDIUM | MEDIUM | Implement power profiles, optimize processing frequency |
+
+---
+
+> Last updated: 2025-03-28
+> This document is maintained as part of the project's working documentation set.
 
 ## Completed Development
 
@@ -12,6 +177,30 @@ This roadmap provides a mid-weight summary of the project's direction, priority 
 - [VERIFIED] **Code-Documentation Alignment**: Completed systematic audit of directoryIndex, roadmap, and chronicle against codebase.
 
 ## Current Development Focus
+
+### [IN PROGRESS] Architecture Simplification (Phase 1)
+
+The Architecture Simplification process is currently underway with a focused plan to standardize on UltraBasicPositionDetector (UBPD) as the sole position detection system:
+
+1. **Core Architecture Refactoring** (2 days)
+   - Remove PositionDetector implementation completely
+   - Update GauntletController to use UBPD exclusively
+   - Update IdleMode and other components to use UBPD directly
+   - Remove conditional compilation directives
+   - Update build configuration across environments
+
+2. **Position Detection Verification** (1 day)
+   - Verify correct position detection with UBPD
+   - Ensure LED feedback works properly
+   - Test integration with hardware components
+
+3. **Calibration Protocol Development** (2 days)
+   - Develop separate calibration test environment
+   - Implement three-state calibration workflow (Standby, Calibration, Detection)
+   - Create clear threshold output mechanism
+   - Ensure shared UBPD implementation between environments
+
+**Timeline**: 5 days total including verification (Target completion: 2025-04-03)
 
 ### [IN PROGRESS] Idle Mode Implementation
 
@@ -209,4 +398,46 @@ The PrismaTech Gauntlet 3.0 is a wearable electronic device that enables users t
   - Identified Config.h as header-only implementation
   - Documented vestigial build system references
   - Confirmed no functional issues related to discrepancy
-  - Updated directoryIndex with corrected information 
+  - Updated directoryIndex with corrected information
+
+## Updated Priority Roadmap (2023-11-17)
+
+### 🚨 Critical Path (Current Sprint)
+
+1. **Restore System Stability** ✅
+   - Implement targeted rollback of UBPD-Idle Mode integration
+   - Return to generic PositionDetector interface in core components
+   - Fix MPU data reading functionality
+
+2. **MPU Data Verification**
+   - Create standalone test for MPU data reading
+   - Verify sensor values are being correctly read and processed
+   - Debug any remaining initialization or communication issues
+
+3. **Ultra Basic Position Detector (UBPD) Implementation**
+   - Test UBPD as standalone component
+   - Verify position detection logic works correctly
+   - Ensure compatibility with PositionDetector interface
+
+4. **Incremental Integration**
+   - Re-integrate UBPD with Idle Mode in small, testable steps
+   - Implement proper interface adapters if needed
+   - Add logging/debugging to verify each integration point
+
+### Medium-term Priorities
+
+- **Gesture System Enhancement**
+  - Implement remaining gesture detection algorithms
+  - Add calibration tools for better position accuracy
+  - Create test suite for gesture reliability
+
+- **Feedback System Improvements**
+  - Enhance haptic feedback for position recognition
+  - Improve visual indicators for gestures and modes
+  - Add audio indicators for key events (if hardware supports)
+
+### Future Considerations
+
+- **Power Optimization**
+- **Additional Mode Implementations**
+- **Calibration System Enhancements** 
