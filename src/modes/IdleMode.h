@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include "../hardware/HardwareManager.h"
-#include "../detection/PositionDetector.h"
+#include "../detection/UltraBasicPositionDetector.h"
 #include "../core/SystemTypes.h"
 
 enum class ModeTransition {
@@ -17,7 +17,7 @@ class IdleMode {
 private:
     // Dependencies
     HardwareManager* hardwareManager;
-    PositionDetector* positionDetector;
+    UltraBasicPositionDetector* positionDetector;
     
     // State tracking
     PositionReading currentPosition;
@@ -46,7 +46,7 @@ private:
     
 public:
     IdleMode();
-    bool init(HardwareManager* hardware, PositionDetector* detector);
+    bool init(HardwareManager* hardware, UltraBasicPositionDetector* detector);
     void initialize();
     void update();
     ModeTransition checkForTransition();

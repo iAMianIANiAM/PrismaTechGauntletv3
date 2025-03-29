@@ -23,7 +23,7 @@ IdleMode::IdleMode()
 {
 }
 
-bool IdleMode::init(HardwareManager* hardware, PositionDetector* detector) {
+bool IdleMode::init(HardwareManager* hardware, UltraBasicPositionDetector* detector) {
     // Store dependencies
     hardwareManager = hardware;
     positionDetector = detector;

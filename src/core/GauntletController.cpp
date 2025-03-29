@@ -36,19 +36,11 @@ void GauntletController::initialize() {
     }
     
     // Initialize position detector
-#ifdef USE_ULTRA_BASIC_POSITION_DETECTOR
     positionDetector = new UltraBasicPositionDetector();
-    if (!static_cast<UltraBasicPositionDetector*>(positionDetector)->init(hardwareManager)) {
-        Serial.println(F("Position detector initialization failed!"));
-        return;
-    }
-#else
-    positionDetector = new PositionDetector();
     if (!positionDetector->init(hardwareManager)) {
         Serial.println(F("Position detector initialization failed!"));
         return;
     }
-#endif
     
     // Initialize Idle Mode
     idleMode = new IdleMode();

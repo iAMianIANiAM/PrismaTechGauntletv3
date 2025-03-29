@@ -4,10 +4,7 @@
 #include <Arduino.h>
 #include "SystemTypes.h"
 #include "../hardware/HardwareManager.h"
-#include "../detection/PositionDetector.h"
-#ifdef USE_ULTRA_BASIC_POSITION_DETECTOR
 #include "../detection/UltraBasicPositionDetector.h"
-#endif
 #include "../modes/IdleMode.h"
 
 enum class SystemMode {
@@ -25,7 +22,7 @@ enum class SystemMode {
 class GauntletController {
 private:
     HardwareManager* hardwareManager;
-    PositionDetector* positionDetector;
+    UltraBasicPositionDetector* positionDetector;
     
     // Mode components
     IdleMode* idleMode;
