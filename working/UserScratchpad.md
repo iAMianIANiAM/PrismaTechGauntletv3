@@ -176,3 +176,12 @@ Other answers:
 1. Not that I can think of. We're very much in a posture where everything is expendable besides UBPD and the necessary components for implementing it. 
 2. See Calibration routine detailed in lines 154-172 above. I would like the calibration protocol to adhere almost exactly to this description, with any deviation being clearly explained and requiring explicit approval. 
 3. The next fundamental building block will be gesture detection - it will be used for the "triggers" to enter the other modes, so that's the highest priority. After that, the priority will be implementing Freecast Mode. Then finally we will take on Invocation Casting Mode. These are the major points of future expansion that require consideration in our present architecture refactoring. 
+
+
+Response to recommended adjustments:
+
+1. Absolutely not. Completely unnecessary complication. Simply displaying the threshold value so that we can record it and implement it is sufficient. Attempting to implement data persistence caused substantially more problems in the past than it ever yielded in value. We will gain a "baseline" threshold (we honestly should already have one available, but I want to ensure the calibration protocol is sound) from the calibration protocol and then hardcode that into the device as a default. There is no reason to expect that the device will need frequent calibration once it has been fully programmed. Losing thresholds on restart should not be an issue if they are hardcoded into the main firmware.  
+2. Sure.
+3. Absolutely not. Unnecessary complication. If a calibration fails, we start a new one. If the entire process is consistently failing, we refactor the calibration protocol. There is no need to introduce potentially error-prone overhead for basically no gain in functionality. We had wildly successful calibration protocols in the past that did not require such complications - we are aiming to achieve that same level of functionality with minimal overhead that we achieved before.
+4. Yes. This seems crucial.
+5. Good point, but this does not need to be complicated. The metrics for success are simple: Does it build/compile? Does it upload? When it does, does it behave as expected? End of list. Calibration effectiveness will be judged entirely subjectively by me, based on how the gauntlet "feels" when it is detecting positions in the implemented Idle mode. 

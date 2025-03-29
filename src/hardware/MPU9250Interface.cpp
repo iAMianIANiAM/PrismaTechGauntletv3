@@ -23,43 +23,25 @@ uint8_t MPU9250Interface::getAddress() const {
 }
 
 bool MPU9250Interface::init() {
-    // Initialize I2C communication
+    // Initialize offsets to zero
+    accelOffsetX = accelOffsetY = accelOffsetZ = 0;
+    gyroOffsetX = gyroOffsetY = gyroOffsetZ = 0;
+    
+    // Initialize I2C communication based on ECHO_MPUInitialization.md
     Wire.begin(SDA_PIN, SCL_PIN);
     Wire.setClock(I2C_FREQUENCY);
+    
+    delay(50); // Allow I2C to stabilize
     
     // Log connection attempt
     Serial.printf("Initializing MPU sensor on I2C address 0x%02X\n", sensorAddress);
     
-    // Delay for stable power-up
-    delay(150);
+    // Verify device presence
+    Wire.beginTransmission(sensorAddress);
+    byte error = Wire.endTransmission();
     
-    // Check if sensor is responding
-    if (!isConnected()) {
-        Serial.println("MPU sensor not responding to I2C communication");
-        return false;
-    }
-    
-    // Check WHO_AM_I register
-    uint8_t whoAmI = readRegister(WHO_AM_I_REG);
-    Serial.printf("MPU WHO_AM_I register value: 0x%02X\n", whoAmI);
-    
-    // Accept a wider range of valid WHO_AM_I values based on Echo insights
-    if (whoAmI == 0x68 || whoAmI == 0x71 || whoAmI == 0x73 || whoAmI == 0x70) {
-        Serial.println("Valid MPU sensor identified");
-        
-        if (whoAmI == 0x68) {
-            Serial.println("Detected MPU6050 sensor");
-        } else if (whoAmI == 0x71 || whoAmI == 0x73) {
-            Serial.println("Detected MPU9250 sensor");
-        } else if (whoAmI == 0x70) {
-            Serial.println("Detected MPU variant (possibly MPU6000)");
-        }
-    } else {
-        Serial.printf("WARNING: Unknown WHO_AM_I value: 0x%02X\n", whoAmI);
-        Serial.println("Possible issues:");
-        Serial.println("1. I2C connection problem (wiring issue)");
-        Serial.println("2. Wrong I2C address");
-        Serial.println("3. Sensor not powered properly");
+    if (error != 0) {
+        Serial.println("ERROR: MPU sensor not found on I2C bus");
         return false;
     }
     
@@ -71,17 +53,29 @@ bool MPU9250Interface::init() {
     }
     
     // Wait for reset to complete
-    delay(150);
+    delay(100);
     
-    // Wake up the sensor (clear sleep bit and use X-axis gyro as clock reference)
+    // Wake up the sensor
     Serial.println("Waking up sensor...");
-    if (!writeRegister(PWR_MGMT_1_REG, 0x01)) {
+    if (!writeRegister(PWR_MGMT_1_REG, 0x00)) {
         Serial.println("Failed to wake up device");
         return false;
     }
     delay(100);
     
-    // Configure sample rate divider (register 0x19)
+    // Verify device identity
+    uint8_t whoAmI = readRegister(WHO_AM_I_REG);
+    Serial.printf("MPU WHO_AM_I register value: 0x%02X\n", whoAmI);
+    
+    // Accept a wider range of valid WHO_AM_I values for MPU variants
+    if (whoAmI == 0x68 || whoAmI == 0x71 || whoAmI == 0x73 || whoAmI == 0x70) {
+        Serial.println("Valid MPU sensor identified");
+    } else {
+        Serial.printf("WARNING: Unknown WHO_AM_I value: 0x%02X\n", whoAmI);
+        Serial.println("Continuing anyway for compatibility with some MPU variants");
+    }
+    
+    // Configure sample rate (register 0x19)
     // Calculate: sample_rate = 1kHz / (1 + divider)
     // For 125Hz: 1000 / (1 + 7) = 125Hz
     Serial.println("Setting sample rate to 125Hz...");
@@ -89,33 +83,29 @@ bool MPU9250Interface::init() {
         Serial.println("Failed to set sample rate");
         return false;
     }
-    delay(10); // Add short delay between I2C operations
-    
-    // Configure accelerometer range to ±4g (register 0x1C)
-    Serial.println("Configuring accelerometer to ±4g range...");
-    if (!writeRegister(ACCEL_CONFIG_REG, 0x08)) {
-        Serial.println("Failed to configure accelerometer");
-        return false;
-    }
-    delay(10); // Add short delay between I2C operations
     
     // Configure gyroscope range to ±500 deg/s (register 0x1B)
-    Serial.println("Configuring gyroscope to ±500 deg/s range...");
+    Serial.println("Setting gyroscope range to ±500 deg/s...");
     if (!writeRegister(GYRO_CONFIG_REG, 0x08)) {
-        Serial.println("Failed to configure gyroscope");
+        Serial.println("Failed to set gyro range");
         return false;
     }
-    delay(10); // Add short delay between I2C operations
     
-    // Configure digital low pass filter
-    Serial.println("Configuring digital low pass filter...");
-    if (!writeRegister(CONFIG_REG, 0x03)) {
-        Serial.println("Failed to configure DLPF");
+    // Configure accelerometer range to ±4g (register 0x1C)
+    Serial.println("Setting accelerometer range to ±4g...");
+    if (!writeRegister(ACCEL_CONFIG_REG, 0x08)) {
+        Serial.println("Failed to set accelerometer range");
         return false;
     }
-    delay(10); // Add short delay between I2C operations
     
-    Serial.println("MPU sensor initialization complete");
+    // Enable data ready interrupt (register 0x38)
+    Serial.println("Enabling data ready interrupt...");
+    if (!writeRegister(INT_ENABLE_REG, 0x01)) {
+        Serial.println("Failed to enable interrupts");
+        return false;
+    }
+    
+    Serial.println("MPU sensor initialization complete!");
     return true;
 }
 
@@ -135,18 +125,36 @@ bool MPU9250Interface::readSensorData(SensorData* data) {
     }
     
     // Extract raw data values from buffer
-    data->accelX = (int16_t)((buffer[0] << 8) | buffer[1]) - accelOffsetX;
-    data->accelY = (int16_t)((buffer[2] << 8) | buffer[3]) - accelOffsetY;
-    data->accelZ = (int16_t)((buffer[4] << 8) | buffer[5]) - accelOffsetZ;
+    int16_t accelX = (int16_t)((buffer[0] << 8) | buffer[1]);
+    int16_t accelY = (int16_t)((buffer[2] << 8) | buffer[3]);
+    int16_t accelZ = (int16_t)((buffer[4] << 8) | buffer[5]);
     
     // Skip temperature (bytes 6-7)
     
-    data->gyroX = (int16_t)((buffer[8] << 8) | buffer[9]) - gyroOffsetX;
-    data->gyroY = (int16_t)((buffer[10] << 8) | buffer[11]) - gyroOffsetY;
-    data->gyroZ = (int16_t)((buffer[12] << 8) | buffer[13]) - gyroOffsetZ;
+    int16_t gyroX = (int16_t)((buffer[8] << 8) | buffer[9]);
+    int16_t gyroY = (int16_t)((buffer[10] << 8) | buffer[11]);
+    int16_t gyroZ = (int16_t)((buffer[12] << 8) | buffer[13]);
+    
+    // Apply calibration offsets (maintaining raw values)
+    data->accelX = accelX - accelOffsetX;
+    data->accelY = accelY - accelOffsetY;
+    data->accelZ = accelZ - accelOffsetZ;
+    data->gyroX = gyroX - gyroOffsetX;
+    data->gyroY = gyroY - gyroOffsetY;
+    data->gyroZ = gyroZ - gyroOffsetZ;
     
     // Set timestamp
     data->timestamp = millis();
+    
+    // Debug: output raw values if all zeros (indication of possible sensor problem)
+    if (data->accelX == 0 && data->accelY == 0 && data->accelZ == 0 && 
+        data->gyroX == 0 && data->gyroY == 0 && data->gyroZ == 0) {
+        
+        // Log with both raw and offset-adjusted values
+        Serial.println("WARNING: All sensor values are zero - possible sensor issue");
+        Serial.printf("Raw values: accelX=%d, accelY=%d, accelZ=%d, gyroX=%d, gyroY=%d, gyroZ=%d\n", 
+                     accelX, accelY, accelZ, gyroX, gyroY, gyroZ);
+    }
     
     return true;
 }
@@ -183,18 +191,70 @@ bool MPU9250Interface::calibrate() {
     const int sampleCount = 100;
     const int calmDelay = 2000; // Time to keep device still
     
-    Serial.println("MPU calibration starting...");
-    Serial.println("Keep the device still for 2 seconds");
-    delay(calmDelay); // Give user time to keep the device still
+    Serial.println("\n======================================");
+    Serial.println("MPU SENSOR CALIBRATION DIAGNOSTICS");
+    Serial.println("======================================");
     
-    // Reset offsets
-    accelOffsetX = accelOffsetY = accelOffsetZ = 0;
-    gyroOffsetX = gyroOffsetY = gyroOffsetZ = 0;
+    // Verify sensor identity first
+    uint8_t whoAmI = readRegister(WHO_AM_I_REG);
+    Serial.printf("Sensor WHO_AM_I value: 0x%02X\n", whoAmI);
+    
+    // Identify specific sensor model based on WHO_AM_I
+    String sensorType = "Unknown";
+    if (whoAmI == 0x68) {
+        sensorType = "MPU6050";
+    } else if (whoAmI == 0x70) {
+        sensorType = "MPU6500/MPU9250 variant";
+    } else if (whoAmI == 0x71 || whoAmI == 0x73) {
+        sensorType = "MPU9250";
+    }
+    Serial.printf("Detected sensor type: %s\n", sensorType.c_str());
+    
+    // Explicitly reset offsets before calibration
+    Serial.println("Resetting calibration offsets to zero");
+    accelOffsetX = 0;
+    accelOffsetY = 0;
+    accelOffsetZ = 0;
+    gyroOffsetX = 0;
+    gyroOffsetY = 0;
+    gyroOffsetZ = 0;
+    
+    // Log current configuration
+    uint8_t accelConfig = readRegister(ACCEL_CONFIG_REG);
+    uint8_t gyroConfig = readRegister(GYRO_CONFIG_REG);
+    Serial.printf("Current accelerometer config: 0x%02X\n", accelConfig);
+    Serial.printf("Current gyroscope config: 0x%02X\n", gyroConfig);
+    
+    // Calculate and display expected scaling factors
+    uint8_t accelRange = (accelConfig >> 3) & 0x03; // Extract AFS_SEL bits
+    float accelScale = 0.0f;
+    
+    switch (accelRange) {
+        case 0: accelScale = 16384.0f; Serial.println("Accel range: ±2g (16384 LSB/g)"); break;
+        case 1: accelScale = 8192.0f; Serial.println("Accel range: ±4g (8192 LSB/g)"); break;
+        case 2: accelScale = 4096.0f; Serial.println("Accel range: ±8g (4096 LSB/g)"); break;
+        case 3: accelScale = 2048.0f; Serial.println("Accel range: ±16g (2048 LSB/g)"); break;
+        default: Serial.println("Unknown accelerometer range"); break;
+    }
+    
+    Serial.println("Keep the device still for 2 seconds");
+    Serial.println("-------------------------------------");
+    
+    // Give user time to keep the device still
+    delay(calmDelay);
     
     int32_t accelXSum = 0, accelYSum = 0, accelZSum = 0;
     int32_t gyroXSum = 0, gyroYSum = 0, gyroZSum = 0;
     
+    // Variables to track min/max readings during calibration
+    int16_t accelXMin = 32767, accelYMin = 32767, accelZMin = 32767;
+    int16_t accelXMax = -32768, accelYMax = -32768, accelZMax = -32768;
+    
+    // Track consecutive zero readings
+    int zeroReadingsCount = 0;
+    
     // Collect samples
+    Serial.println("Collecting calibration samples...");
     for (int i = 0; i < sampleCount; i++) {
         SensorData data;
         if (!readSensorData(&data)) {
@@ -202,6 +262,55 @@ bool MPU9250Interface::calibrate() {
             return false;
         }
         
+        // Check for zero readings
+        if (data.accelX == 0 && data.accelY == 0 && data.accelZ == 0) {
+            zeroReadingsCount++;
+            
+            // Extra debugging for zero readings
+            if (zeroReadingsCount > 3) {
+                Serial.println("WARNING: Multiple consecutive zero readings detected");
+                Serial.println("Attempting recovery...");
+                
+                // Try to read directly from registers without offsets
+                uint8_t buffer[6];
+                if (readRegisters(ACCEL_XOUT_H_REG, buffer, 6)) {
+                    int16_t rawX = (int16_t)((buffer[0] << 8) | buffer[1]);
+                    int16_t rawY = (int16_t)((buffer[2] << 8) | buffer[3]);
+                    int16_t rawZ = (int16_t)((buffer[4] << 8) | buffer[5]);
+                    
+                    Serial.printf("Direct register read: X=%d, Y=%d, Z=%d\n", 
+                                 rawX, rawY, rawZ);
+                }
+            }
+        } else {
+            zeroReadingsCount = 0;
+        }
+        
+        // Log raw data for verification samples
+        if (i < 3 || i > sampleCount - 3) {
+            Serial.printf("Calibration sample %d: accelX=%d, accelY=%d, accelZ=%d, gyroX=%d, gyroY=%d, gyroZ=%d\n", 
+                         i, data.accelX, data.accelY, data.accelZ, data.gyroX, data.gyroY, data.gyroZ);
+            
+            // Convert to physical units using expected scaling and display
+            if (accelScale > 0) {
+                float physicalX = data.accelX / accelScale * 9.81f;
+                float physicalY = data.accelY / accelScale * 9.81f;
+                float physicalZ = data.accelZ / accelScale * 9.81f;
+                
+                Serial.printf("  → Physical (m/s²): X=%.2f, Y=%.2f, Z=%.2f\n", 
+                             physicalX, physicalY, physicalZ);
+            }
+        }
+        
+        // Track min/max values
+        accelXMin = min(accelXMin, data.accelX);
+        accelYMin = min(accelYMin, data.accelY);
+        accelZMin = min(accelZMin, data.accelZ);
+        accelXMax = max(accelXMax, data.accelX);
+        accelYMax = max(accelYMax, data.accelY);
+        accelZMax = max(accelZMax, data.accelZ);
+        
+        // Accumulate for averaging
         accelXSum += data.accelX;
         accelYSum += data.accelY;
         accelZSum += data.accelZ;
@@ -213,100 +322,141 @@ bool MPU9250Interface::calibrate() {
         delay(10);  // Short delay between samples
     }
     
+    // Log range of values seen during calibration
+    Serial.println("\nValue ranges during calibration:");
+    Serial.printf("  accelX: %d to %d (span: %d)\n", accelXMin, accelXMax, accelXMax - accelXMin);
+    Serial.printf("  accelY: %d to %d (span: %d)\n", accelYMin, accelYMax, accelYMax - accelYMin);
+    Serial.printf("  accelZ: %d to %d (span: %d)\n", accelZMin, accelZMax, accelZMax - accelZMin);
+    
+    // Calculate whether we had significant variation (needed for valid calibration)
+    bool sufficientVariation = 
+        (accelXMax - accelXMin > 50) || 
+        (accelYMax - accelYMin > 50) || 
+        (accelZMax - accelZMin > 50);
+    
+    if (!sufficientVariation) {
+        Serial.println("WARNING: Insufficient variation in accelerometer readings");
+        Serial.println("Calibration may not be accurate");
+    }
+    
     // Calculate average offsets
     accelOffsetX = accelXSum / sampleCount;
     accelOffsetY = accelYSum / sampleCount;
-    // Keep gravity in Z axis (8192 is approximately 1g in the ±4g range)
-    accelOffsetZ = (accelZSum / sampleCount) - 8192;
+    
+    // For Z-axis, account for gravity based on the detected range
+    // MPU6500/9250 has different scaling factors
+    int16_t gravityLSB = 0;
+    if (accelScale > 0) {
+        gravityLSB = (int16_t)(accelScale);  // 1g worth of counts for current range
+    } else {
+        // Default to 8192 if we couldn't determine scale (for ±4g range)
+        gravityLSB = 8192;
+    }
+    Serial.printf("Using gravity reference: %d LSB (1g)\n", gravityLSB);
+    
+    // Keep gravity in Z axis by subtracting average minus 1g equivalent
+    accelOffsetZ = (accelZSum / sampleCount) - gravityLSB;
     
     gyroOffsetX = gyroXSum / sampleCount;
     gyroOffsetY = gyroYSum / sampleCount;
     gyroOffsetZ = gyroZSum / sampleCount;
     
-    Serial.println("Calibration complete");
+    Serial.println("\nCalibration complete");
     Serial.printf("Accel offsets: X=%d Y=%d Z=%d\n", accelOffsetX, accelOffsetY, accelOffsetZ);
     Serial.printf("Gyro offsets: X=%d Y=%d Z=%d\n", gyroOffsetX, gyroOffsetY, gyroOffsetZ);
     
+    // Verify calibration with a test reading
+    Serial.println("\nVerifying calibration with test reading:");
+    SensorData testData;
+    if (readSensorData(&testData)) {
+        Serial.printf("Test reading (with offsets): X=%d Y=%d Z=%d\n", 
+                     testData.accelX, testData.accelY, testData.accelZ);
+        
+        // Convert to physical units
+        if (accelScale > 0) {
+            float physicalX = testData.accelX / accelScale * 9.81f;
+            float physicalY = testData.accelY / accelScale * 9.81f;
+            float physicalZ = testData.accelZ / accelScale * 9.81f;
+            
+            Serial.printf("Physical (m/s²): X=%.2f, Y=%.2f, Z=%.2f\n", 
+                         physicalX, physicalY, physicalZ);
+                         
+            // Z should be close to 9.81 (gravity) when flat
+            float zError = abs(physicalZ - 9.81f);
+            if (zError < 1.0f) {
+                Serial.println("Z-axis calibration looks good (close to 9.81 m/s²)");
+            } else {
+                Serial.printf("Z-axis may need adjustment (error: %.2f m/s²)\n", zError);
+            }
+        }
+    }
+    
+    Serial.println("======================================\n");
     return true;
 }
 
 // I2C helper methods
 bool MPU9250Interface::writeRegister(uint8_t reg, uint8_t value) {
-    // Try up to 3 times for reliability
-    for (int attempt = 0; attempt < 3; attempt++) {
-        Wire.beginTransmission(sensorAddress);
-        Wire.write(reg);
-        Wire.write(value);
-        uint8_t error = Wire.endTransmission();
-        if (error == 0) {
-            return true;
-        }
-        
-        // Log error and retry
-        Serial.printf("I2C write error: %d (register 0x%02X, value 0x%02X, address 0x%02X) - attempt %d\n", 
-                    error, reg, value, sensorAddress, attempt+1);
-        delay(10); // Wait before retry
-    }
+    Wire.beginTransmission(sensorAddress);
+    Wire.write(reg);
+    Wire.write(value);
+    byte result = Wire.endTransmission(true);
     
-    // Failed after multiple attempts
-    return false;
+    if (result != 0) {
+        Serial.printf("Error writing to register 0x%02X: %d\n", reg, result);
+        return false;
+    }
+    return true;
 }
 
 uint8_t MPU9250Interface::readRegister(uint8_t reg) {
-    for (int attempt = 0; attempt < 3; attempt++) {
-        Wire.beginTransmission(sensorAddress);
-        Wire.write(reg);
-        uint8_t error = Wire.endTransmission(false);
-        if (error != 0) {
-            Serial.printf("I2C read error during address setup: %d (register 0x%02X, address 0x%02X) - attempt %d\n", 
-                         error, reg, sensorAddress, attempt+1);
-            delay(10);
-            continue;
-        }
-        
-        // Fix ambiguity by explicitly casting to the correct types
-        uint8_t bytesReceived = Wire.requestFrom((uint8_t)sensorAddress, (uint8_t)1);
-        if (bytesReceived != 1) {
-            Serial.printf("I2C read error: requested 1 byte, received %d bytes - attempt %d\n", bytesReceived, attempt+1);
-            delay(10);
-            continue;
-        }
-        
+    Wire.beginTransmission(sensorAddress);
+    Wire.write(reg);
+    byte result = Wire.endTransmission(false);
+    
+    if (result != 0) {
+        Serial.printf("Error setting register 0x%02X for reading: %d\n", reg, result);
+        return 0;
+    }
+    
+    Wire.requestFrom(sensorAddress, (uint8_t)1);
+    if (Wire.available()) {
         return Wire.read();
     }
     
-    // Failed after multiple attempts
     return 0;
 }
 
 bool MPU9250Interface::readRegisters(uint8_t reg, uint8_t* buffer, uint8_t count) {
-    for (int attempt = 0; attempt < 3; attempt++) {
-        Wire.beginTransmission(sensorAddress);
-        Wire.write(reg);
-        uint8_t error = Wire.endTransmission(false);
-        if (error != 0) {
-            Serial.printf("I2C read error during multi-read address setup: %d (register 0x%02X, address 0x%02X) - attempt %d\n", 
-                         error, reg, sensorAddress, attempt+1);
-            delay(10);
-            continue;
-        }
-        
-        uint8_t bytesReceived = Wire.requestFrom((uint8_t)sensorAddress, (uint8_t)count);
-        if (bytesReceived != count) {
-            Serial.printf("I2C multi-read error: requested %d bytes, received %d bytes - attempt %d\n", count, bytesReceived, attempt+1);
-            delay(10);
-            continue;
-        }
-        
-        for (uint8_t i = 0; i < count; i++) {
-            buffer[i] = Wire.read();
-        }
-        
-        return true;
+    if (buffer == nullptr || count == 0) {
+        return false;
     }
     
-    // Failed after multiple attempts
-    return false;
+    Wire.beginTransmission(sensorAddress);
+    Wire.write(reg);
+    byte result = Wire.endTransmission(false);  // Send repeated start
+    
+    if (result != 0) {
+        Serial.printf("Error setting start register 0x%02X for reading: %d\n", reg, result);
+        return false;
+    }
+    
+    uint8_t bytesReceived = Wire.requestFrom(sensorAddress, count);
+    if (bytesReceived != count) {
+        Serial.printf("Requested %d bytes but received %d\n", count, bytesReceived);
+        return false;
+    }
+    
+    for (uint8_t i = 0; i < count; i++) {
+        if (Wire.available()) {
+            buffer[i] = Wire.read();
+        } else {
+            Serial.println("Error: Wire data ended early");
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 // Enhanced error handling and connection verification
