@@ -48,6 +48,13 @@ public:
   ProcessedData getProcessedData() const;
   
   /**
+   * @brief Process raw accelerometer data to physical units (m/s²)
+   * @param raw Raw sensor data to process
+   * @param processed Output processed data in m/s²
+   */
+  void processRawData(const SensorData& raw, ProcessedData& processed);
+  
+  /**
    * @brief Calibrate the position detection thresholds for a specific position
    * @param position Position to calibrate (from HandPosition enum)
    * @param samples Number of samples to collect for calibration
@@ -131,13 +138,17 @@ private:
   // Constants
   // The original scaling factor calculation was 4.0f * 9.81f / 32768.0f for ±4g range
   // We'll adjust this to be configurable for better compatibility with MPU6500/9250
-  static constexpr float DEFAULT_SCALING_FACTOR = 4.0f * 9.81f / 32768.0f; // Default for ±4g range
   
-  // Alternative scaling constants to try for MPU6500 compatibility
+  // ECHO reference scaling factor (line 152 in ECHO_MPUInitialization.md)
+  // For ±4g range (set with register 0x1C = 0x08)
+  // Scale factor is 4g/32768 = 0.0001220703125 g/digit * 9.81 m/s²
+  static constexpr float DEFAULT_SCALING_FACTOR = 0.0001220703125f * 9.81f; // ECHO reference for ±4g
+  
+  // Alternative scaling constants kept for reference only
   static constexpr float MPU6500_SCALING_FACTOR = 9.81f / 8192.0f; // MPU6500 at ±4g
   static constexpr float ALT_SCALING_FACTOR = 9.81f / 4096.0f;     // Higher sensitivity option
   
-  // Runtime configurable scaling factor (defaulted to original)
+  // Runtime configurable scaling factor (defaulted to ECHO reference)
   float _currentScalingFactor = DEFAULT_SCALING_FACTOR;
   
   static constexpr float THRESHOLD_SCALE = 0.8f; // 80% scale for more reliable detection
@@ -159,7 +170,6 @@ private:
   uint8_t _currentSampleIndex = 0;
   
   // Internal processing methods
-  void processRawData(const SensorData& raw, ProcessedData& processed);
   PositionReading detectPosition(const ProcessedData& data);
   SensorData calculateAveragedData();
   

@@ -332,47 +332,57 @@ void updateLEDs() {
 }
 
 void collectSensorData() {
-  // Only collect data during position calibration states
-  if (currentState < STATE_POSITION_OFFER || currentState > STATE_POSITION_NULL) {
+  // Get the current position we're calibrating
+  uint8_t currentPosition = getPositionForState(currentState);
+  PositionSampleData& data = positionData[currentPosition];
+  
+  // Get raw sensor data
+  SensorData rawData = hardware->getSensorData();
+  
+  // Create a temporary variable for processed data
+  ProcessedData processedData;
+  
+  // Explicitly process the raw data instead of using stored values
+  detector->processRawData(rawData, processedData);
+  
+  // Skip obviously invalid readings
+  if (abs(rawData.accelX) > 30000 || abs(rawData.accelY) > 30000 || abs(rawData.accelZ) > 30000) {
+    Serial.print("Skipping invalid sample - raw values too extreme: ");
+    Serial.print(rawData.accelX); Serial.print(", ");
+    Serial.print(rawData.accelY); Serial.print(", ");
+    Serial.println(rawData.accelZ);
     return;
   }
   
-  // Get the position index for the current state
-  uint8_t position = getPositionForState(currentState);
+  // Accumulate values for averaging
+  data.accumX += processedData.accelX;
+  data.accumY += processedData.accelY;
+  data.accumZ += processedData.accelZ;
+  data.validSamples++;
   
-  // Get processed sensor data
-  ProcessedData data = detector->getProcessedData();
-  
-  // Accumulate data for this position
-  positionData[position].accumX += data.accelX;
-  positionData[position].accumY += data.accelY;
-  positionData[position].accumZ += data.accelZ;
-  
-  // Update variance calculations (running variance algorithm)
-  if (positionData[position].validSamples > 0) {
-    float oldMeanX = positionData[position].accumX / positionData[position].validSamples;
-    float oldMeanY = positionData[position].accumY / positionData[position].validSamples;
-    float oldMeanZ = positionData[position].accumZ / positionData[position].validSamples;
+  // Show raw and scaled values periodically
+  if (data.validSamples % 5 == 0) {
+    float scalingFactor = detector->getScalingFactor();
     
-    positionData[position].varX += (data.accelX - oldMeanX) * (data.accelX - oldMeanX);
-    positionData[position].varY += (data.accelY - oldMeanY) * (data.accelY - oldMeanY);
-    positionData[position].varZ += (data.accelZ - oldMeanZ) * (data.accelZ - oldMeanZ);
+    Serial.print("Sample ");
+    Serial.print(data.validSamples);
+    Serial.print(" | Raw: X=");
+    Serial.print(rawData.accelX);
+    Serial.print(" Y=");
+    Serial.print(rawData.accelY);
+    Serial.print(" Z=");
+    Serial.print(rawData.accelZ);
+    
+    Serial.print(" | Scaled (");
+    Serial.print(scalingFactor, 8);
+    Serial.print("): X=");
+    Serial.print(processedData.accelX, 2);
+    Serial.print(" Y=");
+    Serial.print(processedData.accelY, 2);
+    Serial.print(" Z=");
+    Serial.print(processedData.accelZ, 2);
+    Serial.println(" m/s²");
   }
-  
-  // Increment valid sample count
-  positionData[position].validSamples++;
-  
-  // Print current sample for debugging
-  Serial.print("Sample ");
-  Serial.print(positionData[position].validSamples);
-  Serial.print(" for ");
-  Serial.print(getPositionName(position));
-  Serial.print(": X=");
-  Serial.print(data.accelX);
-  Serial.print(", Y=");
-  Serial.print(data.accelY);
-  Serial.print(", Z=");
-  Serial.println(data.accelZ);
 }
 
 void transitionToNextState() {
@@ -518,67 +528,96 @@ uint8_t getPositionForState(CalibrationState state) {
 }
 
 void printStatusUpdate() {
-  // Only print status updates for certain states
   switch (currentState) {
     case STATE_STANDBY:
-      // Reminder of commands
-      Serial.println("\nCommands: 'c' for Calibration, 'd' for Detection Mode");
+      Serial.println("Ready for calibration. Enter 'c' to begin.");
       break;
       
-    case STATE_WARMUP: {
-      unsigned long elapsed = millis() - stateStartTime;
-      unsigned long remaining = WARMUP_DURATION > elapsed ? WARMUP_DURATION - elapsed : 0;
-      
-      Serial.print("Warmup: ");
-      Serial.print(remaining / 1000);
-      Serial.println(" seconds remaining");
+    case STATE_INSTRUCTIONS:
+      // No periodic updates during instructions
       break;
-    }
-    
+      
+    case STATE_WARMUP:
+      // Countdown to first position
+      {
+        unsigned long remaining = WARMUP_DURATION - (millis() - stateStartTime);
+        Serial.print("Warming up IMU... ");
+        Serial.print(remaining / 1000);
+        Serial.println(" seconds remaining");
+      }
+      break;
+      
     case STATE_POSITION_OFFER:
     case STATE_POSITION_CALM:
     case STATE_POSITION_OATH:
     case STATE_POSITION_DIG:
     case STATE_POSITION_SHIELD:
-    case STATE_POSITION_NULL: {
-      uint8_t position = getPositionForState(currentState);
-      unsigned long elapsed = millis() - stateStartTime;
-      unsigned long remaining = POSITION_DURATION > elapsed ? POSITION_DURATION - elapsed : 0;
-      
-      Serial.print("Calibrating ");
-      Serial.print(getPositionName(position));
-      Serial.print(": ");
-      Serial.print(remaining / 1000);
-      Serial.print(" seconds remaining, ");
-      Serial.print(positionData[position].validSamples);
-      Serial.println(" samples collected");
+    case STATE_POSITION_NULL:
+      // Show progress for position calibration
+      {
+        uint8_t position = getPositionForState(currentState);
+        unsigned long elapsed = millis() - stateStartTime;
+        unsigned long remaining = POSITION_DURATION - elapsed;
+        
+        Serial.print("Calibrating ");
+        Serial.print(getPositionName(position));
+        Serial.print(" position... ");
+        Serial.print(remaining / 1000);
+        Serial.print(" seconds remaining (");
+        Serial.print(positionData[position].validSamples);
+        Serial.println(" samples collected)");
+      }
       break;
-    }
-    
+      
+    case STATE_ANALYSIS:
+      Serial.println("Analyzing calibration data...");
+      break;
+      
     case STATE_RESULTS:
-      // Reminder of commands
-      Serial.println("\nCommands: 'c' to recalibrate, 'd' to test detection");
+      // No periodic updates during results
       break;
       
     case STATE_DETECTION: {
-      // Display current detected position
-      PositionReading reading = detector->getCurrentPosition();
+      // Get raw sensor data
+      SensorData rawData = hardware->getSensorData();
       
-      Serial.print("Detected: ");
-      Serial.print(getPositionName(reading.position));
-      Serial.print(" (Confidence: ");
-      Serial.print(reading.confidence);
-      Serial.println("%)");
+      // Process the raw data directly
+      ProcessedData processed;
+      detector->processRawData(rawData, processed);
       
-      // Print the processed accelerometer data
-      ProcessedData data = detector->getProcessedData();
-      Serial.print("Accel (m/s²): X=");
-      Serial.print(data.accelX);
-      Serial.print(", Y=");
-      Serial.print(data.accelY);
-      Serial.print(", Z=");
-      Serial.println(data.accelZ);
+      // Get current position and confidence
+      PositionReading position = detector->getCurrentPosition();
       
+      // Format a nice display with columns
+      Serial.print(getPositionName(position.position));
+      Serial.print("        | ");
+      
+      // Print confidence
+      Serial.print(position.confidence, 1);
+      Serial.print("%      | ");
+      
+      // Print raw values
+      Serial.print("X:");
+      Serial.print(rawData.accelX);
+      Serial.print(" Y:");
+      Serial.print(rawData.accelY);
+      Serial.print(" Z:");
+      Serial.print(rawData.accelZ);
+      Serial.print(" | ");
+      
+      // Print processed values
+      Serial.print("X:");
+      Serial.print(processed.accelX, 2);
+      Serial.print(" Y:");
+      Serial.print(processed.accelY, 2);
+      Serial.print(" Z:");
+      Serial.print(processed.accelZ, 2);
+      Serial.println(" m/s²");
+      
+      // Update LEDs based on position
+      Color posColor = getPositionColor(position.position);
+      hardware->setBrightness(map(position.confidence, 0, 100, 50, 200));
+      hardware->setAllLEDs(posColor);
       break;
     }
   }
@@ -789,17 +828,77 @@ Color getPositionColor(uint8_t position) {
 }
 
 void enterDetectionMode() {
+  Serial.println("\n==================================");
+  Serial.println("Entering Detection Mode");
+  Serial.println("==================================");
+  Serial.println("Using ECHO reference scaling factor");
+  Serial.println("Try holding each position to test detection");
+  Serial.println("Press 'q' to return to standby");
+  
+  // First, validate the scaling factor to ensure gravity reading is accurate
+  Serial.println("\nValidating scaling factor against gravity...");
+  Serial.println("Place device flat on table and keep still");
+  
+  // Give user time to place device flat
+  delay(3000);
+  
+  // Collect samples and verify expected ~9.81 m/s² on Z-axis when flat
+  float sumZ = 0.0f;
+  int numSamples = 20;
+  
+  for (int i = 0; i < numSamples; i++) {
+    // Get fresh sensor data
+    hardware->update();
+    SensorData rawData = hardware->getSensorData();
+    
+    // Process with current scaling factor
+    ProcessedData processed;
+    detector->processRawData(rawData, processed);
+    
+    // Accumulate Z readings (should be ~9.81 m/s² if scaling is correct)
+    sumZ += processed.accelZ;
+    
+    // Show progress
+    Serial.print(".");
+    delay(100);
+  }
+  
+  // Calculate average Z reading
+  float avgZ = sumZ / numSamples;
+  
+  // Calculate error percentage against expected gravity value
+  float expectedGravity = 9.81f;
+  float errorPct = abs((avgZ - expectedGravity) / expectedGravity) * 100.0f;
+  
+  Serial.println();
+  Serial.print("Average Z reading: ");
+  Serial.print(avgZ, 2);
+  Serial.print(" m/s² (Expected: ");
+  Serial.print(expectedGravity, 2);
+  Serial.println(" m/s²)");
+  
+  Serial.print("Error percentage: ");
+  Serial.print(errorPct, 1);
+  Serial.println("%");
+  
+  if (errorPct > 10.0f) {
+    Serial.println("WARNING: Gravity reading error exceeds 10%. Scaling factor may need adjustment.");
+    Serial.print("Current scaling factor: ");
+    Serial.println(detector->getScalingFactor(), 10);
+  } else {
+    Serial.println("Scaling factor validation passed!");
+  }
+  
+  // Transition to detection state
   currentState = STATE_DETECTION;
   stateStartTime = millis();
   
-  Serial.println("\n==================================");
-  Serial.println("Detection Mode");
-  Serial.println("==================================");
-  Serial.println("Move your hand to test position detection");
-  Serial.println("The LED will show the detected position color");
-  Serial.println("Enter 's' to return to Standby");
-  Serial.println("==================================\n");
+  // Change LED color to white
+  hardware->setBrightness(100);
+  Color white = {255, 255, 255};
+  hardware->setAllLEDs(white);
   
-  // Print current thresholds for reference
-  detector->printCalibrationData();
+  // Display column headers for detection output
+  Serial.println("\nPosition    | Confidence | Raw Accel | Processed (m/s²)");
+  Serial.println("------------|------------|-----------|-------------------");
 } 
