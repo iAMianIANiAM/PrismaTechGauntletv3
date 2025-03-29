@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 #include <FastLED.h>
+#include "../hardware/HardwareManager.h"
 #include "../detection/PositionDetector.h"
-#include "../hardware/LEDInterface.h"
 #include "../core/SystemTypes.h"
 
 enum class ModeTransition {
@@ -16,12 +16,12 @@ enum class ModeTransition {
 class IdleMode {
 private:
     // Dependencies
+    HardwareManager* hardwareManager;
     PositionDetector* positionDetector;
-    LEDInterface* ledInterface;
     
     // State tracking
-    Position currentPosition;
-    Position previousPosition;
+    PositionReading currentPosition;
+    PositionReading previousPosition;
     unsigned long positionChangedTime;
     unsigned long nullPositionStartTime;
     bool inNullCountdown;
@@ -38,19 +38,15 @@ private:
     static const uint8_t IDLE_BRIGHTNESS;
     static const uint16_t COLOR_TRANSITION_MS;
     
-    // Color mappings
-    CRGB getPositionColor(Position position);
-    
-    // Gesture detection
+    // Internal methods
+    CRGB getPositionColor(uint8_t position);
     bool detectCalmOfferGesture();
     bool detectLongNullGesture();
-    void updateNullCountdown();
-    
-    // Color transition
     void updateColorTransition();
     
 public:
-    IdleMode(PositionDetector* detector, LEDInterface* leds);
+    IdleMode();
+    bool init(HardwareManager* hardware, PositionDetector* detector);
     void initialize();
     void update();
     ModeTransition checkForTransition();

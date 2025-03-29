@@ -41,23 +41,23 @@ With the above in mind, please restructure your development plan and report.
 
 Calibration Protocol:
 
-Generate a script that will run the following calibration protocol:
+- On start, the device initializes all components, displaying the status in the serial monitor. It then enters a standby mode, prompting the user to enter one of two commands (one key each - the gauntlet is difficult to type in) - to enter either Calibration Routine or Detection Mode. It will not proceed into any mode absent a user command. This is in response to a prior pain point in calibration - having a very limited time to boot up the device, put it on my hand properly, open a serial monitor, initiate the calibration routine, and then get into position to perform the hand positions. It has not been fun. So the gauntlet is going to remain in a standby mode until I can get comfortably prepared to initiate the routine.
 
-- On start, the device begins a 30-second warmup period, with a softly pulsing white light for the first 25 seconds, and then a rapidly blinking brighter white light for the final 5 seconds (to allow the user to get the gauntlet on and into first calibration position.)
+- Detection - this is the standard looping position detection behavior in which the gauntlet LED displays the color associated with the detected position - at first based on default thresholds (for each position, the starting threshold should be: dominant axis reading (in m/s^2) absolute value >7.00). After calibration, the thresholds will be adjusted accordingly. Serial monitor should display the raw and processed readings in each update, and when a position is detected, it should indicate which position is detected and the threshold used to detect it.
 
-- The gauntlet will then display a color associated with a certain hand position, for 30 seconds. I will position my hand/the gauntlet in the designated position for the duration of the 30 seconds. The device should be transmitting data to the serial monitor for recording during this time.
-
-- The gauntlet will proceed through each color of its posiitions, glowing that color for 30 seconds, with 5-second intervals of flashing white light in between each position (to allow time to reposition). The order will be just as listed in the True Function Document:
+- Calibration begins the Calbration routine. The serial monitor will clearly outline and explain each step of the process to the user and forewarn them of upcoming sensor position tests. After a 15-second warmup, the routine will begin. For each hand position, the gauntlet LED will steadily light up with the associated color, as the serial monitor instructs the user to position their hand in the specified position (include the position name and description). During the 15-second period, the gauntlet will record multiple readings from the sensor to gather data about the hand position. At the end of the 15-second period, the serial monitor will instruct the user on the next position to be tested and to move their hand to that position over the next 5 seconds. During that 5 seconds, the LED will flash the color associated with the position that is *about to be recorded*. Then, after the 5 second transition, the LED holds solid as the gauntlet records for the 15-second hold period. This repeats for each of the positions/colors in standard order (listed alongside Dominant Axis): 
 
 1. **Offer (Purple)**: Z-axis dominant positive
 2. **Calm (Yellow)**: Z-axis dominant negative
 3. **Oath (Red)**: Y-axis dominant negative
 4. **Dig (Green)**: Y-axis dominant positive
-5. **Shield (Blue)**: X-axis dominant negative with specific Z-axis requirements
+5. **Shield (Blue)**: X-axis dominant negative
 6. **Null (Orange)**: X-axis dominant positive
 
 
-in this way, we will basically reverse the process of the eventual "Position Detection System", with the gauntlet providing the visual prompt for the position (that would usually be feedback), and the user providing the hand position as feedback (which would normally be the input). This should give us sufficient data to calibrate our thresholds for each position and ensure clear, reliable detection of distinct hand positions. 
+When the calibration is complete, the gauntlet will process the collected data and generate thresholds, using the tools we have already developed. It will then enter standby mode again while displaying the final calculated thresholds for each position. This is in reponse to yet another major pain point from the past - in prior iterations, once the calibration had finished, the detection mode would automatically resume, flooding the monitor with readings and making it difficult to locate the thresholds, sometimes rendering them inaccessible through the accumulation of new data in the terminal. The return to the inert standby state is vital to preserve the thresholds so they can be properly recorded. From this standby mode, the user can again enter either command, to either run the Calibration Routine again (which will overwrite the saved threshold values), or to enter Detection Mode to test out the newly-calibrated thresholds and decide if they should be recorded, if the routine should be run again, or if there seems to be an underlying problem with the protocol that needs to be addressed. 
+
+Using this method, we will basically reverse the process of the UBPD system, with the gauntlet providing the visual prompt for the position (that would usually be feedback), and the user providing the hand position as feedback (which would normally be the input). This should give us sufficient data to calibrate our thresholds for each position and ensure clear, reliable detection of distinct hand positions. 
 
 Ensure that we have a sufficient data collection method in place. I will perform the calibration while connected via USB to port COM7, so some means of collecting the data either from that port or from the serial monitor directly will need to be established as part of the calibration protocol. Please draft up a proposed implementation of the calibration protocol, including a suggested data collection method, and report. 
 
@@ -141,3 +141,38 @@ This approach should provide a more reliable and practical solution that builds 
 
 2. This is another one of those areas where you're going to have to trust me, and the lessons from the past - we keep the gesture recognition super simple. So the CalmOffer Gesture recognition logic is extremely simple - whenever the gauntlet leaves "Calm" (palm down), begin a 1000ms timer. If the gauntlet detects "Offer" (palm up) before the timer expires, then the gesture is recognized. Otherwise, it fails. Any further complication than that just degraded functionality. Other gesture detections should maintain similar levels of simplicity in their logic. 
 3. In those cirucmstances, it should default to white. 
+
+
+
+Thoughts on workflow improvements:Some manner of rule mandating that the AI check the directory indexat the start of every proposal In order To guide Their navigation of the code base, and suggest corrections or additions to the index if they find anything missing or incorrect.
+
+We need a rule about testing environments. He just makes a new one whenever we create a new component or system. They're getting out of hand. 
+
+
+
+
+Calibration Protocol:
+
+- On start, the device initializes all components, displaying the status in the serial monitor. It then enters a standby mode, prompting the user to enter one of two commands (one key each - the gauntlet is difficult to type in) - to enter either Calibration Routine or Detection Mode. It will not proceed into any mode absent a user command. This is in response to a prior pain point in calibration - having a very limited time to boot up the device, put it on my hand properly, open a serial monitor, initiate the calibration routine, and then get into position to perform the hand positions. It has not been fun. So the gauntlet is going to remain in a standby mode until I can get comfortably prepared to initiate the routine.
+
+- Detection - this is the standard looping position detection behavior in which the gauntlet LED displays the color associated with the detected position - at first based on default thresholds (for each position, the starting threshold should be: dominant axis reading (in m/s^2) absolute value >7.00). After calibration, the thresholds will be adjusted accordingly. Serial monitor should display the raw and processed readings in each update, and when a position is detected, it should indicate which position is detected and the threshold used to detect it.
+
+- Calibration begins the Calbration routine. The serial monitor will clearly outline and explain each step of the process to the user and forewarn them of upcoming sensor position tests. After a 15-second warmup, the routine will begin. For each hand position, the gauntlet LED will steadily light up with the associated color, as the serial monitor instructs the user to position their hand in the specified position (include the position name and description). During the 15-second period, the gauntlet will record multiple readings from the sensor to gather data about the hand position. At the end of the 15-second period, the serial monitor will instruct the user on the next position to be tested and to move their hand to that position over the next 5 seconds. During that 5 seconds, the LED will flash the color associated with the position that is *about to be recorded*. Then, after the 5 second transition, the LED holds solid as the gauntlet records for the 15-second hold period. This repeats for each of the positions/colors in standard order (listed alongside Dominant Axis): 
+
+1. **Offer (Purple)**: Z-axis dominant positive
+2. **Calm (Yellow)**: Z-axis dominant negative
+3. **Oath (Red)**: Y-axis dominant negative
+4. **Dig (Green)**: Y-axis dominant positive
+5. **Shield (Blue)**: X-axis dominant negative
+6. **Null (Orange)**: X-axis dominant positive
+
+
+When the calibration is complete, the gauntlet will process the collected data and generate thresholds, using the tools we have already developed. It will then enter standby mode again while displaying the final calculated thresholds for each position. This is in reponse to yet another major pain point from the past - in prior iterations, once the calibration had finished, the detection mode would automatically resume, flooding the monitor with readings and making it difficult to locate the thresholds, sometimes rendering them inaccessible through the accumulation of new data in the terminal. The return to the inert standby state is vital to preserve the thresholds so they can be properly recorded. From this standby mode, the user can again enter either command, to either run the Calibration Routine again (which will overwrite the saved threshold values), or to enter Detection Mode to test out the newly-calibrated thresholds and decide if they should be recorded, if the routine should be run again, or if there seems to be an underlying problem with the protocol that needs to be addressed. 
+
+Using this method, we will basically reverse the process of the UBPD system, with the gauntlet providing the visual prompt for the position (that would usually be feedback), and the user providing the hand position as feedback (which would normally be the input). This should give us sufficient data to calibrate our thresholds for each position and ensure clear, reliable detection of distinct hand positions. 
+
+Other answers:
+
+1. Not that I can think of. We're very much in a posture where everything is expendable besides UBPD and the necessary components for implementing it. 
+2. See Calibration routine detailed in lines 154-172 above. I would like the calibration protocol to adhere almost exactly to this description, with any deviation being clearly explained and requiring explicit approval. 
+3. The next fundamental building block will be gesture detection - it will be used for the "triggers" to enter the other modes, so that's the highest priority. After that, the priority will be implementing Freecast Mode. Then finally we will take on Invocation Casting Mode. These are the major points of future expansion that require consideration in our present architecture refactoring. 

@@ -3,64 +3,59 @@
 #include <Arduino.h>
 
 bool UltraBasicPositionDetector::init(HardwareManager* hardware) {
-  if (!hardware) {
+  // Store hardware reference
+  _hardware = hardware;
+  
+  // Verify hardware reference is valid
+  if (!_hardware) {
     return false;
   }
   
-  _hardware = hardware;
-  
-  // Initialize current position to unknown
-  _currentPosition.position = POS_UNKNOWN;
-  _currentPosition.confidence = 100;
-  _currentPosition.timestamp = millis();
-  
-  // Initialize processed data
-  _currentProcessedData = {0.0f, 0.0f, 0.0f};
-  
-  // Initialize sample buffer
-  for (int i = 0; i < POSITION_AVERAGE_SAMPLES; i++) {
-    _sampleBuffer[i] = {0, 0, 0, 0, 0, 0, 0};
+  // Initialize MPU9250 through hardware manager
+  if (!_hardware->init()) {
+    return false;
   }
   
-  // Initialize dominant axes
-  _dominantAxes[POS_OFFER] = 2;  // Z-axis
-  _dominantAxes[POS_CALM] = 2;   // Z-axis
-  _dominantAxes[POS_OATH] = 1;   // Y-axis
-  _dominantAxes[POS_DIG] = 1;    // Y-axis
-  _dominantAxes[POS_SHIELD] = 0; // X-axis
-  _dominantAxes[POS_NULL] = 0;   // X-axis
+  // Initialize position data
+  _currentPosition.position = POS_UNKNOWN;
+  _currentPosition.confidence = 0.0f;
+  _currentPosition.timestamp = millis();
   
-  // Load thresholds from defaults
+  // Zero out the processed data structure
+  _currentProcessedData.accelX = 0.0f;
+  _currentProcessedData.accelY = 0.0f;
+  _currentProcessedData.accelZ = 0.0f;
+  
+  // Clear sample buffer
+  for (uint8_t i = 0; i < POSITION_AVERAGE_SAMPLES; i++) {
+    _sampleBuffer[i] = {0};
+  }
+  _currentSampleIndex = 0;
+  
+  // Load default thresholds
   loadDefaultThresholds();
   
   return true;
 }
 
-void UltraBasicPositionDetector::loadDefaultThresholds() {
-  // Load default thresholds from Config.h
-  for (int i = 0; i < 6; i++) {
-    _thresholds[i] = Config::DEFAULT_POSITION_THRESHOLDS[i];
-  }
-  Serial.println("Using default thresholds from Config.h");
-}
-
 PositionReading UltraBasicPositionDetector::update() {
-  // 1. Get raw sensor data
+  // Get sensor data from MPU via hardware manager
   SensorData rawData = _hardware->getSensorData();
   
-  // 2. Add to averaging buffer
+  // Store in circular buffer
   _sampleBuffer[_currentSampleIndex] = rawData;
   _currentSampleIndex = (_currentSampleIndex + 1) % POSITION_AVERAGE_SAMPLES;
   
-  // 3. Calculate averaged data
+  // Calculate averaged data
   SensorData averagedData = calculateAveragedData();
   
-  // 4. Process to physical units
+  // Process raw averaged data
   processRawData(averagedData, _currentProcessedData);
   
-  // 5. Detect position
+  // Detect position based on processed data
   _currentPosition = detectPosition(_currentProcessedData);
   
+  // Return the current position reading
   return _currentPosition;
 }
 
@@ -72,238 +67,206 @@ ProcessedData UltraBasicPositionDetector::getProcessedData() const {
   return _currentProcessedData;
 }
 
+SensorData UltraBasicPositionDetector::calculateAveragedData() {
+  SensorData result = {0};
+  int32_t accelX = 0, accelY = 0, accelZ = 0;
+  int32_t gyroX = 0, gyroY = 0, gyroZ = 0;
+  
+  // Sum all samples
+  for (uint8_t i = 0; i < POSITION_AVERAGE_SAMPLES; i++) {
+    accelX += _sampleBuffer[i].accelX;
+    accelY += _sampleBuffer[i].accelY;
+    accelZ += _sampleBuffer[i].accelZ;
+    gyroX += _sampleBuffer[i].gyroX;
+    gyroY += _sampleBuffer[i].gyroY;
+    gyroZ += _sampleBuffer[i].gyroZ;
+  }
+  
+  // Average the samples
+  result.accelX = accelX / POSITION_AVERAGE_SAMPLES;
+  result.accelY = accelY / POSITION_AVERAGE_SAMPLES;
+  result.accelZ = accelZ / POSITION_AVERAGE_SAMPLES;
+  result.gyroX = gyroX / POSITION_AVERAGE_SAMPLES;
+  result.gyroY = gyroY / POSITION_AVERAGE_SAMPLES;
+  result.gyroZ = gyroZ / POSITION_AVERAGE_SAMPLES;
+  
+  return result;
+}
+
 void UltraBasicPositionDetector::processRawData(const SensorData& raw, ProcessedData& processed) {
-  // Apply scaling to convert to m/s²
+  // Convert raw values to physical units (m/s²)
   processed.accelX = raw.accelX * SCALING_FACTOR;
-  processed.accelY = -raw.accelY * SCALING_FACTOR; // Invert for face-down mounting
+  processed.accelY = raw.accelY * SCALING_FACTOR;
   processed.accelZ = raw.accelZ * SCALING_FACTOR;
 }
 
 PositionReading UltraBasicPositionDetector::detectPosition(const ProcessedData& data) {
-  PositionReading reading;
-  reading.position = POS_UNKNOWN;
-  reading.confidence = 0;
-  reading.timestamp = millis();
+  PositionReading result;
+  result.timestamp = millis();
   
-  // Store values for easier access
-  float values[3] = {data.accelX, data.accelY, data.accelZ};
+  // Check each position by dominant axis and threshold
+  float maxConfidence = 0.0f;
+  uint8_t bestPosition = POS_UNKNOWN;
   
-  // Debug output
-  Serial.print("Detection values: X=");
-  Serial.print(data.accelX, 2);
-  Serial.print(" Y=");
-  Serial.print(data.accelY, 2);
-  Serial.print(" Z=");
-  Serial.print(data.accelZ, 2);
-  
-  // Check each position based on its dominant axis and threshold
-  float maxConfidence = 0;
-  int bestPosition = POS_UNKNOWN;
-  
-  for (int pos = 0; pos < 6; pos++) {
-    int axis = _dominantAxes[pos];
+  // Check each defined position (excluding POS_UNKNOWN)
+  for (uint8_t pos = 0; pos < 6; pos++) {
+    float value = 0.0f;
+    
+    // Get value from the dominant axis for this position
+    switch (_dominantAxes[pos]) {
+      case 0: value = data.accelX; break;
+      case 1: value = data.accelY; break;
+      case 2: value = data.accelZ; break;
+    }
+    
+    // Calculate confidence based on how close to the threshold
+    float confidence = 0.0f;
     float threshold = _thresholds[pos];
-    float value = values[axis];
     
-    // Calculate how well this matches (distance from threshold)
-    float confidence = 0;
-    
-    // If threshold is positive, we check if value > threshold
-    // If threshold is negative, we check if value < threshold
-    if ((threshold >= 0 && value > threshold) || 
-        (threshold < 0 && value < threshold)) {
-      // Calculate confidence based on how far over threshold
-      confidence = 100.0f * (abs(value) / (abs(threshold) * 1.5f));
-      confidence = min(confidence, 100.0f); // Cap at 100%
+    if (threshold != 0.0f) {
+      confidence = (value / threshold) * 100.0f;
       
-      Serial.print(" | Pos ");
-      Serial.print(pos);
-      Serial.print(": ");
-      Serial.print(confidence, 0);
-      Serial.print("%");
-      
-      // Track best match
-      if (confidence > maxConfidence) {
+      // If confidence exceeds our minimum and is better than previous best
+      if (confidence >= MIN_CONFIDENCE && confidence > maxConfidence) {
         maxConfidence = confidence;
         bestPosition = pos;
       }
     }
   }
   
-  Serial.print(" | Best: ");
-  Serial.println(bestPosition);
-  
-  // Set the best position if confidence is reasonable
-  if (maxConfidence > MIN_CONFIDENCE) {
-    reading.position = bestPosition;
-    reading.confidence = maxConfidence;
+  // Special case for NULL position (neutral/flat)
+  // If no strong position detected and gravity along Z-axis
+  if (maxConfidence < MIN_CONFIDENCE && 
+      abs(data.accelX) < 2.0f && 
+      abs(data.accelY) < 2.0f && 
+      abs(data.accelZ - 9.81f) < 2.0f) {
+    bestPosition = POS_NULL;
+    maxConfidence = 100.0f;
   }
   
-  return reading;
-}
-
-SensorData UltraBasicPositionDetector::calculateAveragedData() {
-  SensorData result = {0, 0, 0, 0, 0, 0, 0};
-  
-  // Sum all samples
-  for (int i = 0; i < POSITION_AVERAGE_SAMPLES; i++) {
-    result.accelX += _sampleBuffer[i].accelX;
-    result.accelY += _sampleBuffer[i].accelY;
-    result.accelZ += _sampleBuffer[i].accelZ;
-    result.gyroX += _sampleBuffer[i].gyroX;
-    result.gyroY += _sampleBuffer[i].gyroY;
-    result.gyroZ += _sampleBuffer[i].gyroZ;
+  // If still no position detected, it's unknown
+  if (maxConfidence < MIN_CONFIDENCE) {
+    bestPosition = POS_UNKNOWN;
+    maxConfidence = 0.0f;
   }
   
-  // Divide by number of samples
-  result.accelX /= POSITION_AVERAGE_SAMPLES;
-  result.accelY /= POSITION_AVERAGE_SAMPLES;
-  result.accelZ /= POSITION_AVERAGE_SAMPLES;
-  result.gyroX /= POSITION_AVERAGE_SAMPLES;
-  result.gyroY /= POSITION_AVERAGE_SAMPLES;
-  result.gyroZ /= POSITION_AVERAGE_SAMPLES;
-  result.timestamp = millis();
+  // Set result
+  result.position = bestPosition;
+  result.confidence = maxConfidence;
   
   return result;
 }
 
+void UltraBasicPositionDetector::loadDefaultThresholds() {
+  // Load default thresholds for each position
+  // Thresholds are in m/s² and represent approximately what
+  // we expect to see in the dominant axis for each position
+  
+  // OFFER: X-axis dominant, negative (palm up)
+  _thresholds[POS_OFFER] = 5.0f;
+  _dominantAxes[POS_OFFER] = 0; // X-axis
+  
+  // CALM: Y-axis dominant, positive (palm inward)
+  _thresholds[POS_CALM] = 5.0f;
+  _dominantAxes[POS_CALM] = 1; // Y-axis
+  
+  // OATH: Y-axis dominant, negative (palm outward)
+  _thresholds[POS_OATH] = -5.0f;
+  _dominantAxes[POS_OATH] = 1; // Y-axis
+  
+  // DIG: X-axis dominant, positive (palm down)
+  _thresholds[POS_DIG] = -5.0f;
+  _dominantAxes[POS_DIG] = 0; // X-axis
+  
+  // SHIELD: Z-axis dominant, negative (forward)
+  _thresholds[POS_SHIELD] = 5.0f;
+  _dominantAxes[POS_SHIELD] = 2; // Z-axis
+  
+  // NULL: No threshold, special case
+  _thresholds[POS_NULL] = 0.0f;
+  _dominantAxes[POS_NULL] = 2; // Z-axis (gravity)
+}
+
 float UltraBasicPositionDetector::calibratePosition(uint8_t position, uint16_t samples) {
-  // Validate position is in range
-  if (position >= 6) return 0.0f;
-  
-  // 1. Visual feedback that calibration is starting
-  Color positionColor;
-  switch (position) {
-    case POS_OFFER:
-      positionColor = {Config::Colors::OFFER_COLOR[0], Config::Colors::OFFER_COLOR[1], Config::Colors::OFFER_COLOR[2]};
-      break;
-    case POS_CALM:
-      positionColor = {Config::Colors::CALM_COLOR[0], Config::Colors::CALM_COLOR[1], Config::Colors::CALM_COLOR[2]};
-      break;
-    case POS_OATH:
-      positionColor = {Config::Colors::OATH_COLOR[0], Config::Colors::OATH_COLOR[1], Config::Colors::OATH_COLOR[2]};
-      break;
-    case POS_DIG:
-      positionColor = {Config::Colors::DIG_COLOR[0], Config::Colors::DIG_COLOR[1], Config::Colors::DIG_COLOR[2]};
-      break;
-    case POS_SHIELD:
-      positionColor = {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]};
-      break;
-    case POS_NULL:
-      positionColor = {Config::Colors::NULL_COLOR[0], Config::Colors::NULL_COLOR[1], Config::Colors::NULL_COLOR[2]};
-      break;
-    default:
-      return 0.0f; // Invalid position
+  // Only calibrate valid positions (not UNKNOWN or NULL)
+  if (position >= 6) {
+    return 0.0f;
   }
   
-  // 2. Collect and average samples for calibration
-  float sumX = 0, sumY = 0, sumZ = 0;
-  float maxX = -9999, maxY = -9999, maxZ = -9999;
-  float minX = 9999, minY = 9999, minZ = 9999;
+  // Zero out accumulators
+  float accumX = 0.0f, accumY = 0.0f, accumZ = 0.0f;
+  uint16_t validSamples = 0;
   
-  // Discard first 10 samples (stabilization)
-  for (int i = 0; i < 10; i++) {
-    _hardware->update();
-    delay(20);
+  // Collect samples
+  for (uint16_t i = 0; i < samples; i++) {
+    SensorData rawData = _hardware->getSensorData();
+    ProcessedData processedData;
+    
+    processRawData(rawData, processedData);
+    
+    // Accumulate processed values
+    accumX += processedData.accelX;
+    accumY += processedData.accelY;
+    accumZ += processedData.accelZ;
+    validSamples++;
+    
+    delay(10); // Short delay between readings
   }
   
-  // Collect samples for averaging
-  for (int i = 0; i < samples; i++) {
-    _hardware->update();
+  // If we got some valid samples
+  if (validSamples > 0) {
+    // Calculate averages
+    float avgX = accumX / validSamples;
+    float avgY = accumY / validSamples;
+    float avgZ = accumZ / validSamples;
     
-    // Get sensor data and process
-    SensorData raw = _hardware->getSensorData();
-    ProcessedData data;
-    processRawData(raw, data);
+    // Find the dominant axis (with highest absolute value)
+    float absX = abs(avgX);
+    float absY = abs(avgY);
+    float absZ = abs(avgZ);
     
-    // Track running sums
-    sumX += data.accelX;
-    sumY += data.accelY;
-    sumZ += data.accelZ;
-    
-    // Track min/max values
-    maxX = max(maxX, data.accelX);
-    maxY = max(maxY, data.accelY);
-    maxZ = max(maxZ, data.accelZ);
-    minX = min(minX, data.accelX);
-    minY = min(minY, data.accelY);
-    minZ = min(minZ, data.accelZ);
-    
-    // Flash LED to indicate sampling
-    if (i % 5 == 0) {
-      _hardware->setAllLEDs(positionColor);
-    } else {
-      _hardware->setAllLEDs({0, 0, 0});
+    if (absX >= absY && absX >= absZ) {
+      // X is dominant
+      _dominantAxes[position] = 0;
+      _thresholds[position] = avgX;
     }
-    _hardware->updateLEDs();
+    else if (absY >= absX && absY >= absZ) {
+      // Y is dominant
+      _dominantAxes[position] = 1;
+      _thresholds[position] = avgY;
+    }
+    else {
+      // Z is dominant
+      _dominantAxes[position] = 2;
+      _thresholds[position] = avgZ;
+    }
     
-    delay(20);
+    // Scale threshold slightly for better detection reliability
+    _thresholds[position] *= THRESHOLD_SCALE;
+    
+    return _thresholds[position];
   }
   
-  // Calculate average
-  float avgX = sumX / samples;
-  float avgY = sumY / samples;
-  float avgZ = sumZ / samples;
-  
-  Serial.print("Position average: X=");
-  Serial.print(avgX, 2);
-  Serial.print(" Y=");
-  Serial.print(avgY, 2);
-  Serial.print(" Z=");
-  Serial.println(avgZ, 2);
-  
-  Serial.print("Position range: X=[");
-  Serial.print(minX, 2);
-  Serial.print(" to ");
-  Serial.print(maxX, 2);
-  Serial.print("] Y=[");
-  Serial.print(minY, 2);
-  Serial.print(" to ");
-  Serial.print(maxY, 2);
-  Serial.print("] Z=[");
-  Serial.print(minZ, 2);
-  Serial.print(" to ");
-  Serial.print(maxZ, 2);
-  Serial.println("]");
-  
-  // 3. Calculate the threshold based on dominant axis average
-  float newThreshold = 0;
-  int axis = _dominantAxes[position];
-  switch (axis) {
-    case 0: newThreshold = avgX * THRESHOLD_SCALE; break;
-    case 1: newThreshold = avgY * THRESHOLD_SCALE; break;
-    case 2: newThreshold = avgZ * THRESHOLD_SCALE; break;
-  }
-  
-  // 4. Update threshold locally for testing
-  _thresholds[position] = newThreshold;
-  
-  Serial.print("Calibrated threshold for position ");
-  Serial.print(position);
-  Serial.print(": ");
-  Serial.println(newThreshold, 2);
-  
-  // 5. Complete indication
-  for (int i = 0; i < 3; i++) {
-    _hardware->setAllLEDs({0, 255, 0});
-    _hardware->updateLEDs();
-    delay(100);
-    _hardware->setAllLEDs({0, 0, 0});
-    _hardware->updateLEDs();
-    delay(100);
-  }
-  
-  return newThreshold;
+  return 0.0f; // Return zero if no valid samples were collected
 }
 
 bool UltraBasicPositionDetector::calibrateAllPositions(uint16_t samplesPerPosition) {
   // Calibrate each position in sequence
   for (uint8_t pos = 0; pos < 6; pos++) {
-    float threshold = calibratePosition(pos, samplesPerPosition);
-    if (threshold == 0.0f) {
-      return false;
+    // Skip NULL position which is special-cased
+    if (pos == POS_NULL) {
+      continue;
     }
-    delay(1000); // Pause between positions
+    
+    // Skip UNKNOWN position
+    if (pos == POS_UNKNOWN) {
+      continue;
+    }
+    
+    // Calibrate this position
+    if (calibratePosition(pos, samplesPerPosition) == 0.0f) {
+      return false; // Calibration failed
+    }
   }
   
   return true;
@@ -316,8 +279,5 @@ void UltraBasicPositionDetector::setThreshold(uint8_t position, float threshold)
 }
 
 float UltraBasicPositionDetector::getThreshold(uint8_t position) const {
-  if (position < 6) {
-    return _thresholds[position];
-  }
-  return 0.0f;
+  return (position < 6) ? _thresholds[position] : 0.0f;
 } 

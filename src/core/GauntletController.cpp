@@ -3,48 +3,59 @@
 #include <Arduino.h>
 
 GauntletController::GauntletController() 
-    : hardwareManager(nullptr), positionDetector(nullptr), idleMode(nullptr),
-      currentMode(SystemMode::IDLE), lastUpdateTime(0), updateInterval(20) {
+    : hardwareManager(nullptr), 
+      positionDetector(nullptr),
+      idleMode(nullptr),
+      currentMode(SystemMode::IDLE),
+      lastUpdateTime(0),
+      updateInterval(20) // 50Hz update rate
+{
 }
 
 GauntletController::~GauntletController() {
-    if (idleMode != nullptr) {
+    // Free allocated resources
+    if (idleMode) {
         delete idleMode;
-        idleMode = nullptr;
     }
     
-    if (positionDetector != nullptr) {
+    if (positionDetector) {
         delete positionDetector;
-        positionDetector = nullptr;
     }
     
-    if (hardwareManager != nullptr) {
+    if (hardwareManager) {
         delete hardwareManager;
-        hardwareManager = nullptr;
     }
 }
 
 void GauntletController::initialize() {
     // Initialize hardware
     hardwareManager = new HardwareManager();
-    if (!hardwareManager->initialize()) {
+    if (!hardwareManager->init()) {
         Serial.println(F("Hardware initialization failed!"));
         return;
     }
     
     // Initialize position detector
 #ifdef USE_ULTRA_BASIC_POSITION_DETECTOR
-    // Use UBPD implementation which has better physical unit thresholds
     positionDetector = new UltraBasicPositionDetector();
-    static_cast<UltraBasicPositionDetector*>(positionDetector)->init(hardwareManager);
+    if (!static_cast<UltraBasicPositionDetector*>(positionDetector)->init(hardwareManager)) {
+        Serial.println(F("Position detector initialization failed!"));
+        return;
+    }
 #else
-    // Use original position detector implementation
     positionDetector = new PositionDetector();
-    positionDetector->init(hardwareManager);
+    if (!positionDetector->init(hardwareManager)) {
+        Serial.println(F("Position detector initialization failed!"));
+        return;
+    }
 #endif
     
     // Initialize Idle Mode
-    idleMode = new IdleMode(positionDetector, hardwareManager->getLEDs());
+    idleMode = new IdleMode();
+    if (!idleMode->init(hardwareManager, positionDetector)) {
+        Serial.println(F("Idle mode initialization failed!"));
+        return;
+    }
     idleMode->initialize();
     
     // Set starting system mode
@@ -55,47 +66,53 @@ void GauntletController::initialize() {
 }
 
 void GauntletController::update() {
+    // Get current time
+    unsigned long currentTime = millis();
+    
     // Update hardware
     hardwareManager->update();
     
-    // Update position detector
-#ifdef USE_ULTRA_BASIC_POSITION_DETECTOR
-    PositionReading reading = static_cast<UltraBasicPositionDetector*>(positionDetector)->update();
-#else
-    SensorData data = hardwareManager->getSensorData();
-    PositionReading reading = positionDetector->detectPosition(data);
-#endif
-    
-    // Handle current mode
+    // Execute mode-specific logic
     switch (currentMode) {
-        case SystemMode::IDLE: {
+        case SystemMode::IDLE:
+            // Update idle mode
             idleMode->update();
-            ModeTransition transition = idleMode->checkForTransition();
             
+            // Check for transition to another mode
+            ModeTransition transition = idleMode->checkForTransition();
             if (transition == ModeTransition::TO_INVOCATION) {
-                // Handle transition to Invocation Mode
-                showTransitionAnimation(CRGB(128, 0, 128)); // Purple flash
-                // TODO: Initialize and switch to Invocation Mode once implemented
-                Serial.println(F("Invocation Mode triggered but not yet implemented"));
-            } else if (transition == ModeTransition::TO_FREECAST) {
-                // Handle transition to Freecast Mode
-                showTransitionAnimation(CRGB(255, 165, 0)); // Orange flash
-                // TODO: Initialize and switch to Freecast Mode once implemented
-                Serial.println(F("Freecast Mode triggered but not yet implemented"));
+                // Transition to Invocation Mode
+                currentMode = SystemMode::INVOCATION;
+                Serial.println(F("Transitioning to Invocation Mode"));
+                // TODO: Initialize invocation mode
+            }
+            else if (transition == ModeTransition::TO_FREECAST) {
+                // Transition to Freecast Mode
+                currentMode = SystemMode::FREECAST;
+                Serial.println(F("Transitioning to Freecast Mode"));
+                // TODO: Initialize freecast mode
             }
             break;
-        }
-        
+            
         case SystemMode::INVOCATION:
-            // TODO: Implement Invocation Mode handling
+            // TODO: Implement Invocation Mode
+            Serial.println(F("Invocation Mode not implemented yet!"));
+            // Temporary fallback to Idle Mode
+            currentMode = SystemMode::IDLE;
             break;
             
         case SystemMode::RESOLUTION:
-            // TODO: Implement Resolution Mode handling
+            // TODO: Implement Resolution Mode
+            Serial.println(F("Resolution Mode not implemented yet!"));
+            // Temporary fallback to Idle Mode
+            currentMode = SystemMode::IDLE;
             break;
             
         case SystemMode::FREECAST:
-            // TODO: Implement Freecast Mode handling
+            // TODO: Implement Freecast Mode
+            Serial.println(F("Freecast Mode not implemented yet!"));
+            // Temporary fallback to Idle Mode
+            currentMode = SystemMode::IDLE;
             break;
     }
     
@@ -103,44 +120,29 @@ void GauntletController::update() {
     maintainLoopTiming();
 }
 
-void GauntletController::setInterpolationEnabled(bool enabled) {
-    if (idleMode != nullptr) {
-        idleMode->setInterpolationEnabled(enabled);
-    }
-}
-
-void GauntletController::showTransitionAnimation(CRGB color) {
-    LEDInterface* leds = hardwareManager->getLEDs();
-    
-    // Flash all LEDs once in the given color
-    for (int i = 0; i < NUM_LEDS; i++) {
-        leds->setPixel(i, color, 255);
-    }
-    leds->show();
-    delay(200);
-    
-    // Clear all LEDs
-    for (int i = 0; i < NUM_LEDS; i++) {
-        leds->setPixel(i, CRGB(0, 0, 0), 0);
-    }
-    leds->show();
-    delay(100);
-}
-
 bool GauntletController::hasElapsed(unsigned long startTime, unsigned long duration) const {
-    return (millis() - startTime) >= duration;
+    unsigned long currentTime = millis();
+    return (currentTime - startTime) >= duration;
 }
 
 void GauntletController::maintainLoopTiming() {
+    // Calculate time spent in this loop iteration
     unsigned long currentTime = millis();
     unsigned long elapsedTime = currentTime - lastUpdateTime;
     
-    // If we haven't used our full time slice, delay the remainder
+    // If we've used less than our target update interval, delay the remainder
     if (elapsedTime < updateInterval) {
         delay(updateInterval - elapsedTime);
     }
     
+    // Update the last update time
     lastUpdateTime = millis();
+}
+
+void GauntletController::setInterpolationEnabled(bool enabled) {
+    if (idleMode) {
+        idleMode->setInterpolationEnabled(enabled);
+    }
 }
 
 SystemMode GauntletController::getCurrentMode() const {

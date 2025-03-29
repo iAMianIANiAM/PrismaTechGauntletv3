@@ -31,6 +31,7 @@ To maintain an organized, navigable project history while ensuring both concise 
 
 ### 4. New Chronicle Structure
 - **Header**: Standard project header with version number
+- **Current Date**: Explicitly noted current calendar date at the top of the document
 - **Migration Summary**: Comprehensive overview of previous chronicle content
 - **Key Completed Components**: List of verified or implemented items
 - **Active Work Streams**: Ongoing development efforts
@@ -38,12 +39,20 @@ To maintain an organized, navigable project history while ensuring both concise 
 - **Known Issues**: Unresolved problems or challenges
 - **Reference Links**: Direct links to previous chronicles and key documents
 
-### 5. Cross-Reference System
+### 5. Date Consistency Requirements
+- **Current Date Field**: Each chronicle MUST contain an explicit "Current Date: YYYY-MM-DD" field at the top
+- **Calendar Alignment**: The date MUST reflect the actual calendar date, not a sequential project timeline
+- **Same-Day Entries**: All entries made on the same calendar day MUST use the same date
+- **Date Updates**: When beginning work on a new calendar day, the "Current Date" field MUST be updated first
+- **No Future Dating**: Entries MUST NOT be dated in the future under any circumstances
+- **Date Format**: All dates MUST use the YYYY-MM-DD format for consistency
+
+### 6. Cross-Reference System
 - **Reference Format**: [vX:LNNN-LNNN] for line ranges in previous chronicles
 - **Key Decision References**: Include version-specific references when citing past decisions
 - **Version Tags**: Tag new entries with version number for future reference
 
-### 6. Verification Phase
+### 7. Verification Phase
 - **Link Testing**: Verify all references and links function correctly
 - **Content Check**: Ensure summary adequately captures key information
 - **Continuity Verification**: Confirm no critical information was lost in transition
@@ -73,6 +82,10 @@ Upon user authorization, Claude will:
 
 ```markdown
 # PrismaTech Gauntlet 3.0 - Development Chronicle (v2)
+
+> *Current Date: YYYY-MM-DD*
+>
+> *This chronicle serves as the primary running journal of development activity and historical record for the PrismaTech Gauntlet 3.0 project. It contains ideas, test results, trial/error logs, decisions, and development plans.*
 
 ## 📋 Migration Summary (YYYY-MM-DD)
 

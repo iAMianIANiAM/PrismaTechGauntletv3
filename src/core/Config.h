@@ -52,6 +52,12 @@ namespace Config {
   constexpr uint16_t LONGNULL_TIME_MS = 5000;     // Time required for LongNull gesture
   constexpr uint16_t LONGNULL_WARNING_MS = 3000;  // When to start flashing during LongNull
   
+  // Gesture detection parameters
+  namespace Gestures {
+    constexpr uint16_t CALM_OFFER_MAX_TIME_MS = 1000; // Max time between Calm and Offer for gesture detection
+    constexpr uint16_t LONG_NULL_TIME_MS = 5000;      // Time required in NULL position to trigger Long Null
+  }
+  
   // Invocation timing
   constexpr uint16_t INDICATOR_PHASE_MS = 1000;   // Slot indicator duration
   constexpr uint16_t COUNTDOWN_PHASE_MS = 2000;   // Countdown animation duration
