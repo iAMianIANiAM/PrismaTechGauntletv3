@@ -212,6 +212,16 @@ Only components that meet the full System Integration Verification criteria shou
 - **Document Alignment**: Related timestamp references must be synchronized across documents
 - **Future Dating**: Only use future dates for explicit planned events with clear timelines
 
+### Environment Scheme
+
+The project uses a simplified environment scheme to maintain clarity and focus:
+
+- **esp32dev**: Main production environment for the full application
+- **calibration**: Environment for calibrating the device's position detection system
+- **functionTest**: Flexible testing environment that replaces all other ad-hoc test environments
+
+The functionTest environment is designed to be reconfigured for each new testing need. When a new test is required, the existing test code should be archived to archive/tests/ before the environment is updated with new test code.
+
 ### Development Protocols
 
 #### Chronicle Transition Protocol

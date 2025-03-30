@@ -98,6 +98,49 @@ void UltraBasicPositionDetector::processRawData(const SensorData& raw, Processed
   processed.accelX = raw.accelX * _currentScalingFactor;
   processed.accelY = raw.accelY * _currentScalingFactor;
   processed.accelZ = raw.accelZ * _currentScalingFactor;
+  
+  // Debug data flow every second to verify proper scaling
+  static unsigned long lastDebugTime = 0;
+  unsigned long currentTime = millis();
+  
+  if (currentTime - lastDebugTime > 1000) {
+    Serial.println("===== Data Flow Tracing =====");
+    Serial.print("Raw Values: X=");
+    Serial.print(raw.accelX);
+    Serial.print(", Y=");
+    Serial.print(raw.accelY);
+    Serial.print(", Z=");
+    Serial.println(raw.accelZ);
+    
+    Serial.print("Scaling Factor: ");
+    Serial.println(_currentScalingFactor, 10); // Print with high precision to verify correct value
+    
+    Serial.print("Processed (m/s²): X=");
+    Serial.print(processed.accelX, 2);
+    Serial.print(", Y=");
+    Serial.print(processed.accelY, 2);
+    Serial.print(", Z=");
+    Serial.println(processed.accelZ, 2);
+    
+    // Validate gravity reading when device is relatively flat
+    if (abs(processed.accelX) < 2.0f && abs(processed.accelY) < 2.0f) {
+      float gravityError = abs(abs(processed.accelZ) - 9.81f);
+      float errorPercent = (gravityError / 9.81f) * 100.0f;
+      
+      Serial.print("Gravity Reading: ");
+      Serial.print(processed.accelZ, 2);
+      Serial.print(" m/s² (Error: ");
+      Serial.print(errorPercent, 1);
+      Serial.println("%)");
+      
+      if (errorPercent > 5.0f) {
+        Serial.println("WARNING: Gravity reading error exceeds 5% - Scaling may be incorrect");
+      }
+    }
+    
+    Serial.println("=============================");
+    lastDebugTime = currentTime;
+  }
 }
 
 PositionReading UltraBasicPositionDetector::detectPosition(const ProcessedData& data) {
@@ -368,103 +411,88 @@ const char* UltraBasicPositionDetector::getAxisName(uint8_t axis) const {
 }
 
 float UltraBasicPositionDetector::calibrateScalingFactor(uint16_t testDuration) {
-  Serial.println("\n=== Scaling Factor Calibration ===");
+  Serial.println("\n=== ECHO Scaling Factor Validation ===");
+  Serial.println("Validating ECHO reference scaling factor against gravity readings...");
   
-  // Test factors to try (original, MPU6500, and alternative)
-  const float testFactors[] = {
-    DEFAULT_SCALING_FACTOR,
-    MPU6500_SCALING_FACTOR,
-    ALT_SCALING_FACTOR
-  };
-  const char* factorNames[] = {
-    "Default (MPU9250)", 
-    "MPU6500", 
-    "Alternative"
-  };
-  const int numFactors = 3;
+  // Use the ECHO reference scaling factor
+  _currentScalingFactor = DEFAULT_SCALING_FACTOR;
   
-  float bestFactor = DEFAULT_SCALING_FACTOR;
-  float bestStability = 999999.0f;  // Lower is better (less variance)
+  // Variables for statistical analysis
+  const int MAX_SAMPLES = 40;
+  float zValues[MAX_SAMPLES];  // Store Z values for analysis
+  float xValues[MAX_SAMPLES];  // Store X values for stability check
+  float yValues[MAX_SAMPLES];  // Store Y values for stability check
+  int numSamples = 0;
+  float zSum = 0.0f;
   
-  // For each scaling factor, collect data and analyze stability
-  for (int f = 0; f < numFactors; f++) {
-    float currentFactor = testFactors[f];
-    Serial.printf("\nTesting %s scaling factor (%.8f)...\n", factorNames[f], currentFactor);
+  Serial.println("Hold the device flat and still for measurement...");
+  delay(1000); // Give user time to stabilize
+  
+  // Collect samples for testDuration milliseconds
+  uint32_t startTime = millis();
+  uint32_t lastPrintTime = 0;
+  
+  while (millis() - startTime < testDuration && numSamples < MAX_SAMPLES) {
+    SensorData rawData = _hardware->getSensorData();
+    ProcessedData processedData;
     
-    // Set the current scaling factor
-    _currentScalingFactor = currentFactor;
+    // Process data with ECHO scaling factor
+    processRawData(rawData, processedData);
     
-    // Variables for statistical analysis
-    float zValues[20];  // Store Z values for analysis
-    int numSamples = 0;
-    float zSum = 0.0f;
-    float zVariance = 0.0f;
+    // Store values for analysis
+    xValues[numSamples] = processedData.accelX;
+    yValues[numSamples] = processedData.accelY;
+    zValues[numSamples] = processedData.accelZ;
+    zSum += processedData.accelZ;
     
-    // Collect samples for testDuration milliseconds
-    uint32_t startTime = millis();
-    
-    while (millis() - startTime < testDuration && numSamples < 20) {
-      SensorData rawData = _hardware->getSensorData();
-      ProcessedData processedData;
-      
-      // Process data with current scaling factor
-      processRawData(rawData, processedData);
-      
-      // Vertical acceleration should be ~9.81 m/s² when still
-      zValues[numSamples] = processedData.accelZ;
-      zSum += processedData.accelZ;
-      
-      // Print sample values
+    // Print sample values every 500ms
+    if (millis() - lastPrintTime > 500) {
       Serial.printf("Sample %d: X=%.2f Y=%.2f Z=%.2f m/s²\n", 
-                    numSamples, 
-                    processedData.accelX, 
-                    processedData.accelY, 
-                    processedData.accelZ);
-      
-      numSamples++;
-      delay(100); // 100ms between samples
+                  numSamples + 1, 
+                  processedData.accelX, 
+                  processedData.accelY, 
+                  processedData.accelZ);
+      lastPrintTime = millis();
     }
     
-    // Calculate statistics
-    float zMean = zSum / numSamples;
-    
-    // Calculate variance (how much Z varies from the mean)
-    for (int i = 0; i < numSamples; i++) {
-      zVariance += (zValues[i] - zMean) * (zValues[i] - zMean);
-    }
-    zVariance /= numSamples;
-    
-    // Calculate error from expected gravity (9.81 m/s²)
-    float gravityError = abs(zMean - 9.81f);
-    
-    // Stability score combines variance and gravity error
-    float stabilityScore = zVariance + gravityError * 3.0f;  // Weight gravity error more heavily
-    
-    Serial.printf("Results for %s factor:\n", factorNames[f]);
-    Serial.printf("  Mean Z: %.2f m/s² (Gravity error: %.2f)\n", zMean, gravityError);
-    Serial.printf("  Z variance: %.4f\n", zVariance);
-    Serial.printf("  Stability score: %.4f (lower is better)\n", stabilityScore);
-    
-    // If this factor is more stable, select it
-    if (stabilityScore < bestStability) {
-      bestStability = stabilityScore;
-      bestFactor = currentFactor;
-      Serial.printf("  → New best factor!\n");
-    }
+    numSamples++;
+    delay(50); // 50ms between samples
   }
   
-  // Set the best scaling factor
-  _currentScalingFactor = bestFactor;
-  Serial.printf("\nBest scaling factor: %.8f\n", bestFactor);
+  // Calculate statistics
+  float zMean = zSum / numSamples;
+  float zVariance = 0.0f;
+  float xVariance = 0.0f;
+  float yVariance = 0.0f;
   
-  // Determine which named factor it corresponds to
-  for (int f = 0; f < numFactors; f++) {
-    if (abs(bestFactor - testFactors[f]) < 0.0000001f) {
-      Serial.printf("Selected %s scaling factor\n", factorNames[f]);
-      break;
-    }
+  // Calculate variance (stability measurement)
+  for (int i = 0; i < numSamples; i++) {
+    zVariance += (zValues[i] - zMean) * (zValues[i] - zMean);
+    xVariance += xValues[i] * xValues[i]; // Variance from 0
+    yVariance += yValues[i] * yValues[i]; // Variance from 0
+  }
+  zVariance /= numSamples;
+  xVariance /= numSamples;
+  yVariance /= numSamples;
+  
+  // Calculate error from expected gravity (9.81 m/s²)
+  float gravityError = abs(zMean - 9.81f);
+  float errorPercent = (gravityError / 9.81f) * 100.0f;
+  
+  Serial.println("\n=== Validation Results ===");
+  Serial.printf("ECHO Scaling Factor: %.10f\n", DEFAULT_SCALING_FACTOR);
+  Serial.printf("Gravity Reading: %.2f m/s² (Expected: 9.81 m/s²)\n", zMean);
+  Serial.printf("Gravity Error: %.2f m/s² (%.1f%%)\n", gravityError, errorPercent);
+  Serial.printf("Stability: X=%.4f Y=%.4f Z=%.4f\n", xVariance, yVariance, zVariance);
+  
+  if (errorPercent <= 5.0f) {
+    Serial.println("✓ VALIDATION PASSED: Gravity reading within 5% of expected value");
+    Serial.println("✓ ECHO reference scaling factor is appropriate for this device");
+  } else {
+    Serial.println("⚠ VALIDATION WARNING: Gravity reading outside 5% tolerance");
+    Serial.println("Consider fine-tuning the scaling factor if detection issues persist");
   }
   
-  Serial.println("=== Calibration Complete ===\n");
-  return bestFactor;
+  Serial.println("=== Validation Complete ===\n");
+  return DEFAULT_SCALING_FACTOR;
 } 

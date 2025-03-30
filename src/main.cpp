@@ -12,12 +12,12 @@
 
 // Position names for debugging
 const char* positionNames[] = {
-  "NULL (Orange)",   // POS_NULL
-  "SHIELD (Blue)",   // POS_SHIELD
   "OFFER (Purple)",  // POS_OFFER
+  "CALM (Yellow)",   // POS_CALM
   "OATH (Red)",      // POS_OATH
   "DIG (Green)",     // POS_DIG
-  "CALM (Yellow)",   // POS_CALM
+  "SHIELD (Blue)",   // POS_SHIELD
+  "NULL (Orange)",   // POS_NULL
   "UNKNOWN (White)"  // POS_UNKNOWN
 };
 

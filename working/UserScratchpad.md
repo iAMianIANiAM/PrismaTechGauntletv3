@@ -185,3 +185,28 @@ Response to recommended adjustments:
 3. Absolutely not. Unnecessary complication. If a calibration fails, we start a new one. If the entire process is consistently failing, we refactor the calibration protocol. There is no need to introduce potentially error-prone overhead for basically no gain in functionality. We had wildly successful calibration protocols in the past that did not require such complications - we are aiming to achieve that same level of functionality with minimal overhead that we achieved before.
 4. Yes. This seems crucial.
 5. Good point, but this does not need to be complicated. The metrics for success are simple: Does it build/compile? Does it upload? When it does, does it behave as expected? End of list. Calibration effectiveness will be judged entirely subjectively by me, based on how the gauntlet "feels" when it is detecting positions in the implemented Idle mode. 
+
+
+
+
+Looking at your current plan in the chronicle, my impresion is that it's much too complicated, fails to take into account key past development insights, and is not taking into consideration important sources of guidance and insight. 
+
+On the first two points: the most successful implementations have followed the philosophy I shared with you - "as simple as possible, only adding complexity if it is aboslutely necessary to function". I don't believe believe that "Enhanced zero reading detection with advanced diagnostics", anything in the **Adaptive Scaling Factor System** section, or creating a dedicated test application are adhering to that at all. I can identify no fewer than five different unnecessary complications that add overhead and complexity tax without ANY proven, or even really potential, benefit to functionality. And this is for the calibration protocol, which is an ancilliary function to the main program. This missed the mark pretty badly.
+
+Also, you don't seem to have taken into account some vital references - the top of your chronicle has a reference to the ECHO implementation, which ought to have reminded you of @ECHO_MPUInitialization.md and @ECHO_MPU_Data_Processing.md , which were reasonably-successful prior implementations from which you could learn a great deal and model significant parts of our implmentation after.
+
+Please thoroughly analyze these reference documents, and then thoughtfully consider how the lessons learned from the ECHO implementation might guide your process in fixing the detection issue within the calibration protocol. Be mindful of my comments about unnecessary complexity. Then completely refactor your proposal for addressing the current issues with the calibration protocol. Present your proposal to me. Also, the chronicle is an absolute mess - do not rely on it right now as a source of truth for anything
+
+
+
+
+// Position Detection Thresholds (calibrated on 2025-04-02)
+constexpr float OFFER_THRESHOLD = 8.31f;  // Z-axis dominant
+constexpr float CALM_THRESHOLD = -7.59f;  // Z-axis dominant
+constexpr float OATH_THRESHOLD = -8.38f;  // Y-axis dominant
+constexpr float DIG_THRESHOLD = 6.79f;  // Y-axis dominant
+constexpr float SHIELD_THRESHOLD = -5.47f;  // X-axis dominant
+constexpr float NULL_THRESHOLD = 8.56f;  // X-axis dominant
+// NULL position uses special case detection
+
+==================================

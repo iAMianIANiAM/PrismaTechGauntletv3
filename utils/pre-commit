@@ -6,8 +6,8 @@
 ROOT_DIR=$(git rev-parse --show-toplevel)
 
 echo "Running file existence verification..."
-# Use full path to Python to avoid issues with spaces in paths
-"C:\Program Files\Python313\python.exe" "$ROOT_DIR/utils/verify_docs.py" --report
+# Use Python from PATH instead of hardcoded path
+python "$ROOT_DIR/utils/verify_docs.py" --report
 
 # If the verification fails, abort the commit
 if [ $? -ne 0 ]; then
