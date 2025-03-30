@@ -15,6 +15,8 @@ IdleMode::IdleMode()
       positionChangedTime(0),
       nullPositionStartTime(0),
       inNullCountdown(false),
+      calmExitTime(0),
+      inCalmOfferWindow(false),
       currentColor(CRGB::Black),
       targetColor(CRGB::Black),
       previousColor(CRGB::Black),
@@ -43,6 +45,10 @@ void IdleMode::initialize() {
     nullPositionStartTime = 0;
     inNullCountdown = false;
     
+    // Initialize CalmOffer tracking
+    calmExitTime = 0;
+    inCalmOfferWindow = false;
+    
     // Set initial colors
     currentColor = CRGB::Black;
     targetColor = getPositionColor(POS_UNKNOWN);
@@ -63,6 +69,16 @@ void IdleMode::update() {
         previousPosition = currentPosition;
         currentPosition = newPosition;
         positionChangedTime = millis();
+        
+        // CalmOffer tracking - if leaving CALM position
+        if (previousPosition.position == POS_CALM && currentPosition.position != POS_CALM) {
+            calmExitTime = millis();
+            inCalmOfferWindow = true;
+        }
+        // If returning to CALM, cancel the CalmOffer window
+        else if (currentPosition.position == POS_CALM) {
+            inCalmOfferWindow = false;
+        }
         
         // Start null position timing if we've entered the null position
         if (newPosition.position == POS_NULLPOS && previousPosition.position != POS_NULLPOS) {
@@ -85,6 +101,11 @@ void IdleMode::update() {
         if (nullDuration >= 3000) { // 3 second threshold
             inNullCountdown = true;
         }
+    }
+    
+    // Check if CalmOffer window has expired
+    if (inCalmOfferWindow && (millis() - calmExitTime >= 1000)) {
+        inCalmOfferWindow = false;
     }
     
     // Display the current position
@@ -165,10 +186,19 @@ CRGB IdleMode::getPositionColor(uint8_t position) {
 }
 
 bool IdleMode::detectCalmOfferGesture() {
-    // Check if we've moved from CALM to OFFER
-    if (previousPosition.position == POS_CALM && currentPosition.position == POS_OFFER) {
-        // Check if the transition happened quickly enough (within 1 second)
-        if (millis() - positionChangedTime < 1000) {
+    // Check if we're in a CalmOffer window and in the OFFER position
+    if (inCalmOfferWindow && currentPosition.position == POS_OFFER) {
+        // Check if we're within the 1000ms window
+        if (millis() - calmExitTime < 1000) {
+            // Reset the window to prevent repeated triggers
+            inCalmOfferWindow = false;
+            
+            #ifdef DEBUG_MODE
+            Serial.print(F("CalmOffer detected! Window duration: "));
+            Serial.print(millis() - calmExitTime);
+            Serial.println(F("ms"));
+            #endif
+            
             return true;
         }
     }
@@ -246,9 +276,19 @@ void IdleMode::printStatus() const {
     Serial.print(F("In Null Countdown: "));
     Serial.println(inNullCountdown ? F("YES") : F("NO"));
     
+    Serial.print(F("In CalmOffer Window: "));
+    Serial.println(inCalmOfferWindow ? F("YES") : F("NO"));
+    
+    if (inCalmOfferWindow) {
+        unsigned long windowDuration = millis() - calmExitTime;
+        Serial.print(F("CalmOffer Window Duration: "));
+        Serial.print(windowDuration);
+        Serial.println(F("ms"));
+    }
+    
     if (currentPosition.position == POS_NULLPOS) {
         unsigned long nullDuration = millis() - nullPositionStartTime;
-        Serial.print(F("Null Duration: "));
+        Serial.print(F("Null Position Duration: "));
         Serial.print(nullDuration);
         Serial.println(F("ms"));
     }

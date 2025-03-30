@@ -26,6 +26,10 @@ private:
     unsigned long nullPositionStartTime;
     bool inNullCountdown;
     
+    // CalmOffer tracking variables
+    unsigned long calmExitTime;
+    bool inCalmOfferWindow;
+    
     // Color transition state
     CRGB currentColor;
     CRGB targetColor;
