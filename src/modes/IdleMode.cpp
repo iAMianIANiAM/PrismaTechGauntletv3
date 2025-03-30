@@ -65,7 +65,7 @@ void IdleMode::update() {
         positionChangedTime = millis();
         
         // Start null position timing if we've entered the null position
-        if (newPosition.position == POS_NULL && previousPosition.position != POS_NULL) {
+        if (newPosition.position == POS_NULLPOS && previousPosition.position != POS_NULLPOS) {
             nullPositionStartTime = millis();
             inNullCountdown = false;
         }
@@ -80,7 +80,7 @@ void IdleMode::update() {
     updateColorTransition();
     
     // Check for null position countdown trigger (after 3 seconds)
-    if (currentPosition.position == POS_NULL && !inNullCountdown) {
+    if (currentPosition.position == POS_NULLPOS && !inNullCountdown) {
         unsigned long nullDuration = millis() - nullPositionStartTime;
         if (nullDuration >= 3000) { // 3 second threshold
             inNullCountdown = true;
@@ -110,7 +110,7 @@ void IdleMode::renderLEDs() {
     hardwareManager->setAllLEDs({0, 0, 0});
     
     // For NULL position with countdown, show special animation
-    if (currentPosition.position == POS_NULL && inNullCountdown) {
+    if (currentPosition.position == POS_NULLPOS && inNullCountdown) {
         // Calculate how long we've been in NULL position
         unsigned long nullDuration = millis() - nullPositionStartTime;
         
@@ -156,7 +156,7 @@ CRGB IdleMode::getPositionColor(uint8_t position) {
             return CRGB(0, 255, 0);    // Green
         case POS_SHIELD:
             return CRGB(0, 0, 255);    // Blue
-        case POS_NULL:
+        case POS_NULLPOS:
             return CRGB(255, 165, 0);  // Orange
         case POS_UNKNOWN:
         default:
@@ -178,7 +178,7 @@ bool IdleMode::detectCalmOfferGesture() {
 
 bool IdleMode::detectLongNullGesture() {
     // Check if we're in NULL position and have been for the required time
-    if (inNullCountdown && currentPosition.position == POS_NULL) {
+    if (inNullCountdown && currentPosition.position == POS_NULLPOS) {
         unsigned long currentTime = millis();
         unsigned long nullDuration = currentTime - nullPositionStartTime;
         
@@ -238,7 +238,7 @@ void IdleMode::printStatus() const {
         case POS_OATH:     Serial.println(F("OATH (Red)")); break;
         case POS_DIG:      Serial.println(F("DIG (Green)")); break;
         case POS_SHIELD:   Serial.println(F("SHIELD (Blue)")); break;
-        case POS_NULL:     Serial.println(F("NULL (Orange)")); break;
+        case POS_NULLPOS:  Serial.println(F("NULL (Orange)")); break;
         case POS_UNKNOWN:  Serial.println(F("UNKNOWN (White)")); break;
         default:           Serial.println(F("DEFAULT (White)")); break;
     }
@@ -246,7 +246,7 @@ void IdleMode::printStatus() const {
     Serial.print(F("In Null Countdown: "));
     Serial.println(inNullCountdown ? F("YES") : F("NO"));
     
-    if (currentPosition.position == POS_NULL) {
+    if (currentPosition.position == POS_NULLPOS) {
         unsigned long nullDuration = millis() - nullPositionStartTime;
         Serial.print(F("Null Duration: "));
         Serial.print(nullDuration);

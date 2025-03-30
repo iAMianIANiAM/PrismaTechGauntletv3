@@ -200,3 +200,75 @@ All code changes were implemented and verified while maintaining the same visual
 Phase 2 is complete with all implementation files successfully updated. Ready to proceed with Phase 3 - gesture detection code updates after approval.
 
 🧠 **INSIGHT:** Using incremental changes and compiling after each file update resulted in a much smoother implementation compared to the previous attempt. The compiler errors from Phase 1 provided an excellent roadmap of files requiring updates.
+
+## 📋 Phase 3 Implementation: Main Loop Integration (202504041530)
+
+✅ **IMPLEMENTATION:** Successfully completed Phase 3 of the gesture detection plan - integrating IdleMode into the main program loop with support for detecting CalmOffer and LongNull gestures.
+
+### Implementation Steps
+
+1. **Added IdleMode to Main Program:**
+   - Added IdleMode.h include to main.cpp
+   - Created IdleMode instance as a global object
+   - Added initialization in setup() with proper error handling
+   - Added SystemMode state tracking for operational modes
+
+2. **Updated Main Loop for Gesture Detection:**
+   - Added gesture detection via IdleMode.checkForTransition()
+   - Implemented mode transition handling with visual feedback
+   - Added proper LED control coordination between components
+   - Maintained serial output for debugging and monitoring
+
+3. **Handled Initialization Edge Cases:**
+   - Added fallback path when IdleMode initialization fails
+   - Preserved original functionality for backward compatibility
+   - Added proper mode state handling for all operational states
+
+4. **Added Temporary Placeholders:**
+   - Added skeleton mode handling for Invocation and Freecast modes
+   - Implemented simple return-to-idle transitions for testing
+   - Added appropriate serial logging for mode transitions
+
+### Build Results
+
+Successful compilation for all targets:
+- Main program (`esp32dev`) - Compiled successfully
+- Calibration protocol (`calibration`) - Unaffected by changes
+- Function tests (`functionTest`) - Unaffected by changes
+
+### Key Implementation Decisions
+
+1. **Used Existing Enums**:
+   - Leveraged SystemMode enum from SystemTypes.h rather than creating a new one
+   - Maintained consistent enum usage across the codebase
+
+2. **LED Control Strategy**:
+   - IdleMode handles LEDs during normal idle operation
+   - Main loop handles LEDs for mode transitions
+   - Fallback to original LED control if IdleMode not available
+
+3. **Modular Component Architecture**:
+   - Clean separation between UltraBasicPositionDetector and IdleMode
+   - Well-defined initialization process
+   - Error-tolerant design with graceful degradation
+
+🧠 **INSIGHT:** This implementation preserves the core functionality of the original UBPD system while adding gesture detection capabilities. The modular design allows for fallback to basic functionality if any component fails, ensuring the gauntlet remains operational even if the more advanced gesture features aren't available.
+
+### Next Steps
+
+With the gesture detection system now operational, the following steps are planned:
+
+1. **Testing Both Gestures**:
+   - Validate CalmOffer gesture timing and reliability
+   - Test LongNull gesture with proper countdown visualization
+   - Verify transitions between operational modes
+
+2. **Future Mode Development**:
+   - Implement full Invocation Mode functionality
+   - Develop Resolution Mode based on recorded positions
+   - Design and implement Freecast Mode's motion-based patterns
+
+3. **Refinement**:
+   - Optimize LED update performance
+   - Fine-tune gesture detection thresholds
+   - Improve visual feedback during transitions
