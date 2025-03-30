@@ -289,7 +289,7 @@ After implementation, we expect:
 
 ⏱️ Next Steps: We will implement this fix immediately. The plan has been approved but not yet implemented. 
 
-## 📋 Implementation of Data Processing Fix (202503302045)
+## 📋 Implementation of Data Processing Fix (202503292000)
 
 ✅ RESOLUTION: The data processing fix for the calibration protocol has been successfully implemented. The following changes were made to address the identified issue:
 
@@ -423,107 +423,27 @@ With the UBPD calibration and detection functionality now working correctly, the
 
 This successful implementation represents a significant milestone for the project, as it resolves one of the core functionality issues that had been persistent across multiple testing cycles. 
 
-## 📋 Proposal: UBPD Integration into Main Program (202503302215)
+## 📋 Refined Proposal: UBPD Integration into Idle Mode (202503292000)
 
-💡 PROPOSAL: Based on the successful implementation and testing of the UBPD calibration and detection fixes, I propose the following plan to integrate this functionality into the main program environment (esp32dev).
+💡 PROPOSAL: Based on the successful testing of the UBPD fix, I propose a minimal implementation to integrate the working UBPD functionality into the Idle Mode of the main program.
 
-### Overview
+### Core Principle
 
-The goal is to transfer the exact same UBPD implementation from the calibration script into the main Gauntlet application, ensuring consistent detection behavior across all operational modes. This implementation will follow the same approach of explicit data processing and proper scaling.
+"No more complex than it needs to be to function."
 
-### 1. Code Modifications
+This implementation focuses exclusively on what's necessary to make position detection work in Idle Mode, with no additional features, no on-device calibration, and no mechanisms beyond what's proven to work.
 
-#### a) UltraBasicPositionDetector.h/cpp (Already Completed)
-- **Status**: ✅ Complete
-- The `processRawData()` method is now public and correctly implements the ECHO reference scaling
-- No further changes needed to these files as they are shared across all environments
+### Implementation Details
 
-#### b) IdleMode.cpp
-```cpp
-void IdleMode::update() {
-  // Get raw sensor data
-  SensorData rawData = _hardware->getSensorData();
-  
-  // Process the raw data explicitly (same approach as in UBPDCalibrationProtocol)
-  ProcessedData processed;
-  _detector->processRawData(rawData, processed);
-  
-  // Update the detector for position detection
-  PositionReading position = _detector->update();
-  
-  // Existing position handling code continues...
-}
-```
+#### 1. Hardcode the Calibrated Thresholds
 
-#### c) GauntletController.cpp
-```cpp
-bool GauntletController::init() {
-  // Initialize hardware
-  if (!_hardware->init()) {
-    Serial.println("Failed to initialize hardware");
-    return false;
-  }
-  
-  // Initialize and configure UBPD
-  _detector = new UltraBasicPositionDetector();
-  if (!_detector->init(_hardware)) {
-    Serial.println("Failed to initialize UBPD");
-    return false;
-  }
-  
-  // Add optional gravity validation during init for diagnostic purposes
-  if (Config::EnableGravityValidation) {
-    float gravityError = validateGravityScaling(_detector);
-    if (gravityError > 10.0f) {
-      Serial.println("WARNING: Gravity reading error exceeds 10%. Scaling factor may need adjustment.");
-    }
-  }
-  
-  // Continue with existing initialization...
-  return true;
-}
+Add the validated threshold values from our successful calibration directly to `Config.h`:
 
-// New utility function for gravity validation
-float GauntletController::validateGravityScaling(UltraBasicPositionDetector* detector) {
-  float sumZ = 0.0f;
-  int numSamples = 10;
-  
-  Serial.println("Validating gravity scaling...");
-  
-  for (int i = 0; i < numSamples; i++) {
-    _hardware->update();
-    SensorData rawData = _hardware->getSensorData();
-    
-    ProcessedData processed;
-    detector->processRawData(rawData, processed);
-    
-    sumZ += processed.accelZ;
-    delay(50);
-  }
-  
-  float avgZ = sumZ / numSamples;
-  float expectedGravity = 9.81f;
-  float errorPct = abs((avgZ - expectedGravity) / expectedGravity) * 100.0f;
-  
-  Serial.print("Gravity validation: ");
-  Serial.print(avgZ, 2);
-  Serial.print(" m/s² (");
-  Serial.print(errorPct, 1);
-  Serial.println("% error)");
-  
-  return errorPct;
-}
-```
-
-#### d) Config.h
 ```cpp
 namespace Config {
   // Existing configuration
   
-  // Enable gravity validation during initialization (for debugging)
-  constexpr bool EnableGravityValidation = true;
-  
-  // Add threshold values from calibration
+  // Hardcoded UBPD thresholds from successful calibration
   namespace UBPD {
     // Thresholds in m/s² (from calibration)
     constexpr float OFFER_THRESHOLD = 8.25f;   // Z-axis dominant positive
@@ -544,86 +464,59 @@ namespace Config {
 }
 ```
 
-### 2. Calibration Application Integration
+#### 2. Update Idle Mode to Use Explicit Data Processing
 
-Create a simplified calibration menu option in the main application:
+Modify `IdleMode.cpp` to incorporate the explicit data processing pattern that worked in our calibration:
 
 ```cpp
-void GauntletController::handleSerialCommands() {
-  if (Serial.available() > 0) {
-    char cmd = Serial.read();
-    
-    switch (cmd) {
-      // Existing commands...
-      
-      case 'c':
-        // Enter calibration mode
-        Serial.println("Entering UBPD Calibration Mode");
-        calibrateUBPD();
-        break;
-    }
-  }
-}
-
-void GauntletController::calibrateUBPD() {
-  // Simplified version of UBPDCalibrationProtocol
-  // Guide user through each position and calculate thresholds
-  // Save thresholds to EEPROM or spiffs
+void IdleMode::update() {
+  // Get raw sensor data
+  SensorData rawData = _hardware->getSensorData();
+  
+  // Process the raw data explicitly (same approach as in UBPDCalibrationProtocol)
+  ProcessedData processed;
+  _detector->processRawData(rawData, processed);
+  
+  // Update the detector for position detection
+  PositionReading position = _detector->update();
+  
+  // Existing position handling code continues...
 }
 ```
 
-### 3. Diagnostic and Debugging Support
-
-Add diagnostic capabilities to verify correct UBPD operation:
-
-```cpp
-void GauntletController::enableDiagnosticMode() {
-  _diagnosticMode = true;
-  Serial.println("UBPD Diagnostic Mode Enabled");
-  
-  // Print UBPD configuration
-  Serial.println("Current UBPD Configuration:");
-  _detector->printCalibrationData();
-  
-  // Validate scaling factor
-  validateGravityScaling(_detector);
-}
-```
+That's it. No additional mechanisms, no calibration integration, no unnecessary validation.
 
 ### Implementation Plan
 
-1. **Phase 1: Code Changes**
-   - Implement the changes to `IdleMode.cpp` and `GauntletController.cpp`
-   - Update `Config.h` with calibrated threshold values
-   - Verify the explicit data processing approach is used consistently
+1. **Verify `UltraBasicPositionDetector.h` Changes**
+   - The `processRawData()` method is already public from our previous work
+   - This is the only shared component needed
 
-2. **Phase 2: Testing**
-   - Test UBPD detection in each mode (Idle, Invocation, Resolution, Freecast)
-   - Verify position detection confidence levels remain in expected range
-   - Validate that gravity readings remain consistent
+2. **Update Configuration**
+   - Add the hardcoded threshold values to `Config.h`
+   - These are the exact values proven to work in testing
 
-3. **Phase 3: Calibration Integration**
-   - Implement the calibration functionality in the main application
-   - Create mechanism to store and retrieve calibration values
+3. **Modify Idle Mode**
+   - Update `IdleMode.cpp` to use explicit data processing
+   - Ensure the detector's `update()` method is called properly
 
-4. **Phase 4: Documentation**
-   - Update user documentation with calibration procedure
-   - Document the diagnostic features and how to use them
+4. **Test Idle Mode**
+   - Verify position detection works in Idle Mode only
+   - Confirm confidence values are within expected range (65-95%)
+
+### Project Context Awareness
+
+This proposal acknowledges:
+- We are currently focusing ONLY on Idle Mode
+- Invocation, Resolution, and Freecast modes are future work
+- Calibration remains a separate process in its own environment
+- No unnecessary complexity is added to the system
 
 ### Expected Outcomes
 
-After implementation, we expect:
+1. Functioning position detection in Idle Mode with proper confidence values
+2. Consistent behavior between calibration environment and main application
+3. No additional complexity, mechanisms, or failure points
+4. System remains as simple as possible while functioning properly
 
-1. Consistent and reliable position detection across all modes
-2. Confidence values within 65-95% range for all positions
-3. Stable detection with minimal false positives
-4. Explicit data processing ensuring proper physical unit scaling throughout
-5. Built-in diagnostic capabilities for troubleshooting
-
-### Compatibility Notes
-
-This implementation maintains full compatibility with the existing UBPD API, meaning all current code that calls `detector->update()` or `detector->getCurrentPosition()` will continue to work without modification. The primary change is ensuring that explicit data processing occurs wherever sensor data is used directly.
-
-📊 GUIDE-ALIGNED: This proposal follows the ECHO_MPUInitialization.md specifications for sensor data scaling and ensures consistent application of the scaling factor (0.0001220703125f * 9.81f) throughout all operational modes of the main application.
-
-This implementation will provide a robust foundation for the position detection system, which is critical for all gesture-based interaction in the Gauntlet 3.0 project. 
+📊 GUIDE-ALIGNED: This implementation respects both the ECHO reference specifications for sensor processing and the core project philosophy of minimal necessary complexity. 
