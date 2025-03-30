@@ -183,7 +183,7 @@ PositionReading UltraBasicPositionDetector::detectPosition(const ProcessedData& 
       abs(data.accelX) < 2.0f && 
       abs(data.accelY) < 2.0f && 
       abs(data.accelZ - 9.81f) < 2.0f) {
-    bestPosition = POS_NULL;
+    bestPosition = POS_NULLPOS;
     maxConfidence = 100.0f;
   }
   
@@ -224,12 +224,12 @@ void UltraBasicPositionDetector::loadDefaultThresholds() {
   _dominantAxes[POS_SHIELD] = Config::Calibrated::SHIELD_AXIS;
   
   // NULL position
-  _thresholds[POS_NULL] = Config::Calibrated::NULL_THRESHOLD;
-  _dominantAxes[POS_NULL] = Config::Calibrated::NULL_AXIS;
+  _thresholds[POS_NULLPOS] = Config::Calibrated::NULL_THRESHOLD;
+  _dominantAxes[POS_NULLPOS] = Config::Calibrated::NULL_AXIS;
 }
 
 float UltraBasicPositionDetector::calibratePosition(uint8_t position, uint16_t samples) {
-  // Only calibrate valid positions (not UNKNOWN or NULL)
+  // Only calibrate valid positions (not UNKNOWN or NULLPOS)
   if (position >= 6) {
     return 0.0f;
   }
@@ -295,7 +295,7 @@ bool UltraBasicPositionDetector::calibrateAllPositions(uint16_t samplesPerPositi
   // Calibrate each position in sequence
   for (uint8_t pos = 0; pos < 6; pos++) {
     // Skip NULL position which is special-cased
-    if (pos == POS_NULL) {
+    if (pos == POS_NULLPOS) {
       continue;
     }
     
@@ -396,7 +396,7 @@ const char* UltraBasicPositionDetector::getPositionName(uint8_t position) const 
     case POS_OATH:   return "OATH";
     case POS_DIG:    return "DIG";
     case POS_SHIELD: return "SHIELD";
-    case POS_NULL:   return "NULL";
+    case POS_NULLPOS: return "NULL";
     default:         return "UNKNOWN";
   }
 }

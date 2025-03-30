@@ -24,7 +24,7 @@ const char* positionNames[] = {
   "OATH (Red)",      // POS_OATH
   "DIG (Green)",     // POS_DIG
   "SHIELD (Blue)",   // POS_SHIELD
-  "NULL (Orange)",   // POS_NULL
+  "NULL (Orange)",   // POS_NULLPOS
   "UNKNOWN (White)"  // POS_UNKNOWN
 };
 
@@ -330,7 +330,7 @@ Color getPositionColor(uint8_t position) {
       return {Config::Colors::DIG_COLOR[0], Config::Colors::DIG_COLOR[1], Config::Colors::DIG_COLOR[2]};
     case POS_SHIELD:
       return {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]};
-    case POS_NULL:
+    case POS_NULLPOS:
       return {Config::Colors::NULL_COLOR[0], Config::Colors::NULL_COLOR[1], Config::Colors::NULL_COLOR[2]};
     default:
       return {Config::Colors::UNKNOWN_COLOR[0], Config::Colors::UNKNOWN_COLOR[1], Config::Colors::UNKNOWN_COLOR[2]};

@@ -129,7 +129,7 @@ void loop() {
     
     // Update LEDs based on detected position - use predeclared variable
     switch (positionReading.position) {
-      case POS_NULL:
+      case POS_NULLPOS:
         positionColor = {Config::Colors::NULL_COLOR[0], Config::Colors::NULL_COLOR[1], Config::Colors::NULL_COLOR[2]};
         break;
       case POS_SHIELD:

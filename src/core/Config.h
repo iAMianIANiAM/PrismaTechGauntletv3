@@ -44,7 +44,7 @@ namespace Config {
     6.50f,  // POS_OATH (Y axis positive) - Lowered from 10.28f to make it easier to trigger
     -4.32f, // POS_DIG (Y axis negative)
     -5.09f, // POS_SHIELD (X axis negative)
-    7.19f,  // POS_NULL (X axis positive)
+    7.19f,  // POS_NULLPOS (X axis positive)
   };
   
   /**

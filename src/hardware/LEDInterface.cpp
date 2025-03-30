@@ -206,7 +206,7 @@ Color LEDInterface::mapPositionToColor(uint8_t position) const {
       result.g = Config::Colors::SHIELD_COLOR[1];
       result.b = Config::Colors::SHIELD_COLOR[2];
       break;
-    case POS_NULL:
+    case POS_NULLPOS:
       result.r = Config::Colors::NULL_COLOR[0];
       result.g = Config::Colors::NULL_COLOR[1];
       result.b = Config::Colors::NULL_COLOR[2];

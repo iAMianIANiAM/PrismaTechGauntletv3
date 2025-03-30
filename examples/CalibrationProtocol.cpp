@@ -451,7 +451,7 @@ uint8_t getPositionForState(CalibrationState state) {
     case STATE_POSITION_OATH: return POS_OATH;
     case STATE_POSITION_DIG: return POS_DIG;
     case STATE_POSITION_SHIELD: return POS_SHIELD;
-    case STATE_POSITION_NULL: return POS_NULL;
+    case STATE_POSITION_NULL: return POS_NULLPOS;
     default: return POS_UNKNOWN;
   }
 } 

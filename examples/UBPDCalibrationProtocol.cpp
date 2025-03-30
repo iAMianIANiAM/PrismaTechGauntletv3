@@ -466,7 +466,7 @@ void transitionToNextState() {
       case POS_SHIELD:
         Serial.println("Hand to the side, Palm Out - X-axis dominant negative)");
         break;
-      case POS_NULL:
+      case POS_NULLPOS:
         Serial.println("Hand to the side, Palm In - X-axis dominant positive)");
         break;
     }
@@ -500,7 +500,7 @@ const char* getPositionName(uint8_t position) {
     case POS_OATH: return "OATH (Hand Up)";        // Red (Y-axis negative)
     case POS_DIG: return "DIG (Hand Down)";        // Green (Y-axis positive)
     case POS_SHIELD: return "SHIELD (Palm Out)";   // Blue (X-axis negative)
-    case POS_NULL: return "NULL (Palm In)";        // Orange (X-axis positive)
+    case POS_NULLPOS: return "NULL (Palm In)";     // Orange (X-axis positive)
     default: return "UNKNOWN";
   }
 }
@@ -512,7 +512,7 @@ uint8_t getPositionForState(CalibrationState state) {
     case STATE_POSITION_OATH: return POS_OATH;
     case STATE_POSITION_DIG: return POS_DIG;
     case STATE_POSITION_SHIELD: return POS_SHIELD;
-    case STATE_POSITION_NULL: return POS_NULL;
+    case STATE_POSITION_NULL: return POS_NULLPOS;
     default: return POS_UNKNOWN;
   }
 }
@@ -586,7 +586,7 @@ void printStatusUpdate() {
         case POS_OATH: colorName = "Red"; break;       // OATH_COLOR  
         case POS_DIG: colorName = "Green"; break;      // DIG_COLOR
         case POS_SHIELD: colorName = "Blue"; break;    // SHIELD_COLOR
-        case POS_NULL: colorName = "Orange"; break;    // NULL_COLOR
+        case POS_NULLPOS: colorName = "Orange"; break; // NULL_COLOR
         default: colorName = "White"; break;           // UNKNOWN_COLOR
       }
       
@@ -820,7 +820,7 @@ Color getPositionColor(uint8_t position) {
     case POS_SHIELD:
       result = {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]};
       break;
-    case POS_NULL:
+    case POS_NULLPOS:
       result = {Config::Colors::NULL_COLOR[0], Config::Colors::NULL_COLOR[1], Config::Colors::NULL_COLOR[2]};
       break;
   }

@@ -50,4 +50,153 @@ With the successful implementation of the UBPD system in the main program enviro
 1. **CalmOffer Gesture**: Transition from "Calm" position (palm-down) to "Offer" position (palm-up) within a 1000ms window
 2. **LongNull Gesture**: Maintaining the "Null" position (hand to side, palm in) for 5000ms with a countdown starting at 3000ms
 
-These gestures will serve as the triggers for Invocation Mode and Freecast Mode respectively, forming the foundation of the gauntlet's interactive capabilities. 
+These gestures will serve as the triggers for Invocation Mode and Freecast Mode respectively, forming the foundation of the gauntlet's interactive capabilities.
+
+## 📋 Null to Cloak Renaming Attempt - Failed (202503302100)
+
+⚠️ **ISSUE:** Attempted to rename the "Null" position to "Cloak" across the codebase, but the implementation was flawed and had to be reverted.
+
+### Approach and Failure
+A renaming proposal was drafted with a multi-phase plan including:
+1. Creating an inventory of all instances
+2. Implementing changes in small, verified batches
+3. Performing compilation checks between updates
+
+However, the actual implementation deviated significantly from this plan:
+- Changes were made in a single large batch without intermediate verification
+- New functions were added to implementation files without adding declarations to headers
+- Inconsistent renaming left some files referencing `POS_NULL` while others referenced `POS_CLOAK`
+- Function mismatches were created between declaration and implementation
+
+### Build Errors
+Compilation failed with multiple errors:
+- Undefined references to `POS_NULL` in some files
+- Missing declarations for new/modified functions
+- Interface violations with function signature mismatches
+- Inconsistent color constant references
+
+### Resolution
+The failed implementation necessitated a complete reversion:
+1. Created a dedicated branch `pre-null-cloak-change` before starting (fortunately)
+2. After discovering the issues, reverted to the main branch
+3. Created a new branch `nullCloakAttemptTwo` for a properly structured approach
+
+### Lessons Learned
+🧠 **INSIGHT:** This failure reinforces the criticality of:
+1. Adhering to detailed implementation plans rather than deviating from them
+2. Making incremental changes with compilation checks at each step
+3. Maintaining consistency between interface declarations and implementations
+4. Starting with header files before modifying implementation files
+5. Using source control effectively to enable clean reversions when needed
+
+A new, more methodical approach will be taken to implement this necessary change with proper verification steps. 
+
+## 📋 POS_NULL to POS_NULLPOS Conversion Plan (202503312130)
+
+📌 **DECISION:** After assessing the risks and benefits of various approaches to address the "Null" position name conflict with C++ reserved words, a minimal viable solution has been approved that preserves documentation consistency while ensuring code safety.
+
+🧠 **INSIGHT:** A risk assessment identified several potential issues with continuing to use "Null" as a position identifier in code:
+- Compiler conflicts with C++ null pointer keyword
+- Macro conflicts with NULL definitions
+- Code readability and maintenance challenges
+- Potential debugging confusion between position values and null pointers
+
+### Minimal Viable Solution Approach
+Rather than a complete rename of the position (like the previous attempt to change "Null" to "Cloak"), we will implement a code-only suffix approach:
+- Code constants/enums will change from `POS_NULL` to `POS_NULLPOS`
+- Documentation will continue to use "Null" position terminology
+- No changes to comments or documentation strings required
+
+### Implementation Plan
+The approved implementation plan consists of three phases, each requiring proposal and explicit approval before execution:
+
+#### Phase 1: Enumeration/Constant Definition
+- Locate position enum/constant definitions
+- Change `POS_NULL` to `POS_NULLPOS` in definition only
+- Compile to identify immediate dependency errors
+- Fix any declaration/header issues
+
+#### Phase 2: Implementation Files
+- Methodically update each implementation file:
+  - Position detection logic
+  - LED color mapping code
+  - Serial output code
+- Compile after each file modification
+
+#### Phase 3: Gesture Detection
+- Update "LongNull" gesture detection code to use `POS_NULLPOS`
+- Verify gesture timing and detection logic remains unchanged
+- Ensure `LongNull` naming in comments remains as-is
+
+### Verification Strategy
+- Compile and verify no build errors after each phase
+- Manually test each hand position detection
+- Specifically test the Null position LED color and serial output
+- Verify the LongNull gesture countdown and triggering functions
+
+A dedicated branch `null-pos-rename` will be created before starting implementation to facilitate clean rollback if needed. 
+
+## 📋 POS_NULL to POS_NULLPOS Conversion - Phase 1 Implementation (202503312215)
+
+✅ **IMPLEMENTATION:** Successfully completed Phase 1 of the POS_NULL to POS_NULLPOS conversion plan. Changed the enum definition in `SystemTypes.h`.
+
+### Phase 1 Implementation Steps
+1. Created branch `null-pos-rename` for the implementation
+2. Located the HandPosition enum definition in `src/core/SystemTypes.h` 
+3. Changed `POS_NULL` to `POS_NULLPOS` in the enum definition, preserving comments
+4. Compiled to identify all dependent files requiring updates
+
+### Compilation Results
+As expected, the compilation failed with several "POS_NULL was not declared in this scope" errors. The compiler helpfully suggested the new `POS_NULLPOS` name as an alternative.
+
+### Affected Files Identified
+The first compilation pass identified the following files requiring updates in Phase 2:
+
+1. `src/detection/UltraBasicPositionDetector.cpp`
+   - Multiple occurrences in detection logic, default thresholds, calibration, and position name functions
+
+2. `src/hardware/LEDInterface.cpp`
+   - Position-to-color mapping function
+
+3. `src/main.cpp`
+   - Position handling in main loop
+
+4. `examples/UBPDCalibrationProtocol.cpp`
+   - Calibration protocol position handling 
+
+5. `examples/component_tests/UltraBasicPositionTest.cpp`
+   - Position color mapping for the test
+
+### Next Steps
+Phase 1 has successfully established the new enum value and identified all places requiring updates. Ready to proceed with Phase 2 implementation after approval.
+
+🔍 **TBD:** Determine if there are any other source files in the codebase using `POS_NULL` that weren't detected by the initial compilation. 
+
+## 📋 POS_NULL to POS_NULLPOS Conversion - Phase 2 Implementation (202503312245)
+
+✅ **IMPLEMENTATION:** Successfully completed Phase 2 of the POS_NULL to POS_NULLPOS conversion plan. Updated all implementation files to use the new enum name.
+
+### Phase 2 Implementation Steps
+1. Updated core file `src/core/Config.h` - Modified comment references in DEFAULT_POSITION_THRESHOLDS
+2. Updated implementation file `src/detection/UltraBasicPositionDetector.cpp` - Changed all instances while preserving the "NULL" string output
+3. Updated implementation file `src/hardware/LEDInterface.cpp` - Updated position-to-color mapping
+4. Updated implementation file `src/main.cpp` - Changed switch statement for LEDs
+5. Updated example file `examples/component_tests/UltraBasicPositionTest.cpp` - Updated position array and color mapping
+6. Updated example file `examples/UBPDCalibrationProtocol.cpp` - Updated all instances while preserving display names
+
+### Challenges Overcome
+1. Needed to be careful about preserving the string names ("NULL") while changing the enum constant names
+2. Found multiple additional occurrences in `UBPDCalibrationProtocol.cpp` that required updates beyond what was initially identified
+
+### Compilation Results
+Successful compilation for all targets:
+- Main program (`esp32dev`) - Compilation successful
+- Calibration protocol (`calibration`) - Compilation successful 
+- Function tests (`functionTest`) - Compilation successful
+
+All code changes were implemented and verified while maintaining the same visual output and functionality.
+
+### Next Steps
+Phase 2 is complete with all implementation files successfully updated. Ready to proceed with Phase 3 - gesture detection code updates after approval.
+
+🧠 **INSIGHT:** Using incremental changes and compiling after each file update resulted in a much smoother implementation compared to the previous attempt. The compiler errors from Phase 1 provided an excellent roadmap of files requiring updates.

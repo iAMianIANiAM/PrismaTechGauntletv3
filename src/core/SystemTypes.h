@@ -34,7 +34,7 @@ enum HandPosition {
   POS_OATH,     // Hand pointing upwards (Red)
   POS_DIG,      // Hand pointing downwards (Green)
   POS_SHIELD,   // Hand to the side, Palm Out (Blue)
-  POS_NULL,     // Hand to the side, Palm In (Orange)
+  POS_NULLPOS,  // Hand to the side, Palm In (Orange)
   POS_UNKNOWN   // Default/Unclear (White)
 };
 
