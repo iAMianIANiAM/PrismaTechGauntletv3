@@ -54,8 +54,15 @@ void IdleMode::initialize() {
 }
 
 void IdleMode::update() {
-    // Get the current position from detector
-    PositionReading newPosition = positionDetector->getCurrentPosition();
+    // Get raw sensor data
+    SensorData rawData = hardwareManager->getSensorData();
+    
+    // Process the raw data explicitly (same approach as in UBPDCalibrationProtocol)
+    ProcessedData processed;
+    positionDetector->processRawData(rawData, processed);
+    
+    // Update the detector for position detection
+    PositionReading newPosition = positionDetector->update();
     
     // If position has changed
     if (newPosition.position != currentPosition.position) {

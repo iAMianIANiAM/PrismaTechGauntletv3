@@ -69,13 +69,13 @@ namespace Config {
    * Last calibration: 2025-03-30
    */
   namespace Calibrated {
-    // Copy calibration output below (values will be updated after calibration)
-    constexpr float OFFER_THRESHOLD = 7.97f;    // Z-axis dominant
-    constexpr float CALM_THRESHOLD = -7.53f;    // Z-axis dominant
-    constexpr float OATH_THRESHOLD = 6.50f;     // Y-axis dominant
-    constexpr float DIG_THRESHOLD = -4.32f;     // Y-axis dominant
-    constexpr float SHIELD_THRESHOLD = -5.09f;  // X-axis dominant
-    constexpr float NULL_THRESHOLD = 7.19f;     // X-axis dominant
+    // Values from successful calibration on 2025-03-30
+    constexpr float OFFER_THRESHOLD = 8.25f;   // Z-axis dominant positive
+    constexpr float CALM_THRESHOLD = -8.34f;   // Z-axis dominant negative
+    constexpr float OATH_THRESHOLD = -7.92f;   // Y-axis dominant negative
+    constexpr float DIG_THRESHOLD = 7.81f;     // Y-axis dominant positive
+    constexpr float SHIELD_THRESHOLD = -7.65f; // X-axis dominant negative
+    constexpr float NULL_THRESHOLD = 7.47f;    // X-axis dominant positive
     
     // Dominant axes for each position (0 = X, 1 = Y, 2 = Z)
     constexpr uint8_t OFFER_AXIS = 2;    // Z-axis
