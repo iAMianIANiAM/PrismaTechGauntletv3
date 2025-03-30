@@ -8,4 +8,5 @@
 | v2 | 2025-03-27 to 2025-03-28 | UBPD Implementation, Gesture detection | ARCHIVED | [chronicle_v2.md](../archive/chronicles/chronicle_v2.md) |
 | v3 | 2025-03-28 to 2025-03-29 | MPU sensor troubleshooting, Hardware verification | ARCHIVED | [chronicle_v3.md](../archive/chronicles/chronicle_v3.md) |
 | v4 | 2025-03-29 | Calibration analysis, Project migration, Scaling issues | ARCHIVED | [chronicle_v4.md](../archive/chronicles/chronicle_v4.md) |
-| v5 | 2025-03-29 to current | Scaling factor validation, Calibration refinement, m/s² conversion | CURRENT | [chronicle_v5.md](./chronicle_v5.md) | 
+| v5 | 2025-03-29 to 2025-03-29 | Scaling factor validation, UBPD implementation, Idle Mode integration | ARCHIVED | [chronicle_v5.md](../archive/chronicles/chronicle_v5.md) |
+| v6 | 2025-03-29 to current | Gesture detection implementation, Invocation Mode development | CURRENT | [chronicle_v6.md](./chronicle_v6.md) | 
