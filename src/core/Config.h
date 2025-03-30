@@ -110,8 +110,8 @@ namespace Config {
   constexpr uint16_t IDLE_RETURN_MS = 2500;       // Fade-in duration for idle return
   
   // Freecast timing
-  constexpr uint16_t FREECAST_COLLECTION_MS = 2000; // Motion data collection window
-  constexpr uint16_t FREECAST_DISPLAY_MS = 2000;    // Pattern display duration
+  constexpr uint16_t FREECAST_COLLECTION_MS = 3000; // Motion data collection window
+  constexpr uint16_t FREECAST_DISPLAY_MS = 3000;    // Pattern display duration
   
   // Power management
   constexpr uint32_t IDLE_SLEEP_DELAY_MS = 300000; // Time before entering sleep mode (5 min)

@@ -294,15 +294,46 @@ void loop() {
         hardware->updateLEDs();
       }
     } else if (currentMode == MODE_INVOCATION) {
-      // Basic placeholder for Invocation Mode
+      // Placeholder for Invocation Mode with rainbow animation
       // Will be fully implemented in future phase
-      Serial.println("In Invocation Mode - functionality to be implemented");
-      
-      // Temporary: Just return to Idle Mode after 5 seconds
       static unsigned long modeStartTime = currentTime;
-      if (currentTime - modeStartTime >= 5000) {
+      static unsigned long animationDuration = 6000; // Rainbow animation for 6 seconds
+      
+      // Generate a dazzling rainbow pattern
+      unsigned long animationElapsed = currentTime - modeStartTime;
+      
+      if (animationElapsed < animationDuration) {
+        // Create a dazzling rainbow pattern that rotates around the ring
+        for (int i = 0; i < Config::NUM_LEDS; i++) {
+          // Calculate hue based on LED position and time
+          // This creates a rotating rainbow effect
+          uint8_t hue = (i * 21) + (animationElapsed / 10) % 255; // Rotate every ~2.5 seconds
+          
+          // Calculate brightness - add pulsing effect
+          uint8_t brightness = 255;
+          if (i % 3 == 0) {
+            // Add a sparkle effect on every third LED
+            brightness = 128 + 127 * sin((animationElapsed + i * 50) / 100.0);
+          }
+          
+          // Convert HSV to RGB for the LED
+          CRGB color;
+          color.setHSV(hue, 255, brightness);
+          
+          // Set the LED color
+          hardware->setLED(i, {color.r, color.g, color.b});
+        }
+        hardware->updateLEDs();
+        
+        if (animationElapsed % 1000 < 20) { // Print status once per second
+          Serial.print("Rainbow animation: ");
+          Serial.print((animationDuration - animationElapsed) / 1000);
+          Serial.println(" seconds remaining");
+        }
+      } else {
+        // Return to Idle Mode after animation completes
         currentMode = MODE_IDLE;
-        Serial.println("Returning to Idle Mode");
+        Serial.println("Rainbow animation complete. Returning to Idle Mode");
       }
     } else if (currentMode == MODE_FREECAST) {
       // Use the FreeCastMode implementation

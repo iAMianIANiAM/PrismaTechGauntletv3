@@ -383,48 +383,25 @@ uint8_t FreeCastMode::determinePatternType() {
 
 // Generate a color palette based on motion characteristics
 void FreeCastMode::generateColorPalette() {
-    // Base colors
-    CRGB primary, secondary, accent;
+    // Create vibrant rainbow colors regardless of motion type
+    // Brightness will still be affected by motion intensity
     
-    // Determine primary color based on dominant axis
-    switch (dominantAxis) {
-        case 0: // X-axis
-            primary = CRGB(255, 0, 0); // Red
-            break;
-        case 1: // Y-axis
-            primary = CRGB(0, 255, 0); // Green
-            break;
-        case 2: // Z-axis
-            primary = CRGB(0, 0, 255); // Blue
-            break;
+    // Generate more vibrant rainbow palette
+    patternColors[0] = CRGB(255, 0, 0);     // Red
+    patternColors[1] = CRGB(0, 255, 0);     // Green
+    patternColors[2] = CRGB(0, 0, 255);     // Blue
+    patternColors[3] = CRGB(255, 0, 255);   // Magenta
+    patternColors[4] = CRGB(255, 255, 0);   // Yellow
+    
+    // Scale brightness based on motion intensity
+    float brightnessScale = 0.5f + (motionIntensity * 0.5f); // 0.5-1.0 brightness scale
+    
+    // Apply brightness scaling based on motion intensity
+    for (int i = 0; i < 5; i++) {
+        patternColors[i].r = patternColors[i].r * brightnessScale;
+        patternColors[i].g = patternColors[i].g * brightnessScale;
+        patternColors[i].b = patternColors[i].b * brightnessScale;
     }
-    
-    // Secondary color based on directionality
-    if (motionDirectionality < 0.3f) {
-        secondary = CRGB(255, 255, 0); // Yellow for chaotic motion
-    } else if (motionDirectionality < 0.7f) {
-        secondary = CRGB(0, 255, 255); // Cyan for moderate directionality
-    } else {
-        secondary = CRGB(255, 0, 255); // Magenta for high directionality
-    }
-    
-    // Accent color based on intensity
-    if (motionIntensity < 0.3f) {
-        accent = CRGB(64, 64, 64); // Dark gray for low intensity
-    } else if (motionIntensity < 0.7f) {
-        accent = CRGB(255, 165, 0); // Orange for medium intensity
-    } else {
-        accent = CRGB(255, 255, 255); // White for high intensity
-    }
-    
-    // Assign to palette
-    patternColors[0] = primary;
-    patternColors[1] = secondary;
-    patternColors[2] = accent;
-    
-    // Create two additional colors by mixing
-    patternColors[3] = blend(primary, secondary, 128); // 50% blend
-    patternColors[4] = blend(secondary, accent, 128);  // 50% blend
 }
 
 // Generate final pattern after analysis
@@ -439,10 +416,10 @@ void FreeCastMode::renderBackgroundAnimation() {
     unsigned long currentTime = millis();
     uint8_t pulse = (sin8(currentTime / 10) * 64) / 255; // 0-64 brightness pulse
     
-    // Dim blue pulsing around the ring
+    // Dim white pulsing around the ring
     for (int i = 0; i < Config::NUM_LEDS; i++) {
         uint8_t brightness = pulse + (i % 3 == 0 ? 16 : 0); // Slightly brighter every 3rd LED
-        hardwareManager->setLED(i, {0, 0, brightness});
+        hardwareManager->setLED(i, {brightness, brightness, brightness});
     }
 }
 
@@ -510,7 +487,7 @@ void FreeCastMode::renderShootingStars(unsigned long elapsedTime) {
 void FreeCastMode::renderWaves(unsigned long elapsedTime) {
     // Parameters based on motion
     float speed = 0.05f + (motionIntensity * 0.2f); // Wave speed
-    float intensity = 0.3f + (motionIntensity * 0.7f); // Wave intensity
+    float intensity = 0.5f + (motionIntensity * 0.5f); // Increased minimum intensity
     
     // Create wave effect around the ring
     for (int i = 0; i < Config::NUM_LEDS; i++) {
@@ -520,21 +497,10 @@ void FreeCastMode::renderWaves(unsigned long elapsedTime) {
         // Generate sinusoidal wave
         float wave = (sinf(phase) + 1.0f) / 2.0f; // 0.0-1.0
         
-        // Select color based on position in wave
+        // Full rainbow color selection - HSV color wheel
         CRGB color;
-        if (wave < 0.33f) {
-            // Blend between colors 0 and 1
-            color = blend(patternColors[0], patternColors[1], wave * 3 * 255);
-        } else if (wave < 0.67f) {
-            // Blend between colors 1 and 2
-            color = blend(patternColors[1], patternColors[2], (wave - 0.33f) * 3 * 255);
-        } else {
-            // Blend between colors 2 and 0
-            color = blend(patternColors[2], patternColors[0], (wave - 0.67f) * 3 * 255);
-        }
-        
-        // Apply intensity
-        color.nscale8(intensity * 255);
+        uint8_t hue = (wave * 255) + (elapsedTime / 20) % 255; // Moving through the color wheel
+        color.setHSV(hue, 240, 255 * intensity); // Full saturation, brightness based on intensity
         
         // Set LED
         hardwareManager->setLED(i, {color.r, color.g, color.b});
@@ -559,13 +525,11 @@ void FreeCastMode::renderSparkles(unsigned long elapsedTime) {
         // Random position
         uint8_t pos = random(Config::NUM_LEDS);
         
-        // Random color from palette
-        uint8_t colorIndex = random(5);
-        CRGB color = patternColors[colorIndex];
-        
-        // Random brightness
-        uint8_t brightness = 128 + random(128);
-        color.nscale8(brightness);
+        // Random color using HSV for more vibrant colors
+        CRGB color;
+        uint8_t hue = random(255); // Full color wheel
+        uint8_t brightness = 128 + random(128); // 128-255
+        color.setHSV(hue, 255, brightness); // Full saturation, random brightness
         
         // Set LED
         hardwareManager->setLED(pos, {color.r, color.g, color.b});
