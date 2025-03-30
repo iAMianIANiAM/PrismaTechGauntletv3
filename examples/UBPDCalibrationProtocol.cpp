@@ -306,23 +306,61 @@ void updateLEDs() {
     }
     
     case STATE_DETECTION: {
-      // Display color matching current detected position
-      PositionReading reading = detector->getCurrentPosition();
-      Color posColor = getPositionColor(reading.position);
+      // Get raw sensor data
+      SensorData rawData = hardware->getSensorData();
       
-      // Map confidence to brightness
-      uint8_t brightness = map(min(100, (int)reading.confidence), 0, 100, 50, 200);
-      hardware->setBrightness(brightness);
+      // Process the raw data directly
+      ProcessedData processed;
+      detector->processRawData(rawData, processed);
       
-      // For Idle Mode style display, show only 4 points
-      for (uint8_t i = 0; i < 12; i++) {
-        if (i == 0 || i == 3 || i == 6 || i == 9) {
-          hardware->setLED(i, posColor);
-        } else {
-          Color off = {0, 0, 0};
-          hardware->setLED(i, off);
-        }
+      // Get current position and confidence
+      PositionReading position = detector->getCurrentPosition();
+      
+      // Add color information to make it clearer which position is being detected
+      const char* colorName = "";
+      switch (position.position) {
+        case POS_OFFER: colorName = "Purple"; break;
+        case POS_CALM: colorName = "Yellow"; break;
+        case POS_OATH: colorName = "Red"; break;
+        case POS_DIG: colorName = "Green"; break;
+        case POS_SHIELD: colorName = "Blue"; break;
+        case POS_NULL: colorName = "Orange"; break;
+        default: colorName = "White"; break;
       }
+      
+      // Format a nice display with columns - include color in display
+      Serial.print(getPositionName(position.position));
+      Serial.print(" (");
+      Serial.print(colorName);
+      Serial.print(")");
+      Serial.print(" | ");
+      
+      // Print confidence
+      Serial.print(position.confidence, 1);
+      Serial.print("%      | ");
+      
+      // Print raw values
+      Serial.print("X:");
+      Serial.print(rawData.accelX);
+      Serial.print(" Y:");
+      Serial.print(rawData.accelY);
+      Serial.print(" Z:");
+      Serial.print(rawData.accelZ);
+      Serial.print(" | ");
+      
+      // Print processed values
+      Serial.print("X:");
+      Serial.print(processed.accelX, 2);
+      Serial.print(" Y:");
+      Serial.print(processed.accelY, 2);
+      Serial.print(" Z:");
+      Serial.print(processed.accelZ, 2);
+      Serial.println(" m/s²");
+      
+      // Update LEDs based on position
+      Color posColor = getPositionColor(position.position);
+      hardware->setBrightness(map(position.confidence, 0, 100, 50, 200));
+      hardware->setAllLEDs(posColor);
       break;
     }
   }
@@ -505,12 +543,12 @@ const char* getStateName(CalibrationState state) {
 
 const char* getPositionName(uint8_t position) {
   switch (position) {
-    case POS_OFFER: return "OFFER";
-    case POS_CALM: return "CALM";
-    case POS_OATH: return "OATH";
-    case POS_DIG: return "DIG";
-    case POS_SHIELD: return "SHIELD";
-    case POS_NULL: return "NULL";
+    case POS_OFFER: return "OFFER (Palm Up)";      // Purple
+    case POS_CALM: return "CALM (Palm Down)";      // Yellow
+    case POS_OATH: return "OATH (Hand Up)";        // Red
+    case POS_DIG: return "DIG (Hand Down)";        // Green
+    case POS_SHIELD: return "SHIELD (Palm Out)";   // Blue
+    case POS_NULL: return "NULL (Palm In)";        // Orange
     default: return "UNKNOWN";
   }
 }
@@ -588,9 +626,24 @@ void printStatusUpdate() {
       // Get current position and confidence
       PositionReading position = detector->getCurrentPosition();
       
-      // Format a nice display with columns
+      // Add color information to make it clearer which position is being detected
+      const char* colorName = "";
+      switch (position.position) {
+        case POS_OFFER: colorName = "Purple"; break;
+        case POS_CALM: colorName = "Yellow"; break;
+        case POS_OATH: colorName = "Red"; break;
+        case POS_DIG: colorName = "Green"; break;
+        case POS_SHIELD: colorName = "Blue"; break;
+        case POS_NULL: colorName = "Orange"; break;
+        default: colorName = "White"; break;
+      }
+      
+      // Format a nice display with columns - include color in display
       Serial.print(getPositionName(position.position));
-      Serial.print("        | ");
+      Serial.print(" (");
+      Serial.print(colorName);
+      Serial.print(")");
+      Serial.print(" | ");
       
       // Print confidence
       Serial.print(position.confidence, 1);
