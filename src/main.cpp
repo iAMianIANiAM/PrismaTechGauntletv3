@@ -4,6 +4,7 @@
 #include "core/Config.h"
 #include "core/SystemTypes.h"
 #include "modes/IdleMode.h"
+#include "modes/FreeCastMode.h"
 
 // Serial communication
 #define SERIAL_BAUD_RATE 115200
@@ -32,11 +33,13 @@ const char* positionNames[] = {
 HardwareManager* hardware = nullptr;
 UltraBasicPositionDetector positionDetector;
 IdleMode idleMode;
+FreeCastMode freeCastMode;
 unsigned long lastUpdateTime = 0;
 
 // Use existing SystemMode enum from SystemTypes.h
 SystemMode currentMode = MODE_IDLE;
 bool idleModeInitialized = false;
+bool freeCastModeInitialized = false;
 
 // Pre-allocated variables for loop to reduce stack usage
 PositionReading positionReading;
@@ -79,7 +82,33 @@ void handleModeTransition(ModeTransition transition) {
         delay(50);
       }
       
+      // Initialize FreeCast mode
+      if (freeCastModeInitialized) {
+        freeCastMode.initialize();
+      }
+      
       Serial.println("LongNull gesture detected! Transitioning to Freecast Mode");
+      break;
+      
+    case ModeTransition::TO_IDLE:
+      currentMode = MODE_IDLE;
+      
+      // Visual feedback for returning to Idle Mode - orange flash
+      for (int i = 0; i < 3; i++) {
+        hardware->setAllLEDs(orange);
+        hardware->updateLEDs();
+        delay(100);
+        hardware->setAllLEDs({0, 0, 0});
+        hardware->updateLEDs();
+        delay(50);
+      }
+      
+      // Reinitialize Idle mode
+      if (idleModeInitialized) {
+        idleMode.initialize();
+      }
+      
+      Serial.println("Exiting FreeCast Mode! Returning to Idle Mode");
       break;
       
     default:
@@ -133,6 +162,15 @@ void setup() {
       idleMode.initialize();
     } else {
       Serial.println("WARNING: IdleMode initialization failed. Proceeding with basic functionality.");
+    }
+    
+    // Initialize FreeCastMode
+    freeCastModeInitialized = freeCastMode.init(hardware, &positionDetector);
+    Serial.print("FreeCast Mode initialization: ");
+    Serial.println(freeCastModeInitialized ? "SUCCESS" : "FAILED");
+    
+    if (!freeCastModeInitialized) {
+      Serial.println("WARNING: FreeCastMode initialization failed. This functionality will not be available.");
     }
   }
   
@@ -267,15 +305,26 @@ void loop() {
         Serial.println("Returning to Idle Mode");
       }
     } else if (currentMode == MODE_FREECAST) {
-      // Basic placeholder for Freecast Mode
-      // Will be fully implemented in future phase
-      Serial.println("In Freecast Mode - functionality to be implemented");
-      
-      // Temporary: Just return to Idle Mode after 5 seconds
-      static unsigned long modeStartTime = currentTime;
-      if (currentTime - modeStartTime >= 5000) {
+      // Use the FreeCastMode implementation
+      if (freeCastModeInitialized) {
+        // Update FreeCast mode and check for exit gesture
+        freeCastMode.update();
+        ModeTransition transition = freeCastMode.checkForTransition();
+        
+        if (transition == ModeTransition::TO_IDLE) {
+          // Handle transition back to Idle mode
+          handleModeTransition(ModeTransition::TO_IDLE);
+        } else {
+          // Render LEDs with FreeCast mode
+          freeCastMode.renderLEDs();
+        }
+        
+        // Display minimal debug info
+        Serial.println("In FreeCast Mode - capturing and displaying motion patterns");
+      } else {
+        // Fallback if FreeCast mode isn't initialized
+        Serial.println("FreeCast Mode not available. Returning to Idle Mode.");
         currentMode = MODE_IDLE;
-        Serial.println("Returning to Idle Mode");
       }
     }
   }

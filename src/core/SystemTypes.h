@@ -8,7 +8,7 @@
  * Operational modes as defined in the TrueFunctionGuide:
  * - Idle Mode: Default state monitoring hand positions
  * - Invocation Mode: Structured sequence recording positions into three slots
- * - Resolution Mode: Spell effect activation based on recorded positions
+ * - Resolution Mode: Spell effect determination based on recorded positions
  * - Freecast Mode: Creative motion-to-pattern translation
  */
 enum SystemMode {
@@ -16,6 +16,17 @@ enum SystemMode {
   MODE_INVOCATION,   // Three-slot position recording
   MODE_RESOLUTION,   // Spell effect determination and display
   MODE_FREECAST      // Motion-to-pattern translation
+};
+
+/**
+ * @brief Defines the possible mode transitions
+ * Used by IdleMode and FreeCastMode to signal transition requests
+ */
+enum class ModeTransition {
+  NONE,              // No transition requested
+  TO_INVOCATION,     // Transition to Invocation Mode (from CalmOffer gesture)
+  TO_FREECAST,       // Transition to Freecast Mode (from LongNull gesture)
+  TO_IDLE            // Return to Idle Mode (from exit gesture)
 };
 
 /**

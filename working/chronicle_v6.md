@@ -272,3 +272,90 @@ With the gesture detection system now operational, the following steps are plann
    - Optimize LED update performance
    - Fine-tune gesture detection thresholds
    - Improve visual feedback during transitions
+
+4. **System Refinement**:
+   - Optimize memory usage and performance
+   - Enhance visual transitions between modes
+   - Add more sophisticated motion analysis if resources permit
+
+## 📋 Mode Transition Enum Refactoring (202504052300)
+
+✅ **RESOLUTION:** Successfully refactored the `ModeTransition` enum to address a critical multiple definition conflict that was preventing proper builds.
+
+### Issue Analysis
+The implementation of FreeCast Mode introduced a conflict in the codebase caused by the `ModeTransition` enum being defined in multiple header files:
+
+1. In `IdleMode.h` as:
+   ```cpp
+   enum class ModeTransition {
+       NONE,
+       TO_INVOCATION,
+       TO_FREECAST
+   };
+   ```
+
+2. In `FreeCastMode.h` (to add the TO_IDLE transition) as:
+   ```cpp
+   enum class ModeTransition {
+       NONE,
+       TO_INVOCATION,
+       TO_FREECAST,
+       TO_IDLE
+   };
+   ```
+
+This caused a "multiple definition" compiler error when both files were included in the same translation unit.
+
+### Solution Implemented
+
+The solution follows best practices for enum management in C++:
+
+1. **Moved the Enum to Common Header**:
+   - Relocated the `ModeTransition` enum definition to `SystemTypes.h`
+   - Added proper documentation for the enum
+   - Included the `TO_IDLE` transition value needed by FreeCastMode
+
+2. **Removed Duplicate Definitions**:
+   - Removed the enum definitions from both `IdleMode.h` and `FreeCastMode.h`
+   - Maintained the existing include for `SystemTypes.h` in both files
+
+### Implementation Details
+
+```cpp
+// In src/core/SystemTypes.h
+/**
+ * @brief Defines the possible mode transitions
+ * Used by IdleMode and FreeCastMode to signal transition requests
+ */
+enum class ModeTransition {
+  NONE,              // No transition requested
+  TO_INVOCATION,     // Transition to Invocation Mode (from CalmOffer gesture)
+  TO_FREECAST,       // Transition to Freecast Mode (from LongNull gesture)
+  TO_IDLE            // Return to Idle Mode (from exit gesture)
+};
+```
+
+The refactoring preserves all existing functionality while ensuring that all components reference the same enum definition.
+
+🧠 **INSIGHT:** When multiple components need to communicate using shared enum values, those enums should be defined in a common header file that all components include. This ensures consistency and prevents multiple definition errors. In this case, `SystemTypes.h` already served as the centralized location for system-wide type definitions, making it the natural home for the `ModeTransition` enum.
+
+This change prepares the codebase for future mode implementations, ensuring that all components can signal transitions to and from various operational modes using a consistent interface.
+
+### Next Steps
+
+With both gesture detection and FreeCast Mode now operational, development focus can shift to:
+
+1. **Invocation Mode Implementation**:
+   - Structured 3-slot position recording system
+   - Visual feedback for slot indicators and confirmations
+   - Transition into Resolution Mode
+
+2. **Resolution Mode Design**:
+   - Spell effect determination based on recorded positions
+   - Implementation of the unique animations for each spell
+   - Proper duration control and return sequences
+
+3. **System Refinement**:
+   - Optimize memory usage and performance
+   - Enhance visual transitions between modes
+   - Add more sophisticated motion analysis if resources permit

@@ -7,12 +7,6 @@
 #include "../detection/UltraBasicPositionDetector.h"
 #include "../core/SystemTypes.h"
 
-enum class ModeTransition {
-    NONE,
-    TO_INVOCATION,
-    TO_FREECAST
-};
-
 class IdleMode {
 private:
     // Dependencies
