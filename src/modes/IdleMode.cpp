@@ -15,6 +15,8 @@ IdleMode::IdleMode()
       positionChangedTime(0),
       nullPositionStartTime(0),
       inNullCountdown(false),
+      shieldPositionStartTime(0),
+      inShieldCountdown(false),
       calmExitTime(0),
       inCalmOfferWindow(false),
       currentColor(CRGB::Black),
@@ -44,6 +46,8 @@ void IdleMode::initialize() {
     positionChangedTime = millis();
     nullPositionStartTime = 0;
     inNullCountdown = false;
+    shieldPositionStartTime = 0;
+    inShieldCountdown = false;
     
     // Initialize CalmOffer tracking
     calmExitTime = 0;
@@ -81,9 +85,16 @@ void IdleMode::update() {
         }
         
         // Start null position timing if we've entered the null position
-        if (newPosition.position == POS_NULLPOS && previousPosition.position != POS_NULLPOS) {
-            nullPositionStartTime = millis();
-            inNullCountdown = false;
+        // Disabled as part of LongNull to LongShield transition
+        // if (newPosition.position == POS_NULLPOS && previousPosition.position != POS_NULLPOS) {
+        //     nullPositionStartTime = millis();
+        //     inNullCountdown = false;
+        // }
+        
+        // Start shield position timing if we've entered the shield position
+        if (newPosition.position == POS_SHIELD && previousPosition.position != POS_SHIELD) {
+            shieldPositionStartTime = millis();
+            inShieldCountdown = false;
         }
         
         // Set new target color based on position
@@ -96,10 +107,19 @@ void IdleMode::update() {
     updateColorTransition();
     
     // Check for null position countdown trigger (after 3 seconds)
-    if (currentPosition.position == POS_NULLPOS && !inNullCountdown) {
-        unsigned long nullDuration = millis() - nullPositionStartTime;
-        if (nullDuration >= 3000) { // 3 second threshold
-            inNullCountdown = true;
+    // Disabled as part of LongNull to LongShield transition
+    // if (currentPosition.position == POS_NULLPOS && !inNullCountdown) {
+    //     unsigned long nullDuration = millis() - nullPositionStartTime;
+    //     if (nullDuration >= 3000) { // 3 second threshold
+    //         inNullCountdown = true;
+    //     }
+    // }
+    
+    // Check for shield position countdown trigger (after 3 seconds)
+    if (currentPosition.position == POS_SHIELD && !inShieldCountdown) {
+        unsigned long shieldDuration = millis() - shieldPositionStartTime;
+        if (shieldDuration >= Config::LONGSHIELD_WARNING_MS) { // 3 second threshold
+            inShieldCountdown = true;
         }
     }
     
@@ -118,8 +138,8 @@ ModeTransition IdleMode::checkForTransition() {
         return ModeTransition::TO_INVOCATION;
     }
     
-    // Check for long NULL gesture (triggers Freecast mode)
-    if (detectLongNullGesture()) {
+    // Check for long SHIELD gesture (triggers Freecast mode)
+    if (detectLongShieldGesture()) {
         return ModeTransition::TO_FREECAST;
     }
     
@@ -131,23 +151,45 @@ void IdleMode::renderLEDs() {
     hardwareManager->setAllLEDs({0, 0, 0});
     
     // For NULL position with countdown, show special animation
-    if (currentPosition.position == POS_NULLPOS && inNullCountdown) {
-        // Calculate how long we've been in NULL position
-        unsigned long nullDuration = millis() - nullPositionStartTime;
+    // Disabled as part of LongNull to LongShield transition
+    // if (currentPosition.position == POS_NULLPOS && inNullCountdown) {
+    //     // Calculate how long we've been in NULL position
+    //     unsigned long nullDuration = millis() - nullPositionStartTime;
+    //     
+    //     // If we're in the 3-5 second window, show flashing countdown
+    //     if (nullDuration >= 3000 && nullDuration < 5000) {
+    //         // Flash at 2Hz (250ms on, 250ms off)
+    //         if ((millis() / 250) % 2 == 0) {
+    //             // On phase - show orange
+    //             Color orange = {255, 165, 0};
+    //             for (int i = 0; i < 4; i++) {
+    //                 hardwareManager->setLED(IDLE_LEDS[i], orange);
+    //             }
+    //         }
+    //         // Off phase is handled by the initial clear
+    //     }
+    // } 
+    // For SHIELD position with countdown, show special animation
+    if (currentPosition.position == POS_SHIELD && inShieldCountdown) {
+        // Calculate how long we've been in SHIELD position
+        unsigned long shieldDuration = millis() - shieldPositionStartTime;
         
         // If we're in the 3-5 second window, show flashing countdown
-        if (nullDuration >= 3000 && nullDuration < 5000) {
+        if (shieldDuration >= Config::LONGSHIELD_WARNING_MS && shieldDuration < Config::LONGSHIELD_TIME_MS) {
             // Flash at 2Hz (250ms on, 250ms off)
             if ((millis() / 250) % 2 == 0) {
-                // On phase - show orange
-                Color orange = {255, 165, 0};
+                // Use Shield blue color
+                Color blue = {Config::Colors::SHIELD_COLOR[0], 
+                              Config::Colors::SHIELD_COLOR[1], 
+                              Config::Colors::SHIELD_COLOR[2]};
                 for (int i = 0; i < 4; i++) {
-                    hardwareManager->setLED(IDLE_LEDS[i], orange);
+                    hardwareManager->setLED(IDLE_LEDS[i], blue);
                 }
             }
             // Off phase is handled by the initial clear
         }
-    } else {
+    }
+    else {
         // Normal position display - convert CRGB to Color struct
         Color displayColor = {
             currentColor.r,
@@ -206,15 +248,15 @@ bool IdleMode::detectCalmOfferGesture() {
     return false;
 }
 
-bool IdleMode::detectLongNullGesture() {
-    // Check if we're in NULL position and have been for the required time
-    if (inNullCountdown && currentPosition.position == POS_NULLPOS) {
+bool IdleMode::detectLongShieldGesture() {
+    // Check if we're in SHIELD position and have been for the required time
+    if (inShieldCountdown && currentPosition.position == POS_SHIELD) {
         unsigned long currentTime = millis();
-        unsigned long nullDuration = currentTime - nullPositionStartTime;
+        unsigned long shieldDuration = currentTime - shieldPositionStartTime;
         
-        // Check if we've held NULL long enough
-        if (nullDuration >= 5000) {
-            inNullCountdown = false; // Reset to prevent repeated triggers
+        // Check if we've held SHIELD long enough
+        if (shieldDuration >= Config::LONGSHIELD_TIME_MS) {
+            inShieldCountdown = false; // Reset to prevent repeated triggers
             return true;
         }
     }
@@ -255,6 +297,12 @@ void IdleMode::setInterpolationEnabled(bool enabled) {
     if (!enabled) {
         currentColor = targetColor;
     }
+}
+
+bool IdleMode::detectLongNullGesture() {
+    // Disabled as of 202503312330 as part of LongNull to LongShield transition
+    // See chronicle_v6.md for details
+    return false;
 }
 
 #ifdef DEBUG_MODE

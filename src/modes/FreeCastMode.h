@@ -56,8 +56,14 @@ private:
     
     // Timing
     unsigned long phaseStartTime;       // When current phase began
-    unsigned long nullPositionStartTime; // For exit gesture detection
-    bool inNullCountdown;               // For exit feedback
+    
+    // NULL position tracking for exit gesture (deprecated)
+    unsigned long nullPositionStartTime; 
+    bool inNullCountdown;               
+    
+    // SHIELD position tracking for exit gesture
+    unsigned long shieldPositionStartTime;
+    bool inShieldCountdown;
     
     // Position tracking
     PositionReading currentPosition;
@@ -68,7 +74,10 @@ private:
     void generatePattern();
     void renderBackgroundAnimation();
     void renderCurrentPattern(unsigned long elapsedTime);
-    bool detectLongNullGesture();
+    
+    // Gesture detection methods
+    bool detectLongNullGesture(); // Deprecated
+    bool detectLongShieldGesture(); // New exit gesture
     
     // Pattern rendering methods
     void renderShootingStars(unsigned long elapsedTime);

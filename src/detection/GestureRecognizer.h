@@ -37,10 +37,22 @@ public:
   bool detectLongNull();
   
   /**
+   * @brief Detect LongShield gesture (Shield position held)
+   * @return True if gesture detected
+   */
+  bool detectLongShield();
+  
+  /**
    * @brief Get the progress toward completing a LongNull gesture
    * @return Value 0.0-1.0 representing progress (1.0 = complete)
    */
   float getLongNullProgress() const;
+  
+  /**
+   * @brief Get the progress toward completing a LongShield gesture
+   * @return Value 0.0-1.0 representing progress (1.0 = complete)
+   */
+  float getLongShieldProgress() const;
   
   /**
    * @brief Reset the gesture detection state
@@ -61,6 +73,11 @@ private:
   unsigned long nullStartTime = 0;
   bool nullActive = false;
   bool longNullDetected = false;
+  
+  // LongShield tracking
+  unsigned long shieldStartTime = 0;
+  bool shieldActive = false;
+  bool longShieldDetected = false;
   
   // Internal helper methods
   bool wasRecentPosition(uint8_t position, unsigned long maxAgeMs) const;

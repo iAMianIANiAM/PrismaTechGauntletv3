@@ -20,6 +20,10 @@ private:
     unsigned long nullPositionStartTime;
     bool inNullCountdown;
     
+    // Shield position tracking for LongShield gesture
+    unsigned long shieldPositionStartTime;
+    bool inShieldCountdown;
+    
     // CalmOffer tracking variables
     unsigned long calmExitTime;
     bool inCalmOfferWindow;
@@ -40,6 +44,7 @@ private:
     CRGB getPositionColor(uint8_t position);
     bool detectCalmOfferGesture();
     bool detectLongNullGesture();
+    bool detectLongShieldGesture();
     void updateColorTransition();
     
 public:

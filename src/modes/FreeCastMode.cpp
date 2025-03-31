@@ -17,6 +17,8 @@ FreeCastMode::FreeCastMode()
       phaseStartTime(0),
       nullPositionStartTime(0),
       inNullCountdown(false),
+      shieldPositionStartTime(0),
+      inShieldCountdown(false),
       currentPosition({POS_UNKNOWN, 0, 0})
 {
     // Initialize color palette with default values
@@ -43,36 +45,32 @@ bool FreeCastMode::init(HardwareManager* hardware, UltraBasicPositionDetector* d
 
 // Initialize the mode when first activated
 void FreeCastMode::initialize() {
-    // Reset state variables
+    // Reset state tracking
     currentState = FreeCastState::INITIALIZING;
     motionBufferIndex = 0;
     motionBufferCount = 0;
-    motionIntensity = 0.0f;
-    motionDirectionality = 0.0f;
-    rotationIntensity = 0.0f;
-    dominantAxis = 0;
-    currentPatternType = PatternType::SPARKLES;
     phaseStartTime = millis();
+    
+    // Reset NULL position tracking
     nullPositionStartTime = 0;
     inNullCountdown = false;
     
-    // Initial position reading
-    currentPosition = positionDetector->getCurrentPosition();
+    // Reset SHIELD position tracking
+    shieldPositionStartTime = 0;
+    inShieldCountdown = false;
     
-    // Clear motion buffer
-    for (uint16_t i = 0; i < MOTION_BUFFER_SIZE; i++) {
-        motionBuffer[i] = {0.0f, 0.0f, 0.0f};
-    }
+    // Set initial position
+    currentPosition = positionDetector->update();
     
-    // Initialize with a sweeping orange pattern as described in TrueFunctionGuide
-    Color orange = {255, 165, 0};
-    for (int i = 0; i < Config::NUM_LEDS; i++) {
-        hardwareManager->setLED(i, orange);
-    }
-    hardwareManager->updateLEDs();
+    // Initialize pattern values
+    motionIntensity = 0.5f;
+    motionDirectionality = 0.5f;
+    rotationIntensity = 0.5f;
+    dominantAxis = 0;
+    currentPatternType = PatternType::SPARKLES;
     
-    // After 500ms of initialization, transition to recording state
-    currentState = FreeCastState::RECORDING;
+    // Generate initial color palette
+    generateColorPalette();
     
     #ifdef DEBUG_MODE
     Serial.println(F("FreeCast Mode initialized"));
@@ -143,22 +141,40 @@ void FreeCastMode::update() {
             break;
     }
     
-    // NULL position tracking for exit gesture
-    if (currentPosition.position == POS_NULLPOS) {
-        if (nullPositionStartTime == 0) {
-            // Just entered NULL position
-            nullPositionStartTime = currentTime;
-            inNullCountdown = false;
+    // NULL position tracking for exit gesture (legacy support) - disabled
+    // if (currentPosition.position == POS_NULLPOS) {
+    //     if (nullPositionStartTime == 0) {
+    //         // Just entered NULL position
+    //         nullPositionStartTime = currentTime;
+    //         inNullCountdown = false;
+    //     }
+    //     
+    //     // Check for NULL countdown trigger (after 3 seconds)
+    //     if (!inNullCountdown && currentTime - nullPositionStartTime >= Config::LONGNULL_WARNING_MS) {
+    //         inNullCountdown = true;
+    //     }
+    // } else {
+    //     // Reset NULL tracking when position changes
+    //     nullPositionStartTime = 0;
+    //     inNullCountdown = false;
+    // }
+    
+    // SHIELD position tracking for exit gesture
+    if (currentPosition.position == POS_SHIELD) {
+        if (shieldPositionStartTime == 0) {
+            // Just entered SHIELD position
+            shieldPositionStartTime = currentTime;
+            inShieldCountdown = false;
         }
         
-        // Check for NULL countdown trigger (after 3 seconds)
-        if (!inNullCountdown && currentTime - nullPositionStartTime >= Config::LONGNULL_WARNING_MS) {
-            inNullCountdown = true;
+        // Check for SHIELD countdown trigger (after 3 seconds)
+        if (!inShieldCountdown && currentTime - shieldPositionStartTime >= Config::LONGSHIELD_WARNING_MS) {
+            inShieldCountdown = true;
         }
     } else {
-        // Reset NULL tracking when position changes
-        nullPositionStartTime = 0;
-        inNullCountdown = false;
+        // Reset SHIELD tracking when position changes
+        shieldPositionStartTime = 0;
+        inShieldCountdown = false;
     }
     
     // Update LEDs through renderLEDs() which will be called separately
@@ -166,28 +182,40 @@ void FreeCastMode::update() {
 
 // Check for transition to another mode
 ModeTransition FreeCastMode::checkForTransition() {
-    // Check for LongNull gesture to exit FreeCast mode
-    if (detectLongNullGesture()) {
+    // Check for LongShield gesture to exit FreeCast mode
+    if (detectLongShieldGesture()) {
         return ModeTransition::TO_IDLE;
     }
+    
+    // Legacy check disabled - only included for backward compatibility
+    // if (detectLongNullGesture()) {
+    //     return ModeTransition::TO_IDLE;
+    // }
     
     return ModeTransition::NONE;
 }
 
-// Detect LongNull gesture (hold NULL position for 5 seconds)
-bool FreeCastMode::detectLongNullGesture() {
-    // Check if we're in NULL position and have been for the required time
-    if (inNullCountdown && currentPosition.position == POS_NULLPOS) {
+// Detect LongShield gesture (hold SHIELD position for 5 seconds)
+bool FreeCastMode::detectLongShieldGesture() {
+    // Check if we're in SHIELD position and have been for the required time
+    if (inShieldCountdown && currentPosition.position == POS_SHIELD) {
         unsigned long currentTime = millis();
-        unsigned long nullDuration = currentTime - nullPositionStartTime;
+        unsigned long shieldDuration = currentTime - shieldPositionStartTime;
         
-        // Check if we've held NULL long enough (5 seconds)
-        if (nullDuration >= Config::LONGNULL_TIME_MS) {
-            inNullCountdown = false; // Reset to prevent repeated triggers
+        // Check if we've held SHIELD long enough (5 seconds)
+        if (shieldDuration >= Config::LONGSHIELD_TIME_MS) {
+            inShieldCountdown = false; // Reset to prevent repeated triggers
             return true;
         }
     }
     
+    return false;
+}
+
+// Legacy method for backward compatibility - will be removed in future
+bool FreeCastMode::detectLongNullGesture() {
+    // Disabled as part of LongNull to LongShield transition
+    // See chronicle_v6.md for details
     return false;
 }
 
@@ -223,16 +251,34 @@ void FreeCastMode::renderLEDs() {
             break;
     }
     
-    // Handle LongNull exit countdown (like in IdleMode)
-    if (inNullCountdown) {
-        unsigned long nullDuration = currentTime - nullPositionStartTime;
-        if (nullDuration >= Config::LONGNULL_WARNING_MS && nullDuration < Config::LONGNULL_TIME_MS) {
+    // Handle LongNull exit countdown - disabled
+    // if (inNullCountdown) {
+    //     unsigned long nullDuration = currentTime - nullPositionStartTime;
+    //     if (nullDuration >= Config::LONGNULL_WARNING_MS && nullDuration < Config::LONGNULL_TIME_MS) {
+    //         // Flash at 2Hz (250ms on, 250ms off)
+    //         if ((currentTime / 250) % 2 == 0) {
+    //             // On phase - show orange
+    //             Color orange = {255, 165, 0};
+    //             for (int i = 0; i < 4; i++) {
+    //                 hardwareManager->setLED(i * 3, orange);
+    //             }
+    //         }
+    //         // Off phase is handled by the initial clear
+    //     }
+    // }
+    
+    // Handle LongShield exit countdown
+    if (inShieldCountdown) {
+        unsigned long shieldDuration = currentTime - shieldPositionStartTime;
+        if (shieldDuration >= Config::LONGSHIELD_WARNING_MS && shieldDuration < Config::LONGSHIELD_TIME_MS) {
             // Flash at 2Hz (250ms on, 250ms off)
             if ((currentTime / 250) % 2 == 0) {
-                // On phase - show orange
-                Color orange = {255, 165, 0};
+                // Use Shield blue color
+                Color blue = {Config::Colors::SHIELD_COLOR[0], 
+                              Config::Colors::SHIELD_COLOR[1], 
+                              Config::Colors::SHIELD_COLOR[2]};
                 for (int i = 0; i < 4; i++) {
-                    hardwareManager->setLED(i * 3, orange);
+                    hardwareManager->setLED(i * 3, blue);
                 }
             }
             // Off phase is handled by the initial clear
@@ -315,8 +361,13 @@ float FreeCastMode::calculateMotionIntensity() {
         if (mag > maxMagnitude) maxMagnitude = mag;
     }
     
-    // Normalize to 0.0-1.0 range (capped at 15.0f which is ~1.5g)
-    return constrain(maxMagnitude / 15.0f, 0.1f, 1.0f);
+    // Normalize to 0.0-1.0 range (capped at 12.0f which is ~1.2g)
+    // Lowered from 15.0f to make it more sensitive to motion
+    float intensity = constrain(maxMagnitude / 12.0f, 0.1f, 1.0f);
+    
+    // Apply a curve to make small movements more noticeable
+    // (x^0.7 gives more response to lower values while preserving range)
+    return powf(intensity, 0.7f);
 }
 
 // Calculate motion directionality (consistency of direction)
@@ -350,15 +401,41 @@ float FreeCastMode::calculateDirectionality() {
 
 // Determine pattern type based on motion characteristics
 uint8_t FreeCastMode::determinePatternType() {
-    // Quick flicks: high intensity, high directionality
-    if (motionIntensity > 0.7f && motionDirectionality > 0.6f) {
-        return static_cast<uint8_t>(PatternType::SHOOTING_STARS);
+    // Use the dominant axis to influence pattern selection
+    float xMag = 0, yMag = 0, zMag = 0;
+    
+    // Calculate average magnitude for each axis
+    for (uint16_t i = 0; i < motionBufferCount; i++) {
+        xMag += abs(motionBuffer[i].accelX);
+        yMag += abs(motionBuffer[i].accelY);
+        zMag += abs(motionBuffer[i].accelZ);
+    }
+    xMag /= motionBufferCount;
+    yMag /= motionBufferCount;
+    zMag /= motionBufferCount;
+    
+    // Determine dominant axis
+    if (xMag > yMag && xMag > zMag) {
+        dominantAxis = 0; // X-axis dominant (side-to-side motion)
+    } else if (yMag > xMag && yMag > zMag) {
+        dominantAxis = 1; // Y-axis dominant (up-down motion)
+    } else {
+        dominantAxis = 2; // Z-axis dominant (forward-backward motion)
     }
     
-    // Circular motions: medium intensity, medium directionality
-    if (motionIntensity > 0.3f && motionIntensity < 0.7f && 
-        motionDirectionality > 0.4f && motionDirectionality < 0.7f) {
+    // X-axis dominant (side to side) -> COLOR_TRAILS
+    if (dominantAxis == 0 && motionIntensity > 0.3f) {
+        return static_cast<uint8_t>(PatternType::COLOR_TRAILS);
+    }
+    
+    // Y-axis dominant (up-down) -> WAVES
+    if (dominantAxis == 1 && motionIntensity > 0.3f) {
         return static_cast<uint8_t>(PatternType::WAVES);
+    }
+    
+    // Z-axis dominant (forward-backward) -> SHOOTING_STARS
+    if (dominantAxis == 2 && motionIntensity > 0.3f) {
+        return static_cast<uint8_t>(PatternType::SHOOTING_STARS);
     }
     
     // Shaking: high intensity, low directionality
@@ -366,18 +443,12 @@ uint8_t FreeCastMode::determinePatternType() {
         return static_cast<uint8_t>(PatternType::SPARKLES);
     }
     
-    // Directional movements: medium intensity, high directionality
-    if (motionIntensity > 0.3f && motionIntensity < 0.8f && 
-        motionDirectionality > 0.7f) {
-        return static_cast<uint8_t>(PatternType::COLOR_TRAILS);
-    }
-    
     // Sharp direction changes: variable intensity, medium directionality
-    if (motionDirectionality > 0.3f && motionDirectionality < 0.6f) {
+    if (motionDirectionality > 0.3f && motionDirectionality < 0.6f && motionIntensity > 0.4f) {
         return static_cast<uint8_t>(PatternType::PULSES);
     }
     
-    // Default to sparkles
+    // Default to sparkles for low intensity motion
     return static_cast<uint8_t>(PatternType::SPARKLES);
 }
 
@@ -462,6 +533,12 @@ void FreeCastMode::renderShootingStars(unsigned long elapsedTime) {
         // Calculate position based on time and star index
         uint8_t pos = ((elapsedTime / (200 - starSpeed)) + (star * 7)) % Config::NUM_LEDS;
         
+        // Each star has its own color based on position and time
+        // This ensures variety between stars and runs
+        CRGB headColor;
+        uint8_t starHue = (star * 40 + (elapsedTime / 50)) % 255; // Spaced hues, slowly shifting
+        headColor.setHSV(starHue, 255, 255); // Full saturation and brightness for head
+        
         // Create tail
         for (uint8_t tail = 0; tail < tailLength; tail++) {
             // Calculate tail position (wrapping around the ring)
@@ -470,15 +547,26 @@ void FreeCastMode::renderShootingStars(unsigned long elapsedTime) {
             // Calculate tail brightness (fading out)
             uint8_t brightness = 255 - ((255 * tail) / tailLength);
             
-            // Get color from palette
-            CRGB color = patternColors[star % 5];
+            // For tail colors, fade to white or yellow at the tips
+            CRGB tailColor;
+            
+            if (tail < tailLength / 3) {
+                // Head section - keep the star's color
+                tailColor = headColor;
+            } else {
+                // Tail section - blend toward white/yellow for a fiery effect
+                float blendFactor = (float)(tail - tailLength/3) / (tailLength - tailLength/3);
+                CRGB fadeColor = CRGB(255, 180, 0); // Yellowish/orange
+                tailColor = blend(headColor, fadeColor, blendFactor * 255);
+            }
             
             // Scale by brightness and intensity
-            uint8_t finalBrightness = ((brightness * motionIntensity) / 255) * 255;
-            color.nscale8(finalBrightness);
+            float intensityFactor = 0.4f + (motionIntensity * 0.6f); // 0.4-1.0 scaling
+            uint8_t finalBrightness = brightness * intensityFactor;
+            tailColor.nscale8(finalBrightness);
             
             // Set LED
-            hardwareManager->setLED(tailPos, {color.r, color.g, color.b});
+            hardwareManager->setLED(tailPos, {tailColor.r, tailColor.g, tailColor.b});
         }
     }
 }
@@ -486,21 +574,39 @@ void FreeCastMode::renderShootingStars(unsigned long elapsedTime) {
 // Render waves pattern (for circular motions)
 void FreeCastMode::renderWaves(unsigned long elapsedTime) {
     // Parameters based on motion
-    float speed = 0.05f + (motionIntensity * 0.2f); // Wave speed
-    float intensity = 0.5f + (motionIntensity * 0.5f); // Increased minimum intensity
+    float speed = 0.05f + (motionIntensity * 0.3f); // Increased wave speed responsiveness
+    float intensity = 0.5f + (motionIntensity * 0.5f); // Brightness intensity
+    
+    // Use directionality to control wave frequency
+    float waveFrequency = 1.0f + (motionDirectionality * 3.0f); // 1-4 waves based on directionality
     
     // Create wave effect around the ring
     for (int i = 0; i < Config::NUM_LEDS; i++) {
-        // Calculate wave phase for this LED
-        float phase = (float)i / Config::NUM_LEDS * TWO_PI + elapsedTime * speed;
+        // Calculate wave phase for this LED with frequency modulation
+        float phase = waveFrequency * ((float)i / Config::NUM_LEDS * TWO_PI) + elapsedTime * speed;
         
         // Generate sinusoidal wave
         float wave = (sinf(phase) + 1.0f) / 2.0f; // 0.0-1.0
         
         // Full rainbow color selection - HSV color wheel
         CRGB color;
-        uint8_t hue = (wave * 255) + (elapsedTime / 20) % 255; // Moving through the color wheel
-        color.setHSV(hue, 240, 255 * intensity); // Full saturation, brightness based on intensity
+        
+        // Use the full color wheel based on position and time
+        // Scale up the time division to make the colors shift more slowly
+        uint8_t hue = ((i * 21) + (elapsedTime / 30)) % 255;
+        
+        // Use the wave to vary the specific hue around the base
+        // Convert wave to an integer offset before using modulo
+        uint8_t waveOffset = (uint8_t)(wave * 30.0f);
+        hue = (hue + waveOffset) % 255;
+        
+        // Saturation based on directionality - more directional = more saturated
+        uint8_t sat = 200 + (motionDirectionality * 55); // 200-255
+        
+        // Brightness based on wave value and motion intensity
+        uint8_t val = 128 + (wave * 127 * intensity); // 128-255 with intensity scaling
+        
+        color.setHSV(hue, sat, val);
         
         // Set LED
         hardwareManager->setLED(i, {color.r, color.g, color.b});
@@ -520,16 +626,32 @@ void FreeCastMode::renderSparkles(unsigned long elapsedTime) {
     // Clear all LEDs first
     hardwareManager->setAllLEDs({0, 0, 0});
     
+    // Define a more varied color palette using preset colors
+    CRGB sparkleColors[] = {
+        CRGB(255, 0, 0),     // Red
+        CRGB(255, 255, 0),   // Yellow
+        CRGB(0, 255, 0),     // Green
+        CRGB(0, 255, 255),   // Cyan
+        CRGB(0, 0, 255),     // Blue
+        CRGB(255, 0, 255),   // Magenta
+        CRGB(255, 255, 255)  // White
+    };
+    
     // Create random sparkles
     for (uint8_t i = 0; i < numSparkles; i++) {
         // Random position
         uint8_t pos = random(Config::NUM_LEDS);
         
-        // Random color using HSV for more vibrant colors
-        CRGB color;
-        uint8_t hue = random(255); // Full color wheel
-        uint8_t brightness = 128 + random(128); // 128-255
-        color.setHSV(hue, 255, brightness); // Full saturation, random brightness
+        // Get a random color from our defined palette
+        CRGB color = sparkleColors[random(7)];
+        
+        // Random brightness with intensity scaling
+        uint8_t brightness = 128 + random(128); 
+        float scaling = 0.5f + (motionIntensity * 0.5f);  // Scale 50-100% based on motion
+        
+        color.r = color.r * scaling * brightness / 255;
+        color.g = color.g * scaling * brightness / 255;
+        color.b = color.b * scaling * brightness / 255;
         
         // Set LED
         hardwareManager->setLED(pos, {color.r, color.g, color.b});
@@ -539,7 +661,6 @@ void FreeCastMode::renderSparkles(unsigned long elapsedTime) {
 // Render color trails pattern (for directional movements)
 void FreeCastMode::renderColorTrails(unsigned long elapsedTime) {
     // Parameters based on motion
-    uint8_t trailLength = Config::NUM_LEDS; // Full ring gradient
     uint8_t speed = 50 + (motionIntensity * 150); // Rotation speed
     
     // Calculate position
@@ -556,19 +677,24 @@ void FreeCastMode::renderColorTrails(unsigned long elapsedTime) {
         // Normalize distance to 0-255
         uint8_t normalizedDistance = (distance * 255) / (Config::NUM_LEDS / 2);
         
-        // Select color based on distance
+        // Use HSV for more vibrant colors with a full rainbow spectrum
         CRGB color;
-        if (normalizedDistance < 85) {
-            color = blend(patternColors[0], patternColors[1], normalizedDistance * 3);
-        } else if (normalizedDistance < 170) {
-            color = blend(patternColors[1], patternColors[2], (normalizedDistance - 85) * 3);
-        } else {
-            color = blend(patternColors[2], patternColors[0], (normalizedDistance - 170) * 3);
-        }
         
-        // Apply intensity based on directionality
-        uint8_t brightness = 64 + (motionDirectionality * 191);
-        color.nscale8(brightness);
+        // Base hue depends on time, making the color pattern rotate over time
+        uint8_t baseHue = (elapsedTime / 20) % 255;
+        
+        // Add distance-based hue shift to create rainbow gradient
+        uint8_t hue = (baseHue + normalizedDistance) % 255;
+        
+        // Saturation based on directionality - more directional = more saturated
+        uint8_t sat = 200 + (motionDirectionality * 55); // 200-255
+        
+        // Brightness based on motion intensity and distance from center point
+        float falloff = 1.0f - (normalizedDistance / 255.0f) * 0.4f; // 0.6-1.0 range
+        uint8_t val = (200 + (motionIntensity * 55)) * falloff; // 120-255 with falloff
+        
+        // Set HSV color
+        color.setHSV(hue, sat, val);
         
         // Set LED
         hardwareManager->setLED(i, {color.r, color.g, color.b});
@@ -591,6 +717,13 @@ void FreeCastMode::renderPulses(unsigned long elapsedTime) {
         float radius = ((elapsedTime / pulseSpeed) + (pulse * 0.33f)) * Config::NUM_LEDS;
         radius = fmodf(radius, Config::NUM_LEDS * 1.5f); // Wrap around with gap
         
+        // Each pulse has its own color based on motion intensity
+        CRGB pulseColor;
+        uint8_t hue = (pulse * 85 + (elapsedTime / 30)) % 255; // Spaced evenly around color wheel
+        uint8_t sat = 200 + (motionDirectionality * 55); // 200-255 based on directionality
+        uint8_t val = 200 + (motionIntensity * 55); // 200-255 based on intensity
+        pulseColor.setHSV(hue, sat, val);
+        
         // Draw pulse
         for (int i = 0; i < Config::NUM_LEDS; i++) {
             // Calculate distance from pulse center (shortest path around ring)
@@ -604,10 +737,8 @@ void FreeCastMode::renderPulses(unsigned long elapsedTime) {
                 // Calculate intensity based on distance from radius edge
                 float intensity = 1.0f - fabsf((radius - distance) / 3.0f);
                 
-                // Select color
-                CRGB color = patternColors[pulse % 5];
-                
                 // Scale by intensity
+                CRGB color = pulseColor;
                 color.nscale8(intensity * 255);
                 
                 // Set LED

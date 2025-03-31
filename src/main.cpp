@@ -87,7 +87,7 @@ void handleModeTransition(ModeTransition transition) {
         freeCastMode.initialize();
       }
       
-      Serial.println("LongNull gesture detected! Transitioning to Freecast Mode");
+      Serial.println("LongShield gesture detected! Transitioning to Freecast Mode");
       break;
       
     case ModeTransition::TO_IDLE:

@@ -88,8 +88,10 @@ namespace Config {
   
   // Timing parameters
   constexpr uint16_t CALMOFFER_WINDOW_MS = 1000;  // Time window for CalmOffer gesture
-  constexpr uint16_t LONGNULL_TIME_MS = 5000;     // Time required for LongNull gesture
-  constexpr uint16_t LONGNULL_WARNING_MS = 3000;  // When to start flashing during LongNull
+  constexpr uint16_t LONGNULL_TIME_MS = 5000;     // Time required for LongNull gesture (deprecated)
+  constexpr uint16_t LONGNULL_WARNING_MS = 3000;  // When to start flashing during LongNull (deprecated)
+  constexpr uint16_t LONGSHIELD_TIME_MS = 5000;   // Time required for LongShield gesture
+  constexpr uint16_t LONGSHIELD_WARNING_MS = 3000; // When to start flashing during LongShield
   
   // Gesture detection parameters
   namespace Gestures {
@@ -134,6 +136,14 @@ namespace Config {
         {0, 255, 255},  // POS_CALM: Cyan
         {255, 127, 0}   // POS_UNDEFINED: Orange
     };
+    
+    // Countdown color constant for consistent usage
+    struct Color {
+      uint8_t r;
+      uint8_t g;
+      uint8_t b;
+    };
+    constexpr Color SHIELD_COUNTDOWN_COLOR = {0, 0, 255}; // Blue for Shield countdown
   }
 
   // System power states
