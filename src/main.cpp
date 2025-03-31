@@ -35,6 +35,7 @@ UltraBasicPositionDetector positionDetector;
 IdleMode idleMode;
 FreeCastMode freeCastMode;
 unsigned long lastUpdateTime = 0;
+unsigned long invocationModeStartTime = 0; // Track Invocation Mode start time
 
 // Use existing SystemMode enum from SystemTypes.h
 SystemMode currentMode = MODE_IDLE;
@@ -50,11 +51,14 @@ Color positionColor;
 void handleModeTransition(ModeTransition transition) {
   // Create color variables outside the switch to avoid jump issues
   Color purple = {128, 0, 128};
-  Color orange = {255, 165, 0};
+  Color shieldBlue = {Config::Colors::SHIELD_COLOR[0], 
+                      Config::Colors::SHIELD_COLOR[1], 
+                      Config::Colors::SHIELD_COLOR[2]};
   
   switch (transition) {
     case ModeTransition::TO_INVOCATION:
       currentMode = MODE_INVOCATION;
+      invocationModeStartTime = millis(); // Reset animation start time
       
       // Visual feedback for Invocation Mode transition - purple flash
       for (int i = 0; i < 3; i++) {
@@ -72,9 +76,9 @@ void handleModeTransition(ModeTransition transition) {
     case ModeTransition::TO_FREECAST:
       currentMode = MODE_FREECAST;
       
-      // Visual feedback for Freecast Mode transition - orange flash
+      // Visual feedback for Freecast Mode transition - shield blue flash
       for (int i = 0; i < 3; i++) {
-        hardware->setAllLEDs(orange);
+        hardware->setAllLEDs(shieldBlue);
         hardware->updateLEDs();
         delay(100);
         hardware->setAllLEDs({0, 0, 0});
@@ -93,9 +97,9 @@ void handleModeTransition(ModeTransition transition) {
     case ModeTransition::TO_IDLE:
       currentMode = MODE_IDLE;
       
-      // Visual feedback for returning to Idle Mode - orange flash
+      // Visual feedback for returning to Idle Mode - shield blue flash
       for (int i = 0; i < 3; i++) {
-        hardware->setAllLEDs(orange);
+        hardware->setAllLEDs(shieldBlue);
         hardware->updateLEDs();
         delay(100);
         hardware->setAllLEDs({0, 0, 0});
@@ -296,11 +300,10 @@ void loop() {
     } else if (currentMode == MODE_INVOCATION) {
       // Placeholder for Invocation Mode with rainbow animation
       // Will be fully implemented in future phase
-      static unsigned long modeStartTime = currentTime;
-      static unsigned long animationDuration = 6000; // Rainbow animation for 6 seconds
+      unsigned long animationDuration = 6000; // Rainbow animation for 6 seconds
       
       // Generate a dazzling rainbow pattern
-      unsigned long animationElapsed = currentTime - modeStartTime;
+      unsigned long animationElapsed = currentTime - invocationModeStartTime;
       
       if (animationElapsed < animationDuration) {
         // Create a dazzling rainbow pattern that rotates around the ring

@@ -72,20 +72,38 @@ const PROGMEM AnimationFrame invocationTransition[] = {
   }
 };
 
-// Transition to Freecast (orange flash)
+// Transition to Freecast (shield blue flash)
 const PROGMEM AnimationFrame freecastTransition[] = {
-  // Frame 1: All LEDs orange (50% brightness)
+  // Frame 1: All LEDs shield blue (50% brightness)
   {
-    {{128, 82, 0}, {128, 82, 0}, {128, 82, 0}, {128, 82, 0},
-     {128, 82, 0}, {128, 82, 0}, {128, 82, 0}, {128, 82, 0},
-     {128, 82, 0}, {128, 82, 0}, {128, 82, 0}, {128, 82, 0}}, 
+    {{Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2}, 
+     {Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2}, 
+     {Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2}, 
+     {Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2},
+     {Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2}, 
+     {Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2}, 
+     {Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2}, 
+     {Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2},
+     {Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2}, 
+     {Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2}, 
+     {Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2}, 
+     {Config::Colors::SHIELD_COLOR[0]/2, Config::Colors::SHIELD_COLOR[1]/2, Config::Colors::SHIELD_COLOR[2]/2}}, 
     5  // 50ms duration
   },
-  // Frame 2: All LEDs orange (100% brightness)
+  // Frame 2: All LEDs shield blue (100% brightness)
   {
-    {{255, 165, 0}, {255, 165, 0}, {255, 165, 0}, {255, 165, 0},
-     {255, 165, 0}, {255, 165, 0}, {255, 165, 0}, {255, 165, 0},
-     {255, 165, 0}, {255, 165, 0}, {255, 165, 0}, {255, 165, 0}}, 
+    {{Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}, 
+     {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}, 
+     {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}, 
+     {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]},
+     {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}, 
+     {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}, 
+     {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}, 
+     {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]},
+     {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}, 
+     {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}, 
+     {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}, 
+     {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}}, 
     10 // 100ms duration
   },
   // Frame 3: All LEDs off

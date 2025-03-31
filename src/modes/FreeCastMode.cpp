@@ -230,13 +230,15 @@ void FreeCastMode::renderLEDs() {
     
     switch (currentState) {
         case FreeCastState::INITIALIZING:
-            // Orange sweep pattern for initialization
+            // Shield blue sweep pattern for initialization
             {
-                Color orange = {255, 165, 0};
+                Color shieldBlue = {Config::Colors::SHIELD_COLOR[0], 
+                                  Config::Colors::SHIELD_COLOR[1], 
+                                  Config::Colors::SHIELD_COLOR[2]};
                 int pos = (elapsedTime / 50) % Config::NUM_LEDS;
-                hardwareManager->setLED(pos, orange);
-                hardwareManager->setLED((pos + 1) % Config::NUM_LEDS, orange);
-                hardwareManager->setLED((pos + 2) % Config::NUM_LEDS, orange);
+                hardwareManager->setLED(pos, shieldBlue);
+                hardwareManager->setLED((pos + 1) % Config::NUM_LEDS, shieldBlue);
+                hardwareManager->setLED((pos + 2) % Config::NUM_LEDS, shieldBlue);
             }
             break;
             
