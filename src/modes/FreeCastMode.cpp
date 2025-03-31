@@ -349,6 +349,11 @@ void FreeCastMode::analyzeMotionData() {
 
 // Calculate motion intensity from acceleration data
 float FreeCastMode::calculateMotionIntensity() {
+    // Guard against division by zero or insufficient data
+    if (motionBufferCount == 0) {
+        return 0.1f; // Default low intensity
+    }
+    
     float totalMagnitude = 0.0f;
     float maxMagnitude = 0.0f;
     
@@ -365,6 +370,11 @@ float FreeCastMode::calculateMotionIntensity() {
     
     // Normalize to 0.0-1.0 range (capped at 12.0f which is ~1.2g)
     // Lowered from 15.0f to make it more sensitive to motion
+    // Guard against division by zero (if maxMagnitude is near-zero)
+    if (maxMagnitude < 0.0001f) {
+        return 0.1f; // Default low intensity for minimal motion
+    }
+    
     float intensity = constrain(maxMagnitude / 12.0f, 0.1f, 1.0f);
     
     // Apply a curve to make small movements more noticeable
@@ -375,6 +385,11 @@ float FreeCastMode::calculateMotionIntensity() {
 // Calculate motion directionality (consistency of direction)
 float FreeCastMode::calculateDirectionality() {
     // Simple implementation - would be more sophisticated with gyro data
+    
+    // Guard against division by zero
+    if (motionBufferCount == 0) {
+        return 0.5f; // Default medium directionality
+    }
     
     // Calculate mean direction vector
     float meanX = 0.0f, meanY = 0.0f, meanZ = 0.0f;
@@ -394,15 +409,31 @@ float FreeCastMode::calculateDirectionality() {
                     sq(motionBuffer[i].accelY - meanY) +
                     sq(motionBuffer[i].accelZ - meanZ);
     }
+    
+    // Guard against division by zero before dividing variance by count
+    if (motionBufferCount == 0) {
+        return 0.5f; // Default medium directionality
+    }
+    
     variance /= motionBufferCount;
     
     // Convert variance to directionality (inverse relationship)
     // Higher variance = lower directionality
+    // Guard against division by zero (if variance is near-zero)
+    if (variance < 0.0001f) {
+        return 0.9f; // High directionality when variance is extremely low
+    }
+    
     return constrain(1.0f - (variance / 50.0f), 0.1f, 0.9f);
 }
 
 // Determine pattern type based on motion characteristics
 uint8_t FreeCastMode::determinePatternType() {
+    // Guard against division by zero
+    if (motionBufferCount == 0) {
+        return static_cast<uint8_t>(PatternType::SPARKLES); // Default pattern
+    }
+    
     // Use the dominant axis to influence pattern selection
     float xMag = 0, yMag = 0, zMag = 0;
     
@@ -412,6 +443,12 @@ uint8_t FreeCastMode::determinePatternType() {
         yMag += abs(motionBuffer[i].accelY);
         zMag += abs(motionBuffer[i].accelZ);
     }
+    
+    // Guard against division by zero before calculating averages
+    if (motionBufferCount == 0) {
+        return static_cast<uint8_t>(PatternType::SPARKLES); // Default pattern
+    }
+    
     xMag /= motionBufferCount;
     yMag /= motionBufferCount;
     zMag /= motionBufferCount;
@@ -498,6 +535,21 @@ void FreeCastMode::renderBackgroundAnimation() {
 
 // Render the current pattern based on pattern type
 void FreeCastMode::renderCurrentPattern(unsigned long elapsedTime) {
+    // Ensure we have at least some motion data before trying to render patterns
+    // This provides an extra layer of protection against division by zero in the renderers
+    if (motionBufferCount == 0) {
+        // If no motion data, just show a simple default pattern
+        // Create a simple pulsing effect on all LEDs
+        uint8_t pulse = (sin8(elapsedTime / 20) * 128) / 255 + 40; // 40-168 brightness pulse
+        CRGB color = CRGB(pulse, pulse, pulse); // White pulsing
+        
+        for (int i = 0; i < Config::NUM_LEDS; i++) {
+            hardwareManager->setLED(i, {color.r, color.g, color.b});
+        }
+        return;
+    }
+    
+    // Regular rendering with pattern selection
     switch (currentPatternType) {
         case PatternType::SHOOTING_STARS:
             renderShootingStars(elapsedTime);
@@ -525,7 +577,8 @@ void FreeCastMode::renderShootingStars(unsigned long elapsedTime) {
     // Parameters based on motion
     uint8_t numStars = 1 + (motionIntensity * 3); // 1-4 shooting stars
     uint8_t starSpeed = 50 + (motionIntensity * 200); // Speed factor
-    uint8_t tailLength = 3 + (motionIntensity * 6); // 3-9 LEDs
+    // Ensure tailLength is never zero by using max()
+    uint8_t tailLength = max(1, 3 + (int)(motionIntensity * 6)); // 3-9 LEDs, guaranteed at least 1
     
     // Clear all LEDs first
     hardwareManager->setAllLEDs({0, 0, 0});
@@ -547,6 +600,7 @@ void FreeCastMode::renderShootingStars(unsigned long elapsedTime) {
             uint8_t tailPos = (pos + Config::NUM_LEDS - tail) % Config::NUM_LEDS;
             
             // Calculate tail brightness (fading out)
+            // tailLength is now guaranteed to be at least 1
             uint8_t brightness = 255 - ((255 * tail) / tailLength);
             
             // For tail colors, fade to white or yellow at the tips
@@ -557,7 +611,9 @@ void FreeCastMode::renderShootingStars(unsigned long elapsedTime) {
                 tailColor = headColor;
             } else {
                 // Tail section - blend toward white/yellow for a fiery effect
-                float blendFactor = (float)(tail - tailLength/3) / (tailLength - tailLength/3);
+                // Guard against division by zero or very small divisor
+                float divisor = max(1.0f, (float)(tailLength - tailLength/3));
+                float blendFactor = (float)(tail - tailLength/3) / divisor;
                 CRGB fadeColor = CRGB(255, 180, 0); // Yellowish/orange
                 tailColor = blend(headColor, fadeColor, blendFactor * 255);
             }
@@ -583,9 +639,12 @@ void FreeCastMode::renderWaves(unsigned long elapsedTime) {
     float waveFrequency = 1.0f + (motionDirectionality * 3.0f); // 1-4 waves based on directionality
     
     // Create wave effect around the ring
-    for (int i = 0; i < Config::NUM_LEDS; i++) {
+    int numLeds = (Config::NUM_LEDS > 0) ? Config::NUM_LEDS : 1; // Ensure NUM_LEDS is at least 1
+    
+    for (int i = 0; i < numLeds; i++) {
         // Calculate wave phase for this LED with frequency modulation
-        float phase = waveFrequency * ((float)i / Config::NUM_LEDS * TWO_PI) + elapsedTime * speed;
+        // Guard against division by zero by ensuring denominator is at least 1
+        float phase = waveFrequency * ((float)i / numLeds * TWO_PI) + elapsedTime * speed;
         
         // Generate sinusoidal wave
         float wave = (sinf(phase) + 1.0f) / 2.0f; // 0.0-1.0
@@ -608,6 +667,7 @@ void FreeCastMode::renderWaves(unsigned long elapsedTime) {
         // Brightness based on wave value and motion intensity
         uint8_t val = 128 + (wave * 127 * intensity); // 128-255 with intensity scaling
         
+        // Set HSV color
         color.setHSV(hue, sat, val);
         
         // Set LED
@@ -665,8 +725,11 @@ void FreeCastMode::renderColorTrails(unsigned long elapsedTime) {
     // Parameters based on motion
     uint8_t speed = 50 + (motionIntensity * 150); // Rotation speed
     
+    // Ensure we don't divide by zero in position calculation
+    uint8_t speedForCalculation = (speed < 199) ? speed : 199; // Prevent 200-speed from being zero
+    
     // Calculate position
-    uint8_t pos = (elapsedTime / (200 - speed)) % Config::NUM_LEDS;
+    uint8_t pos = (elapsedTime / (200 - speedForCalculation)) % Config::NUM_LEDS;
     
     // Create gradient around the ring
     for (int i = 0; i < Config::NUM_LEDS; i++) {
@@ -677,7 +740,13 @@ void FreeCastMode::renderColorTrails(unsigned long elapsedTime) {
         );
         
         // Normalize distance to 0-255
-        uint8_t normalizedDistance = (distance * 255) / (Config::NUM_LEDS / 2);
+        // Guard against division by zero by ensuring denominator is at least 1
+        uint8_t normalizedDistance;
+        if (Config::NUM_LEDS > 1) {
+            normalizedDistance = (distance * 255) / (Config::NUM_LEDS / 2);
+        } else {
+            normalizedDistance = 0; // Default if NUM_LEDS is invalid
+        }
         
         // Use HSV for more vibrant colors with a full rainbow spectrum
         CRGB color;
@@ -706,7 +775,8 @@ void FreeCastMode::renderColorTrails(unsigned long elapsedTime) {
 // Render pulses pattern (for sharp direction changes)
 void FreeCastMode::renderPulses(unsigned long elapsedTime) {
     // Parameters based on motion
-    uint8_t numPulses = 1 + (motionIntensity * 2); // 1-3 pulses
+    // Ensure numPulses is never zero by using max()
+    uint8_t numPulses = max(1, 1 + (int)(motionIntensity * 2)); // 1-3 pulses, guaranteed at least 1
     uint8_t pulseSpeed = 100 + (motionIntensity * 400); // Expansion speed
     
     // Clear all LEDs first
@@ -714,7 +784,7 @@ void FreeCastMode::renderPulses(unsigned long elapsedTime) {
     
     // Create pulses
     for (uint8_t pulse = 0; pulse < numPulses; pulse++) {
-        // Calculate pulse center and radius
+        // Calculate pulse center and radius - numPulses is now guaranteed to be at least 1
         uint8_t center = (pulse * Config::NUM_LEDS / numPulses); // Evenly spaced
         float radius = ((elapsedTime / pulseSpeed) + (pulse * 0.33f)) * Config::NUM_LEDS;
         radius = fmodf(radius, Config::NUM_LEDS * 1.5f); // Wrap around with gap
