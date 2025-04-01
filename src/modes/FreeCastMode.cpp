@@ -204,6 +204,37 @@ ModeTransition FreeCastMode::update() {
     return ModeTransition::NONE; // Stay in FreeCast mode if no transition detected
 }
 
+// Add the missing renderLEDs function definition
+void FreeCastMode::renderLEDs() {
+    unsigned long currentTime = millis();
+    
+    // Prioritize exit countdown flashing
+    if (inShieldCountdown) {
+        // Flash blue LEDs during the countdown
+        bool flashState = (currentTime / 250) % 2; // Simple on/off flash every 250ms
+        // Use the project's Color struct
+        hardwareManager->setAllLEDs(flashState ? Color{0, 0, 255} : Color{0, 0, 0}); 
+    } else {
+        // Otherwise, render based on the current state
+        switch (currentState) {
+            case FreeCastState::INITIALIZING:
+                // Use the project's Color struct
+                hardwareManager->setAllLEDs(Color{0, 0, 0}); // Clear LEDs during init
+                break;
+            case FreeCastState::RECORDING:
+                renderBackgroundAnimation();
+                break;
+            case FreeCastState::DISPLAYING:
+                // Calculate elapsed time *within the display phase* for pattern rendering
+                renderCurrentPattern(currentTime - phaseStartTime); 
+                break;
+        }
+    }
+    
+    // Always update the LEDs after setting them
+    hardwareManager->updateLEDs();
+}
+
 // Collect motion data during recording phase
 void FreeCastMode::collectMotionData() {
     // Get current processed sensor data

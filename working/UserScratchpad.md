@@ -423,3 +423,13 @@ Issues that were present before this implementation, but I only noticed/remember
 
 
 Take no action yet. Analysis only. Thoroughly examine the code and the issues i've outlined above. Develop a comprehensive plan to address all of them, in the order that makes the most sense - if we should thoroughly finish the longNull - longShield switch first, then recommend as such, or if another course makes sense, say so. Give a detailed and thorough report on these issues, and an outline of a plan to address them. Focus primarily on identifying root causes - we can focus on robust fixes and implementations later. Analyze and report. 
+
+
+
+Gemini Implementation Report
+
+- Standard position detection still works excellently. Colors are correct (updated) and transitions look amazing.
+
+- No QuickCast detections seem to work, nor spell effects display. QuickCast is completely nonfunctional, including having lost the previous functionality of the CalmOffer trigger.
+
+- FreeCast trigger in and out works, but FreeCast mode is now broken - the 2-second back-and-forth record/display cycle doesn't work anymore. 

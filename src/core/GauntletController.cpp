@@ -124,6 +124,7 @@ void GauntletController::update() {
 
         case SystemMode::FREECAST:
             modeTransition = freecastMode->update();
+            freecastMode->renderLEDs();
             break;
             
         default:
