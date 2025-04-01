@@ -222,6 +222,18 @@ The project uses a simplified environment scheme to maintain clarity and focus:
 
 The functionTest environment is designed to be reconfigured for each new testing need. When a new test is required, the existing test code should be archived to archive/tests/ before the environment is updated with new test code.
 
+## Position Color Standardization
+
+| Position | Color   | RGB Value      |
+|----------|---------|----------------|
+| OFFER    | Purple  | (128, 0, 255)  |
+| CALM     | Blue    | (0, 0, 255)    |
+| OATH     | Yellow  | (255, 255, 0)  |
+| DIG      | Green   | (0, 255, 0)    |
+| SHIELD   | Pink    | (255, 105, 180)|
+| NULL     | Red     | (255, 0, 0)    |
+| UNKNOWN  | White   | (255, 255, 255)|
+
 ### Development Protocols
 
 #### Chronicle Transition Protocol

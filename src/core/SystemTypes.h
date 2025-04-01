@@ -41,11 +41,11 @@ enum class ModeTransition {
  */
 enum HandPosition {
   POS_OFFER,    // Hand forward, Palm Up (Purple)
-  POS_CALM,     // Hand forward, Palm Down (Yellow)
-  POS_OATH,     // Hand pointing upwards (Red)
+  POS_CALM,     // Hand forward, Palm Down (Blue)
+  POS_OATH,     // Hand pointing upwards (Yellow)
   POS_DIG,      // Hand pointing downwards (Green)
-  POS_SHIELD,   // Hand to the side, Palm Out (Blue)
-  POS_NULLPOS,  // Hand to the side, Palm In (Orange)
+  POS_SHIELD,   // Hand to the side, Palm Out (Pink)
+  POS_NULLPOS,  // Hand to the side, Palm In (Red)
   POS_UNKNOWN   // Default/Unclear (White)
 };
 

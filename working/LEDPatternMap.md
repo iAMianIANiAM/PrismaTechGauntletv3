@@ -19,12 +19,12 @@ These patterns directly reflect the current hand position.
   4. Update applied via `HardwareManager::updateLEDs()`
 
 #### Position-to-Color Mapping
-- **Offer**: Purple (128, 0, 128)
-- **Calm**: Yellow (255, 255, 0)
-- **Oath**: Red (255, 0, 0)
+- **Offer**: Purple (128, 0, 255)
+- **Calm**: Blue (0, 0, 255)
+- **Oath**: Yellow (255, 255, 0)
 - **Dig**: Green (0, 255, 0)
-- **Shield**: Blue (0, 0, 255)
-- **Null**: Orange (255, 165, 0)
+- **Shield**: Pink (255, 105, 180)
+- **Null**: Red (255, 0, 0)
 - **Unknown**: White (255, 255, 255)
 
 ### 2. Gesture Countdown Patterns

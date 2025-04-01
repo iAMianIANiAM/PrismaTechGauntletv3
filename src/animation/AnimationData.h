@@ -27,12 +27,12 @@ namespace AnimColors {
   const PROGMEM uint8_t ORANGE[3] = {255, 165, 0};
   
   // Position colors (matching Config.h)
-  const PROGMEM uint8_t OFFER[3] = {128, 0, 128};    // Purple
-  const PROGMEM uint8_t CALM[3] = {255, 255, 0};     // Yellow
-  const PROGMEM uint8_t OATH[3] = {255, 0, 0};       // Red
+  const PROGMEM uint8_t OFFER[3] = {128, 0, 255};    // Purple
+  const PROGMEM uint8_t CALM[3] = {0, 0, 255};       // Blue  
+  const PROGMEM uint8_t OATH[3] = {255, 255, 0};     // Yellow
   const PROGMEM uint8_t DIG[3] = {0, 255, 0};        // Green
-  const PROGMEM uint8_t SHIELD[3] = {0, 0, 255};     // Blue
-  const PROGMEM uint8_t NULL_POS[3] = {255, 165, 0}; // Orange
+  const PROGMEM uint8_t SHIELD[3] = {255, 105, 180}; // Pink
+  const PROGMEM uint8_t NULL_POS[3] = {255, 0, 0};   // Red
   
   // Spell effect colors
   const PROGMEM uint8_t INFERNO_BASE[3] = {255, 60, 0};  // Deep orange-red
