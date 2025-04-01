@@ -57,3 +57,44 @@ Key priorities for the next development phase:
 4. Transition logic from Invocation Mode to Resolution Mode
 
 All core subsystems are now functioning correctly after addressing the FreeCast Mode crash issues. The division-by-zero protection measures have been verified through extensive testing, confirming the system's stability during all motion patterns. 
+
+## 📋 Implementation Failure Post-Mortem (202504010010)
+
+⚠️ ISSUE: A catastrophic implementation failure occurred during the color reassignment plan execution. The main.cpp file containing the core program functionality was inadvertently overwritten with a newly created ColorTest.cpp test harness, effectively destroying the main application code. Recovery required a full Git revert to a previous working state, resulting in several hours of lost work.
+
+🧠 INSIGHT: This failure highlights two critical process weaknesses:
+1. The proposed test harness (ColorTest.cpp) violated our guiding principle of "no more complex than absolutely necessary to function" - the LED patterns could have been verified during normal device operation without creating a separate test script.
+2. Insufficient review of the implementation proposal on both sides allowed an unnecessarily complex approach to proceed without proper scrutiny.
+
+✅ RESOLUTION: The project has been successfully restored to a working state via Git revert. Moving forward, we'll implement a simplified color reassignment approach that:
+1. Adds the necessary utility functions to centralize color references
+2. Updates existing code without creating separate test harnesses
+3. Makes minimal, focused changes to achieve standardization
+4. Never replaces or overwrites core application files
+
+📌 DECISION: All future implementation plans, especially those involving file creation or modification of core components, will receive heightened scrutiny to ensure alignment with our "minimum necessary complexity" principle. 
+
+## 📋 Color Standardization Implementation (202504011230)
+
+✅ RESOLUTION: Successfully implemented the color standardization plan across the codebase. The following changes were made in a single commit:
+
+1. Updated Config.h color constants to the standardized color values:
+   - OFFER: Purple (128, 0, 255)
+   - CALM: Blue (0, 0, 255)
+   - OATH: Yellow (255, 255, 0)
+   - DIG: Green (0, 255, 0)
+   - SHIELD: Pink (255, 105, 180)
+   - NULL: Red (255, 0, 0)
+   - UNKNOWN: White (255, 255, 255)
+
+2. Updated SystemTypes.h HandPosition enum comments to reflect the new color names.
+
+3. Updated AnimationData.h position color constants to match Config.h.
+
+4. Updated LEDPatternMap.md documentation to reflect the standardized colors.
+
+5. Added a Position Color Standardization section to the glossary.md.
+
+The changes were implemented on a dedicated branch (colorChange) to allow for easy rollback if needed. Visual inspection confirms that the LED colors are now correctly matching the standardized values defined in the documentation.
+
+🧠 INSIGHT: Following the simplified approach significantly reduced implementation time from the original estimate of nearly 3 hours to approximately 45 minutes, while still achieving the core objective of color standardization. This reinforces our "minimum necessary complexity" principle. 
