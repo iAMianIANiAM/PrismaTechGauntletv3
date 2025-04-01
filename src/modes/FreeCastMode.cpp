@@ -78,13 +78,51 @@ void FreeCastMode::initialize() {
 }
 
 // Main update function - called repeatedly
-void FreeCastMode::update() {
+ModeTransition FreeCastMode::update() {
     // Get current time
     unsigned long currentTime = millis();
     unsigned long elapsedTime = currentTime - phaseStartTime;
     
     // Update position for exit gesture detection
     currentPosition = positionDetector->update();
+    
+    // --- Exit Gesture Detection --- 
+    // SHIELD position tracking for exit gesture
+    if (currentPosition.position == POS_SHIELD) {
+        if (shieldPositionStartTime == 0) {
+            // Just entered SHIELD position
+            shieldPositionStartTime = currentTime;
+            inShieldCountdown = false;
+        }
+        
+        // Check for SHIELD countdown trigger (after 3 seconds)
+        if (!inShieldCountdown && currentTime - shieldPositionStartTime >= Config::LONGSHIELD_WARNING_MS) {
+            inShieldCountdown = true;
+            #ifdef DEBUG_MODE
+            Serial.println(F("FreeCast Mode: Shield countdown started"));
+            #endif
+        }
+        
+        // Check if LongShield gesture is complete to exit FreeCast mode
+        if (inShieldCountdown && currentTime - shieldPositionStartTime >= Config::LONGSHIELD_TIME_MS) {
+            #ifdef DEBUG_MODE
+            Serial.println(F("FreeCast Mode: LongShield detected! Exiting."));
+            #endif
+            initialize(); // Reset state before exiting
+            return ModeTransition::TO_IDLE;
+        }
+        
+    } else {
+        // Reset SHIELD tracking when position changes
+        if (shieldPositionStartTime != 0) { // Only print/reset if it was active
+            #ifdef DEBUG_MODE
+            if (inShieldCountdown) Serial.println(F("FreeCast Mode: Shield countdown aborted"));
+            #endif
+            shieldPositionStartTime = 0;
+            inShieldCountdown = false;
+        }
+    }
+    // --- End Exit Gesture Detection ---
     
     // Check which state we're in and handle accordingly
     switch (currentState) {
@@ -159,136 +197,11 @@ void FreeCastMode::update() {
     //     inNullCountdown = false;
     // }
     
-    // SHIELD position tracking for exit gesture
-    if (currentPosition.position == POS_SHIELD) {
-        if (shieldPositionStartTime == 0) {
-            // Just entered SHIELD position
-            shieldPositionStartTime = currentTime;
-            inShieldCountdown = false;
-        }
-        
-        // Check for SHIELD countdown trigger (after 3 seconds)
-        if (!inShieldCountdown && currentTime - shieldPositionStartTime >= Config::LONGSHIELD_WARNING_MS) {
-            inShieldCountdown = true;
-        }
-    } else {
-        // Reset SHIELD tracking when position changes
-        shieldPositionStartTime = 0;
-        inShieldCountdown = false;
-    }
+    // SHIELD position tracking moved to the top for exit check
     
     // Update LEDs through renderLEDs() which will be called separately
-}
-
-// Check for transition to another mode
-ModeTransition FreeCastMode::checkForTransition() {
-    // Check for LongShield gesture to exit FreeCast mode
-    if (detectLongShieldGesture()) {
-        return ModeTransition::TO_IDLE;
-    }
     
-    // Legacy check disabled - only included for backward compatibility
-    // if (detectLongNullGesture()) {
-    //     return ModeTransition::TO_IDLE;
-    // }
-    
-    return ModeTransition::NONE;
-}
-
-// Detect LongShield gesture (hold SHIELD position for 5 seconds)
-bool FreeCastMode::detectLongShieldGesture() {
-    // Check if we're in SHIELD position and have been for the required time
-    if (inShieldCountdown && currentPosition.position == POS_SHIELD) {
-        unsigned long currentTime = millis();
-        unsigned long shieldDuration = currentTime - shieldPositionStartTime;
-        
-        // Check if we've held SHIELD long enough (5 seconds)
-        if (shieldDuration >= Config::LONGSHIELD_TIME_MS) {
-            inShieldCountdown = false; // Reset to prevent repeated triggers
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-// Legacy method for backward compatibility - will be removed in future
-bool FreeCastMode::detectLongNullGesture() {
-    // Disabled as part of LongNull to LongShield transition
-    // See chronicle_v6.md for details
-    return false;
-}
-
-// Render LEDs based on current state
-void FreeCastMode::renderLEDs() {
-    // Clear all LEDs first
-    hardwareManager->setAllLEDs({0, 0, 0});
-    
-    // Handle rendering based on state
-    unsigned long currentTime = millis();
-    unsigned long elapsedTime = currentTime - phaseStartTime;
-    
-    switch (currentState) {
-        case FreeCastState::INITIALIZING:
-            // Shield blue sweep pattern for initialization
-            {
-                Color shieldBlue = {Config::Colors::SHIELD_COLOR[0], 
-                                  Config::Colors::SHIELD_COLOR[1], 
-                                  Config::Colors::SHIELD_COLOR[2]};
-                int pos = (elapsedTime / 50) % Config::NUM_LEDS;
-                hardwareManager->setLED(pos, shieldBlue);
-                hardwareManager->setLED((pos + 1) % Config::NUM_LEDS, shieldBlue);
-                hardwareManager->setLED((pos + 2) % Config::NUM_LEDS, shieldBlue);
-            }
-            break;
-            
-        case FreeCastState::RECORDING:
-            // Subtle background animation during recording
-            renderBackgroundAnimation();
-            break;
-            
-        case FreeCastState::DISPLAYING:
-            // Show generated pattern
-            renderCurrentPattern(elapsedTime);
-            break;
-    }
-    
-    // Handle LongNull exit countdown - disabled
-    // if (inNullCountdown) {
-    //     unsigned long nullDuration = currentTime - nullPositionStartTime;
-    //     if (nullDuration >= Config::LONGNULL_WARNING_MS && nullDuration < Config::LONGNULL_TIME_MS) {
-    //         // Flash at 2Hz (250ms on, 250ms off)
-    //         if ((currentTime / 250) % 2 == 0) {
-    //             // On phase - show orange
-    //             Color orange = {255, 165, 0};
-    //             for (int i = 0; i < 4; i++) {
-    //                 hardwareManager->setLED(i * 3, orange);
-    //             }
-    //         }
-    //         // Off phase is handled by the initial clear
-    //     }
-    // }
-    
-    // Handle LongShield exit countdown
-    if (inShieldCountdown) {
-        unsigned long shieldDuration = currentTime - shieldPositionStartTime;
-        if (shieldDuration >= Config::LONGSHIELD_WARNING_MS && shieldDuration < Config::LONGSHIELD_TIME_MS) {
-            // Flash at 2Hz (250ms on, 250ms off)
-            if ((currentTime / 250) % 2 == 0) {
-                // Use Shield blue color
-                Color blue = {Config::Colors::SHIELD_COLOR[0], 
-                              Config::Colors::SHIELD_COLOR[1], 
-                              Config::Colors::SHIELD_COLOR[2]};
-                for (int i = 0; i < 4; i++) {
-                    hardwareManager->setLED(i * 3, blue);
-                }
-            }
-            // Off phase is handled by the initial clear
-        }
-    }
-    
-    // Update the LED display
-    hardwareManager->updateLEDs();
+    return ModeTransition::NONE; // Stay in FreeCast mode if no transition detected
 }
 
 // Collect motion data during recording phase

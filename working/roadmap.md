@@ -96,15 +96,16 @@ Next focus areas are gesture detection implementation and Invocation Mode develo
 
 | Feature | Status | Dependencies | Notes |
 |---------|--------|--------------|-------|
-| Hardware Interface | 🟢 VERIFIED | N/A | MPU communication successfully implemented |
-| Ultra Basic Position Detection | 🟢 VERIFIED | Hardware Interface | Full implementation verified with hardware testing |
-| Idle Mode | 🟢 VERIFIED | UBPD | Successfully implemented and tested |
-| Gesture Detection | 🟡 IN PROGRESS | UBPD, Idle Mode | Framework exists, implementation underway |
-| Invocation Mode | 🟠 PLANNED | Gesture Detection | Design finalized, implementation pending |
-| Resolution Mode | 🟠 PLANNED | Invocation Mode | Design in progress |
-| Freecast Mode | 🟠 PLANNED | UBPD | Initial design completed |
-| Power Management | 🟠 PLANNED | All Modes | Initial implementation in place |
+| Hardware Interface | 🟢 VERIFIED | N/A | MPU, LED, Power interfaces stable |
+| Ultra Basic Position Detection | 🟢 VERIFIED | Hardware Interface | Config-based thresholds |
+| Idle Mode | 🟢 VERIFIED | UBPD | Idle visuals, mode transitions (Freecast) |
+| QuickCast Gesture Detection | 🟢 VERIFIED | UBPD, Idle Mode | `CalmOffer`, `DigOath`, `NullShield` detection using `GestureTransitionTracker` |
+| QuickCast Spells Mode | 🟢 VERIFIED | Hardware Interface | `Rainbow`, `Lightning`, `Lumina` implemented (Rainbow/Lightning need animation refinement) |
+| Freecast Mode | 🟢 VERIFIED | UBPD | Motion-to-pattern logic functional |
+| Power Management | 🟠 PLANNED | All Modes | Basic idle timeout exists, further optimization needed |
 | User Configuration | 🔴 NOT STARTED | All Modes | Pending design decisions |
+| ~~Invocation Mode~~ | ⚫ DEPRECATED | ~~Gesture Detection~~ | Replaced by QuickCast Spells |
+| ~~Resolution Mode~~ | ⚫ DEPRECATED | ~~Invocation Mode~~ | Replaced by QuickCast Spells |
 
 ## 🎯 Milestone Timeline
 
@@ -113,10 +114,9 @@ Next focus areas are gesture detection implementation and Invocation Mode develo
 | MPU Sensor Issue Resolution | 2025-03-30 | ✅ COMPLETED | N/A |
 | Basic Position Detection | 2025-03-31 | ✅ COMPLETED | MPU Sensor Issue |
 | Idle Mode Complete | 2025-04-02 | ✅ COMPLETED | Basic Position Detection |
-| Gesture Detection Complete | 2025-04-09 | 🟡 IN PROGRESS | Idle Mode |
-| Invocation Mode Complete | 2025-04-16 | 🟠 PLANNED | Gesture Detection |
-| Resolution Mode Complete | 2025-04-23 | 🟠 PLANNED | Invocation Mode |
-| Freecast Mode Complete | 2025-04-30 | 🟠 PLANNED | Basic Position Detection |
+| Gesture Detection Complete | 2025-04-09 | ✅ COMPLETED | Idle Mode (QuickCast subset only) |
+| QuickCast Spells Complete | 2025-04-01 | ✅ COMPLETED | Gesture Detection |
+| Freecast Mode Complete | 2025-04-30 | ✅ COMPLETED | Basic Position Detection |
 | System Refinement Complete | 2025-05-21 | 🟠 PLANNED | All Modes |
 | Advanced Features Complete | 2025-06-04 | 🟠 PLANNED | System Refinement |
 | Project Completion | 2025-06-11 | 🟠 PLANNED | All Previous Milestones |
@@ -177,7 +177,7 @@ Next focus areas are gesture detection implementation and Invocation Mode develo
 
 ---
 
-> Last updated: 2025-04-04
+> Last updated: 2025-04-01
 > This document is maintained as part of the project's working documentation set.
 
 ## Completed Development
@@ -311,72 +311,34 @@ The PrismaTech Gauntlet 3.0 is a wearable electronic device that enables users t
 - ✅ Simple position test application
 - ✅ Environment organization
 
-## Current Phase: Operational Modes Implementation
+## Current Phase: System Refinement
 
-### [IN PROGRESS] Idle Mode Implementation
+With the core modes (Idle, QuickCast Spells, Freecast) now functional, the focus shifts to refinement and robustness.
+
+### [PLANNED] System Refinement
 - **Priority**: High
-- **Dependencies**: UBPD [COMPLETED]
 - **Key Components**:
-  - [ ] State management in GauntletController
-  - [ ] Position-based LED visualization
-  - [ ] Gesture detection (CalmOffer, LongNull)
-  - [ ] Mode transition effects
-  - [ ] LED management (4 evenly-spaced LEDs at 80% brightness)
+  - [ ] **QuickCast Animation Refinement:** Improve `RainbowBurst` and `LightningBlast` non-blocking animations to better match `TrueFunctionGuide` descriptions.
+  - [ ] **Power Management Optimization:** Implement deeper sleep states, potentially based on inactivity duration.
+  - [ ] **Code Quality & Testing:** Increase test coverage, refactor complex areas (e.g., animation logic), ensure error handling consistency.
+  - [ ] **Calibration Enhancements:** Improve user feedback during calibration protocol.
 
-### [IN PROGRESS] Architecture Mapping
+### [PLANNED] Documentation Polish
 - **Priority**: Medium
-- **Description**: Building comprehensive understanding of the codebase structure to enable targeted enhancements
 - **Key Activities**:
-  - [ ] Component relationship documentation
-  - [ ] Data flow analysis
-  - [ ] State transition mapping
-  - [ ] Documentation alignment with implementation
+  - [ ] Review and update all working documents (`chronicle`, `roadmap`, `directoryIndex`, `glossary`) for consistency and accuracy.
+  - [ ] Add detailed comments to complex code sections (e.g., animation logic).
+  - [ ] Generate user-facing documentation drafts.
 
 ## Upcoming Phases
 
-### [PLANNED] Invocation Mode Implementation
-- **Estimated Start**: After Idle Mode completion
-- **Dependencies**: Idle Mode, Gesture Detection
+### [PLANNED] Feature Extensions (Post-Refinement)
+- **Estimated Start**: After System Refinement
+- **Dependencies**: Stable Core System
 - **Key Components**:
-  - [ ] Circular LED pattern (one-third brightness)
-  - [ ] Position tracking and visualization
-  - [ ] Calibrated detection thresholds
-  - [ ] Transition to Resolution Mode
-
-### [PLANNED] Resolution Mode Implementation
-- **Estimated Start**: After Invocation Mode completion
-- **Dependencies**: Invocation Mode
-- **Key Components**:
-  - [ ] Visual feedback (full brightness, position colors)
-  - [ ] Transition animations
-  - [ ] Position validation
-  - [ ] Return to Idle Mode
-
-### [PLANNED] Freecast Mode Implementation
-- **Estimated Start**: After basic mode cycle completion
-- **Dependencies**: Idle Mode
-- **Key Components**:
-  - [ ] Persistent position detection
-  - [ ] Dynamic LED visualization
-  - [ ] Long-running mode management
-  - [ ] Return to Idle Mode
-
-## Next Immediate Steps
-
-1. **Complete Idle Mode Implementation**:
-   - Finish GauntletController state management
-   - Implement position-to-LED mapping
-   - Add gesture detection for mode transitions
-
-2. **Complete Architecture Mapping**:
-   - Document current component relationships
-   - Map state transitions between modes
-   - Identify potential refactoring opportunities
-
-3. **Prepare for Invocation Mode**:
-   - Review TrueFunctionGuide specifications
-   - Design gesture detection algorithm
-   - Plan visual feedback implementation
+  - [ ] Advanced Effects (More complex LED patterns, environmental responsiveness)
+  - [ ] Connectivity Features (Bluetooth? App integration?)
+  - [ ] User Configuration Storage (Saving settings?)
 
 ## Dependencies
 - ESP32 development environment

@@ -96,8 +96,7 @@ public:
     FreeCastMode();
     bool init(HardwareManager* hardware, UltraBasicPositionDetector* detector);
     void initialize();
-    void update();
-    ModeTransition checkForTransition();
+    ModeTransition update();
     void renderLEDs();
     
     #ifdef DEBUG_MODE

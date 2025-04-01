@@ -11,12 +11,12 @@
  * - Resolution Mode: Spell effect determination based on recorded positions
  * - Freecast Mode: Creative motion-to-pattern translation
  */
-enum SystemMode {
-  MODE_IDLE,         // Default monitoring state
-  MODE_INVOCATION,   // Three-slot position recording
-  MODE_RESOLUTION,   // Spell effect determination and display
-  MODE_FREECAST      // Motion-to-pattern translation
-};
+// enum SystemMode { // Removed - Defined in GauntletController.h now
+//   MODE_IDLE,         
+//   MODE_INVOCATION,   
+//   MODE_RESOLUTION,   
+//   MODE_FREECAST      
+// };
 
 /**
  * @brief Defines the possible mode transitions
@@ -24,8 +24,8 @@ enum SystemMode {
  */
 enum class ModeTransition {
   NONE,              // No transition requested
-  TO_INVOCATION,     // Transition to Invocation Mode (from CalmOffer gesture)
-  TO_FREECAST,       // Transition to Freecast Mode (from LongNull gesture)
+  // TO_INVOCATION,     // Removed - Handled by QuickCast now
+  TO_FREECAST,       // Transition to Freecast Mode (from LongShield gesture)
   TO_IDLE            // Return to Idle Mode (from exit gesture)
 };
 
@@ -76,14 +76,15 @@ struct SensorData {
   uint32_t timestamp;
 };
 
-/**
- * @brief Invocation slots for spell determination
- */
-struct InvocationSlots {
-  uint8_t positions[3]; // HandPosition values for each slot
-  bool filled[3];       // Whether each slot has been filled
-  uint8_t currentSlot;  // Currently active slot (0-2)
-};
+// Removed InvocationSlots struct
+// /**
+//  * @brief Invocation slots for spell determination
+//  */
+// struct InvocationSlots {
+//   uint8_t positions[3]; // HandPosition values for each slot
+//   bool filled[3];       // Whether each slot has been filled
+//   uint8_t currentSlot;  // Currently active slot (0-2)
+// };
 
 // New enums for QuickCast Spells system
 enum class SpellTransition {

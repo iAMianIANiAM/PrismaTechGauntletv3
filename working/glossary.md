@@ -131,10 +131,10 @@ Only components that meet the full System Integration Verification criteria shou
 | **DominantAxisDetectionModel** | The algorithm used for position recognition where each hand position has a primary axis that shows significantly higher values than other axes. The system detects which axis has the strongest acceleration and compares it to calibrated thresholds. |
 | **Double-Check** | Post-implementation verification protocol. Uses checklists to ensure structural, functional, and build integrity. |
 | **Freecast Cycle** | The alternating sequence in Freecast Mode consisting of a 2-second Data Collection Phase (recording motion) followed by a 2-second Pattern Generation Phase (displaying motion-based visuals). |
-| **FreecastMode** | A creative, freeform experience where users can generate unique light patterns by moving the gauntlet in various ways. Unlike the structured Invocation Mode, Freecast allows for more expressive and dynamic interactions. |
+| **FreecastMode** | A creative, freeform experience where users can generate unique light patterns by moving the gauntlet in various ways. Activated/Deactivated via `LongShield`. |
 | **HandPositions** | The six defined orientations that the gauntlet can detect: Offer (palm up), Calm (palm down), Oath (hand pointing up), Dig (hand pointing down), Shield (hand to side, palm out), and Null (hand to side, palm in). Each position has a corresponding color and is detected via the dominant axis model. |
-| **IdleMode** | The default state of the gauntlet when not actively casting. It provides real-time visual feedback of the current hand position while monitoring for trigger gestures that activate other modes. |
-| **InvocationMode** | A structured sequence where the user's hand positions are recorded into three distinct "slots" to determine the resulting spell effect. |
+| **IdleMode** | The default state of the gauntlet when not actively casting. It provides real-time visual feedback of the current hand position while monitoring for QuickCast trigger gestures (`CalmOffer`, `DigOath`, `NullShield`) and the Freecast mode trigger (`LongShield`). |
+| **InvocationMode** | **⚫ DEPRECATED:** Originally planned as a structured sequence mode. Replaced by `QuickCastSpellsMode`. |
 | **InvocationPhases** | The four sequential stages of Invocation Mode: Indicator Phase (signals active slot, 1 second), Countdown Phase (visual timer, 2 seconds), Checkpoint Phase (position detection, 200ms), and Confirmation Phase (visual feedback, 1 second). |
 | **InvocationSlots** | Three distinct slots in Invocation Mode, each represented by 4 LEDs on the ring, which record position-based imprints to determine the resulting spell effect. |
 | **LongNull** | A gesture where the "Null" position (hand to side, palm in) is maintained continuously for 5000ms. This gesture triggers the transition to or exit from Freecast Mode. |
@@ -142,10 +142,11 @@ Only components that meet the full System Integration Verification criteria shou
 | **MPU9250** | The motion sensor used in the gauntlet for position and gesture detection. |
 | **NullPosition** | Hand to the side, palm in. Represented by red color (RGB: 255, 0, 0). Detected via X-axis dominant positive. |
 | **OfferPosition** | Hand forward, palm up orientation. Represented by purple color (RGB: 128, 0, 255). Detected via Z-axis dominant positive. |
-| **OperationalModes** | The four distinct states of the PrismaTech Gauntlet: Idle Mode, Invocation Mode, Resolution Mode, and Freecast Mode. Each mode has unique behaviors, interactions, and visual feedback patterns. |
+| **OperationalModes** | The distinct states of the PrismaTech Gauntlet: `IdleMode`, `QuickCastSpellsMode`, and `FreecastMode`. |
 | **OathPosition** | Hand pointing upwards. Represented by yellow color (RGB: 255, 255, 0). Detected via Y-axis dominant negative. |
-| **QuickCastSpell** | An effect pattern triggered from Idle Mode via a two-position gesture combination, which returns to Idle Mode upon completion of the spell effect. QuickCast spells come in two varieties: definite spells (with fixed durations that expire automatically) and channeled spells (which persist until a cancel trigger is detected). |
-| **ResolutionMode** | The culmination of the invocation sequence, where the system evaluates the three imprinted positions and activates a corresponding spell effect. |
+| **QuickCastSpell** | An effect pattern triggered from Idle Mode via a two-position gesture combination (`CalmOffer`, `DigOath`, `NullShield`), which returns to Idle Mode upon completion of the spell effect. Examples: `RainbowBurst`, `LightningBlast`, `Lumina`. |
+| **QuickCastSpellsMode** | **🟢 ACTIVE:** Operational mode responsible for executing the visual effects of triggered QuickCast spells (`RainbowBurst`, `LightningBlast`, `Lumina`) for their defined durations. |
+| **ResolutionMode** | **⚫ DEPRECATED:** Originally planned as the spell effect execution mode following Invocation. Spell effects are now handled by `QuickCastSpellsMode`. |
 | **ShieldPosition** | Hand to the side, palm out. Represented by pink color (RGB: 255, 105, 180). Detected via X-axis dominant negative. |
 | **SpellEffects** | The visual animations triggered in Resolution Mode based on the positions recorded in the invocation slots. Examples include Inferno, Blizzard, Wild Growth, Detect Magic, Rainbow Burst, and Rainbow Pop, each with unique animations, colors, and durations. |
 | **ThresholdManager** | Component for centralizing management of detection thresholds. |
@@ -168,10 +169,11 @@ Only components that meet the full System Integration Verification criteria shou
 
 #### Operational Modes
 
-- **Idle Mode**: Default operation mode displaying current hand position with color indicators
-- **Invocation Mode**: Mode activated by specific gestures to select prime functions
-- **Resolution Mode**: Mode for executing selected prime functions
-- **Freecast Mode**: Mode for creating custom function patterns
+- **Idle Mode**: Default operation mode displaying current hand position with color indicators, detecting QuickCast gestures and Freecast trigger.
+- **QuickCastSpells Mode**: Executes QuickCast spell effects.
+- **Freecast Mode**: Mode for creating dynamic motion-based light patterns.
+- **~~Invocation Mode~~**: Deprecated.
+- **~~Resolution Mode~~**: Deprecated.
 
 #### Hand Positions
 

@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 📑 Directory First Navigation Rule
+
+When navigating or searching the codebase:
+
+1. **ALWAYS consult the `directoryIndex.md` document FIRST** before initiating any codebase search
+2. Use the directoryIndex to:
+   - Identify relevant file locations
+   - Understand component relationships
+   - Map data flows between subsystems
+   - Find key interface points
+3. Only after extracting actionable navigation information from directoryIndex, proceed with targeted tool usage:
+   - Targeted file reading
+   - Specific directory listing
+   - Focused code searches
+
+**Compliance requirement:** Each codebase navigation session MUST begin with directoryIndex consultation. Document what you learned from the directoryIndex before proceeding with other search methods.

@@ -6,13 +6,13 @@
 #include "../hardware/HardwareManager.h"
 #include "../detection/UltraBasicPositionDetector.h"
 #include "../modes/IdleMode.h"
+#include "../modes/QuickCastSpellsMode.h"
+#include "../modes/FreeCastMode.h"
 
 enum class SystemMode {
     IDLE,
-    // INVOCATION, // To be removed in Phase 4
-    // RESOLUTION, // To be removed in Phase 4
     FREECAST,
-    QUICKCAST_SPELL // Add new mode for QuickCast execution
+    QUICKCAST_SPELL
 };
 
 /**
@@ -27,6 +27,8 @@ private:
     
     // Mode components
     IdleMode* idleMode;
+    QuickCastSpellsMode* quickCastMode;
+    FreeCastMode* freecastMode;
     
     // System state
     SystemMode currentMode;
@@ -39,6 +41,9 @@ private:
     unsigned long updateInterval;
     bool hasElapsed(unsigned long startTime, unsigned long duration) const;
     void maintainLoopTiming();
+    
+    // Private helper methods
+    void handleModeTransition(ModeTransition transition);
     
 public:
     GauntletController();

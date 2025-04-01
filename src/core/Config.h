@@ -92,6 +92,7 @@ namespace Config {
   constexpr uint16_t LONGNULL_WARNING_MS = 3000;  // When to start flashing during LongNull (deprecated)
   constexpr uint16_t LONGSHIELD_TIME_MS = 5000;   // Time required for LongShield gesture
   constexpr uint16_t LONGSHIELD_WARNING_MS = 3000; // When to start flashing during LongShield
+  constexpr uint16_t QUICKCAST_WINDOW_MS = 1000;   // Time window for QuickCast gestures
   
   // Gesture detection parameters
   namespace Gestures {
@@ -99,21 +100,9 @@ namespace Config {
     constexpr uint16_t LONG_NULL_TIME_MS = 5000;      // Time required in NULL position to trigger Long Null
   }
   
-  // Invocation timing
-  constexpr uint16_t INDICATOR_PHASE_MS = 1000;   // Slot indicator duration
-  constexpr uint16_t COUNTDOWN_PHASE_MS = 2000;   // Countdown animation duration
-  constexpr uint16_t CHECKPOINT_PHASE_MS = 200;   // Position recording duration
-  constexpr uint16_t CONFIRMATION_PHASE_MS = 1000; // Confirmation animation duration
-  
-  // Resolution timing
-  constexpr uint16_t DEFINITE_SPELL_MS = 5000;    // Duration of standard spells
-  constexpr uint16_t EXTENDED_SPELL_MS = 15000;   // Duration of extended spells
-  constexpr uint16_t BLACKOUT_PERIOD_MS = 500;    // Transition blackout duration
-  constexpr uint16_t IDLE_RETURN_MS = 2500;       // Fade-in duration for idle return
-  
   // Freecast timing
-  constexpr uint16_t FREECAST_COLLECTION_MS = 3000; // Motion data collection window
-  constexpr uint16_t FREECAST_DISPLAY_MS = 3000;    // Pattern display duration
+  constexpr uint16_t FREECAST_COLLECTION_MS = 2000; // Motion data collection window (Corrected to 2s)
+  constexpr uint16_t FREECAST_DISPLAY_MS = 2000;    // Pattern display duration (Corrected to 2s)
   
   // Power management
   constexpr uint32_t IDLE_SLEEP_DELAY_MS = 300000; // Time before entering sleep mode (5 min)
@@ -127,6 +116,11 @@ namespace Config {
     constexpr uint8_t SHIELD_COLOR[3] = {255, 105, 180}; // Pink (was Blue)
     constexpr uint8_t NULL_COLOR[3] = {255, 0, 0};       // Red (was Orange)
     constexpr uint8_t UNKNOWN_COLOR[3] = {255, 255, 255}; // White
+    constexpr uint8_t BLACK[3] = {0, 0, 0};          // Black
+    constexpr uint8_t RED[3] = {255, 0, 0};          // Red
+    constexpr uint8_t BLUE[3] = {0, 0, 255};         // Blue
+    constexpr uint8_t PURPLE[3] = {128, 0, 128};     // Purple
+    
     constexpr uint8_t POSITION_COLORS[7][3] = {
         {255, 0, 0},       // POS_NULL: Red (was Orange)
         {255, 105, 180},   // POS_SHIELD: Pink (was Green/Blue)
@@ -143,11 +137,19 @@ namespace Config {
       uint8_t g;
       uint8_t b;
     };
-    constexpr Color SHIELD_COUNTDOWN_COLOR = {255, 105, 180}; // Pink (matching Shield color, was Blue)
+    constexpr Color SHIELD_COUNTDOWN_COLOR = {Config::Colors::SHIELD_COLOR[0], Config::Colors::SHIELD_COLOR[1], Config::Colors::SHIELD_COLOR[2]}; // Corrected to use Shield color array
   }
 
   // System power states
   constexpr unsigned long IDLE_TIMEOUT = 30000;  // Time before entering low power (30s)
+
+  // QuickCast Spell Parameters <-- Added Namespace
+  namespace Spells {
+    constexpr uint16_t RAINBOW_DURATION_MS = 7000;   // Rainbow Burst duration (7s)
+    constexpr uint16_t LIGHTNING_DURATION_MS = 5000; // Lightning Blast duration (5s)
+    constexpr uint16_t LUMINA_DURATION_MS = 20000;  // Lumina duration (20s)
+    constexpr uint8_t LUMINA_BRIGHTNESS = 204;      // Lumina brightness (80% of 255)
+  }
 }
 
 #endif // CONFIG_H 

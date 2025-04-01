@@ -32,15 +32,13 @@ The core subsystem provides fundamental types, configuration, and system control
 
 ### Mode Subsystem (`src/modes/`)
 
-The mode subsystem implements the four primary operational modes of the gauntlet.
+The mode subsystem implements the primary operational modes of the gauntlet.
 
 | File | Description |
 |------|-------------|
-| `IMode.h` | Interface for all operational modes |
-| `IdleMode.h/cpp` | Idle mode with position detection and gesture triggers |
-| `InvocationMode.h/cpp` | Invocation mode for pattern detection |
-| `ResolutionMode.h/cpp` | Resolution mode for spell effects |
-| `FreecastMode.h/cpp` | Freecast mode for direct gesture control |
+| `IdleMode.h/cpp` | Idle mode: position detection, Idle LED feedback, QuickCast gesture detection, Freecast mode trigger detection |
+| `QuickCastSpellsMode.h/cpp` | Executes QuickCast spell visual effects (Rainbow, Lightning, Lumina) for a set duration |
+| `FreecastMode.h/cpp` | Freecast mode: dynamic motion-to-pattern LED effects |
 
 ### Hardware Abstraction (`src/hardware/`)
 
@@ -65,27 +63,14 @@ The detection subsystem processes sensor data to determine hand positions and ge
 
 | File | Description |
 |------|-------------|
-| `UltraBasicPositionDetector.h/cpp` | Basic position detection using dominant axis algorithm |
-| `PositionDetector.h/cpp` | Advanced position detection (legacy) |
-| `GestureDetector.h/cpp` | Gesture detection and pattern matching |
-| `PatternMatcher.h/cpp` | Pattern recognition for InvocationMode |
-
-**Position Detection Pipeline:**
-1. Raw sensor data is acquired from the MPU sensor
-2. `UltraBasicPositionDetector` processes this data to determine hand position
-3. Positions are compared against physical unit thresholds (m/s²)
-4. Position confidence is calculated based on threshold proximity
-5. Mode controllers use position information for transitions and effects
+| `UltraBasicPositionDetector.h/cpp` | Basic position detection using dominant axis algorithm based on `TrueFunctionGuide` |
+| `GestureTransitionTracker.h/cpp` | Tracks transitions between two hand positions within a time window (used for QuickCast spells) |
 
 ### Animation Subsystem (`src/animation/`)
 
-The animation subsystem manages LED displays and visual effects.
-
-| File | Description |
-|------|-------------|
-| `AnimationController.h/cpp` | Central controller for all animations |
-| `LEDAnimations.h/cpp` | LED pattern and animation definitions |
-| `ColorPalette.h/cpp` | Color definitions and palette management |
+This subsystem does not currently exist as separate files.
+Animation logic is handled within specific modes (e.g., QuickCastSpellsMode)
+and potentially within LEDInterface.
 
 ### Utility Functions (`src/utils/`)
 
@@ -146,9 +131,8 @@ Test cases and testing infrastructure.
 
 ```
 GauntletController
-├── Mode Controllers (Idle, Invocation, Resolution, Freecast)
-│   ├── Animation Controllers
-│   └── Detection Systems
+├── Mode Controllers (Idle, QuickCastSpells, Freecast)
+│   └── Detection Systems (UltraBasicPositionDetector, GestureTransitionTracker)
 └── Hardware Manager
     ├── MPU9250 Interface
     ├── LED Interface
@@ -159,17 +143,17 @@ GauntletController
 
 1. **Sensor Data Processing Flow:**
    ```
-   MPU9250Interface → HardwareManager → UltraBasicPositionDetector → Mode Controllers
+   MPU9250Interface → HardwareManager → UltraBasicPositionDetector → IdleMode
    ```
 
 2. **Visual Feedback Flow:**
    ```
-   Mode Controllers → AnimationController → LEDInterface → Physical LEDs
+   Mode Controllers (Idle, QuickCastSpells, Freecast) → HardwareManager → LEDInterface → Physical LEDs
    ```
 
 3. **Mode Transition Flow:**
    ```
-   UltraBasicPositionDetector → GestureDetector → GauntletController → Mode Activation
+   UltraBasicPositionDetector → IdleMode (using GestureTransitionTracker for spells) → GauntletController → Mode Activation
    ```
 
 4. **Power Management Flow:**
@@ -185,9 +169,8 @@ GauntletController
    - Physical unit conversion happens in `UltraBasicPositionDetector::processRawData()`
 
 2. **Mode Transition System**
-   - All modes implement the `IMode` interface
-   - `GauntletController` manages mode lifecycle and transitions
-   - Mode transitions are triggered by specific gestures detected in each mode
+   - `GauntletController` manages mode lifecycle and transitions (IDLE <-> QUICKCAST, IDLE <-> FREECAST).
+   - Mode transitions are triggered by specific gestures detected in `IdleMode` (`LongShield`, QuickCast gestures via `GestureTransitionTracker`).
 
 3. **Hardware Abstraction System**
    - `HardwareManager` provides a unified interface to all hardware components
@@ -211,59 +194,71 @@ GauntletController
 
 ### Position & Gesture Detection Files
 - **Basic Position Detection**: `UltraBasicPositionDetector.cpp`
-- **Gesture Recognition**: `GestureDetector.cpp`
-- **Pattern Matching**: `PatternMatcher.cpp`
+- **QuickCast Gesture Logic**: `GestureTransitionTracker.cpp` (used by `IdleMode.cpp`)
 
 ### Mode Implementation Files
 - **Idle Mode**: `IdleMode.cpp`
-- **Invocation Mode**: `InvocationMode.cpp`
-- **Resolution Mode**: `ResolutionMode.cpp`
+- **QuickCast Spell Mode**: `QuickCastSpellsMode.cpp`
 - **Freecast Mode**: `FreecastMode.cpp`
 
 ## 📚 Working Document Cross-References
 
-- **Chronicle**: [working/chronicle_v3.md](./chronicle_v3.md)
+- **Chronicle**: [working/chronicle_v7.md](./chronicle_v7.md)
 - **Roadmap**: [working/roadmap.md](./roadmap.md)
 - **Glossary**: [working/glossary.md](./glossary.md)
 
-## 🔄 System Architecture Update (2023-11-17)
+## 🔄 System Architecture Update (2025-04-01)
 
-After the targeted rollback of the UBPD-Idle Mode integration, the current architecture has been stabilized:
+After implementation of the QuickCast spells system and removal of deprecated Invocation/Resolution modes:
 
 ### Core Component Relationships
 
 ```
-                   ┌───────────────────┐
-                   │GauntletController │
-                   └───────┬───────────┘
-                           │
-           ┌───────────────┴───────────────┐
-           ▼                               ▼
-┌──────────────────┐             ┌─────────────────┐
-│ HardwareManager  │             │PositionDetector │
-└──────────────────┘             └────────┬────────┘
-           ▲                              │ implements
-           │                              ▼
-    uses   │                    ┌─────────────────────┐
-           └────────────────────┤UltraBasicPositionDetector│
-                                └─────────────────────┘
+                   ┌──────────────────────┐
+                   │ GauntletController   │
+                   └──────────┬───────────┘
+                              │ manages
+        ┌─────────────────────┼─────────────────────────┐
+        │                     │                         │
+        ▼                     ▼                         ▼
+┌───────────┐       ┌─────────────────────┐      ┌────────────────┐
+│ IdleMode  ├───────► QuickCastSpellsMode │      │ FreecastMode   │
+└─────┬─────┘       └─────────────────────┘      └────────────────┘
+      │ uses                ▲ uses                      ▲ uses
+      │                     │                           │
+┌─────┴─────────────────────┴─────────┬─────────────────┘
+│     uses                            │ uses
+│   ┌──────────────────────────────┐  │  ┌─────────────────┐
+│   │ UltraBasicPositionDetector │◄─┘  │ HardwareManager │
+│   └──────────────────────────────┘     └───────┬─────────┘
+│     uses                                       │ provides
+└─► ┌──────────────────────────┐                 │
+    │ GestureTransitionTracker │                 ▼
+    └──────────────────────────┘        ┌────────────────┐
+                                        │ LEDInterface   │
+                                        └────────────────┘
+                                                ▲
+                                                │ uses
+                                        ┌────────────────┐
+                                        │ MPUInterface   │
+                                        └────────────────┘
 ```
 
 ### Key Interface Points
 
-1. `GauntletController` now exclusively uses the generic `PositionDetector` interface
-2. `IdleMode` accepts and works with `PositionDetector*` parameters
-3. `UltraBasicPositionDetector` implements the `PositionDetector` interface
-4. `HardwareManager` provides MPU access through `readMPU()` method
+1. `GauntletController` manages instances of `IdleMode`, `QuickCastSpellsMode`, `FreecastMode`.
+2. `IdleMode` uses `UltraBasicPositionDetector` for position and `GestureTransitionTracker` for QuickCast detection.
+3. `QuickCastSpellsMode` and `FreecastMode` use `HardwareManager` (primarily for `LEDInterface`) to render effects.
+4. Transitions: IDLE -> QUICKCAST, IDLE -> FREECAST, QUICKCAST -> IDLE, FREECAST -> IDLE.
 
 ### Current System State
 
-- The core system uses generic position detector interface
-- The UBPD implementation remains intact but disconnected from the main execution flow
-- The test for UBPD-Idle Mode integration has been removed 
-- The integration will be rebuilt incrementally
+- QuickCast spells (Rainbow, Lightning, Lumina) implemented via `QuickCastSpellsMode`.
+- `IdleMode` detects QuickCast gestures and `LongShield` Freecast trigger.
+- Deprecated Invocation/Resolution modes removed.
+- Animation logic is primarily within modes, using `HardwareManager`/`LEDInterface`.
 
 ---
 
-> Last updated: 2025-03-28
+> Last updated: 2025-04-01
 > This document is maintained as part of the project's working documentation set.

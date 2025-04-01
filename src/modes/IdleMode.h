@@ -6,6 +6,7 @@
 #include "../hardware/HardwareManager.h"
 #include "../detection/UltraBasicPositionDetector.h"
 #include "../core/SystemTypes.h"
+#include "../detection/GestureTransitionTracker.h"
 
 class IdleMode {
 private:
@@ -17,16 +18,15 @@ private:
     PositionReading currentPosition;
     PositionReading previousPosition;
     unsigned long positionChangedTime;
-    unsigned long nullPositionStartTime;
-    bool inNullCountdown;
     
-    // Shield position tracking for LongShield gesture
+    // Shield position tracking for LongShield gesture (for Freecast transition)
     unsigned long shieldPositionStartTime;
     bool inShieldCountdown;
     
-    // CalmOffer tracking variables
-    unsigned long calmExitTime;
-    bool inCalmOfferWindow;
+    // QuickCast Gesture Trackers
+    GestureTransitionTracker calmOfferTracker_;
+    GestureTransitionTracker digOathTracker_;
+    GestureTransitionTracker nullShieldTracker_;
     
     // Color transition state
     CRGB currentColor;
@@ -42,10 +42,9 @@ private:
     
     // Internal methods
     CRGB getPositionColor(uint8_t position);
-    bool detectCalmOfferGesture();
-    bool detectLongNullGesture();
     bool detectLongShieldGesture();
     void updateColorTransition();
+    void resetAllSpellTrackers();
     
 public:
     IdleMode();
@@ -55,6 +54,7 @@ public:
     ModeTransition checkForTransition();
     void renderLEDs();
     void setInterpolationEnabled(bool enabled);
+    SpellTransition checkForSpellTransition();
 };
 
 #endif // IDLE_MODE_H 
