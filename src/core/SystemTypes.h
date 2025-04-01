@@ -85,4 +85,27 @@ struct InvocationSlots {
   uint8_t currentSlot;  // Currently active slot (0-2)
 };
 
+// New enums for QuickCast Spells system
+enum class SpellTransition {
+    NONE,
+    TO_RAINBOW,
+    TO_LIGHTNING,
+    TO_LUMINA
+    // Note: Transitions like TO_FREECAST or TO_IDLE currently handled by ModeTransition
+    // Will be evaluated in Phase 2 if IdleMode needs a unified transition return type.
+};
+
+enum class SpellType {
+    NONE,
+    RAINBOW,
+    LIGHTNING,
+    LUMINA
+};
+
+enum class SpellState {
+    INACTIVE, // Renamed from INITIALIZING for clarity before activation
+    RUNNING,
+    COMPLETING
+};
+
 #endif // SYSTEM_TYPES_H 

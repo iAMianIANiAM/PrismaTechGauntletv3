@@ -185,10 +185,10 @@ void handleCalibration() {
   const char* posNames[] = {
     "OFFER (Purple - Palm up, fingers extended)",
     "CALM (Blue - Palm down, fingers extended)",
-    "OATH (Yellow - Hand vertical, palm facing inward)",
-    "DIG (Green - Hand vertical, palm facing outward)",
-    "SHIELD (Pink - Arm extended forward, palm facing forward)",
-    "NULL (Red - Arm extended backward, palm facing back)"
+    "OATH (Yellow - Fingers up, palm facing forward)",
+    "DIG (Green - Fingers down, palm facing backward)",
+    "SHIELD (Pink - Palm facing outward to side)",
+    "NULL (Red - Palm facing inward to side)"
   };
   
   // Calibrate each position with better timing

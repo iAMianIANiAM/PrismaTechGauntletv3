@@ -9,9 +9,10 @@
 
 enum class SystemMode {
     IDLE,
-    INVOCATION,
-    RESOLUTION,
-    FREECAST
+    // INVOCATION, // To be removed in Phase 4
+    // RESOLUTION, // To be removed in Phase 4
+    FREECAST,
+    QUICKCAST_SPELL // Add new mode for QuickCast execution
 };
 
 /**

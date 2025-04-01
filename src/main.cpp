@@ -14,13 +14,13 @@
 
 // Position names for debugging
 const char* positionNames[] = {
-  "OFFER (Purple)",  // POS_OFFER
-  "CALM (Yellow)",   // POS_CALM
-  "OATH (Red)",      // POS_OATH
-  "DIG (Green)",     // POS_DIG
-  "SHIELD (Blue)",   // POS_SHIELD
-  "NULL (Orange)",   // POS_NULLPOS
-  "UNKNOWN (White)"  // POS_UNKNOWN
+  "Offer (Purple)",  // POS_OFFER
+  "Calm (Blue)",     // POS_CALM
+  "Oath (Yellow)",   // POS_OATH
+  "Dig (Green)",     // POS_DIG
+  "Shield (Pink)",   // POS_SHIELD
+  "Null (Red)",      // POS_NULLPOS
+  "Unknown (White)"  // POS_UNKNOWN
 };
 
 // Increase Arduino loop task stack size

@@ -645,3 +645,95 @@ All color references now correctly match the established color scheme:
 The ColorTest compilation confirmed the fix was successful. This ensures complete consistency between the actual LED colors and the debug text displayed to users during testing and calibration.
 
 *Implementation time: 10 minutes* 
+
+**Revised Analysis Report: Codebase vs. TrueFunctionGuide v2.0 (incorporating FreecastMode & Chronicle v7)**
+
+Performed a revised analysis comparing the current codebase state against `reference/TrueFunctionGuidev2.md`, incorporating the implementation status of `FreecastMode` and the strategic direction outlined in `chronicle_v7.md`.
+
+**Methodology:**
+1. Consulted `working/directoryIndex.md`.
+2. Read relevant source files (`GauntletController.h/cpp`, `IdleMode.h/cpp`, `FreeCastMode.h/cpp`, `AnimationSystem.h`, `AnimationData.h`).
+3. Consulted `working/chronicle_v7.md` for current plans and decisions.
+4. Compared implemented features against guide specifications, noting planned deviations.
+
+**Overall Status:** Codebase is significantly more aligned with the guide's components than initially assessed, especially with `FreecastMode` implemented. However, a **major strategic shift** documented in `chronicle_v7.md` (QuickCast Spells Enhancement Proposal) means the project is now intentionally **diverging** from the guide's Invocation/Resolution flow, favoring QuickCast spells.
+
+**Detailed Breakdown:**
+
+| Feature Area          | Guide Specification                       | Codebase Implementation Status (as of Files Read)                                            | Alignment/Notes (Considering Chronicle v7)                                                                                                                                                                |
+| :-------------------- | :---------------------------------------- | :------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Modes**             | Idle, Freecast, Invocation (TBD)          | `SystemMode` enum exists. `GauntletController` has placeholders.                             | `IdleMode` & `FreecastMode` are implemented. **Invocation/Resolution Modes are now DEPRECATED** per `chronicle_v7.md` in favor of a new (planned) `QuickCastSpellsMode`.                               |
+|                       | * Idle Mode Active                       | Implemented (`IdleMode.cpp`)                                                                 | Aligned with guide basics (position tracking, LED feedback). Gesture detection being reworked for QuickCasts per chronicle.                                                                       |
+|                       | * Freecast Mode Active                   | Implemented (`FreeCastMode.cpp`, `FreeCastMode.h`)                                           | **Aligned**. Implements 2s/2s record/display cycle, motion analysis, pattern generation, `LongShield` exit trigger, background/countdown visuals. Minor discrepancy: Entry animation is blue sweep, not orange flash. | 
+|                       | * Invocation Mode Active                 | Placeholder Only. Now **Deprecated**.                                                        | N/A - Replaced by QuickCast plan.                                                                                                                                                                           |
+|                       | * Resolution Mode                        | Placeholder Only. Now **Deprecated**.                                                        | N/A - Replaced by QuickCast plan.                                                                                                                                                                           |
+| **Idle Mode**         | Track hand orientation                   | Yes (`IdleMode` uses `UltraBasicPositionDetector`)                                           | Aligned.                                                                                                                                                                                                |
+|                       | Display position color on 4 LEDs (0,3,6,9) | Yes (`IdleMode::renderLEDs`, `getPositionColor`, `AnimationData.h` colors)                   | Aligned. Colors match guide (or chronicle reassignment).                                                                                                                                                  |
+|                       | Listen for gesture triggers              | Yes (`IdleMode::checkForTransition`). Being **refactored** for multi-gesture QuickCasts.     | Conceptually aligned. Specific implementation details changing per chronicle plan.                                                                                                                            |
+| **QuickCast Spells**  | Calm → Offer (`Rainbow Burst`)            | Trigger detected (`CalmOffer`). Animation exists (`showRainbowBurstEffect`). **Integration Pending**. | **Partially Aligned/Planned**. Chronicle confirms this is the first QuickCast. Requires integration into new `QuickCastSpellsMode`. Current `IdleMode` trigger mapping (to Invocation) is outdated. | 
+|                       | Dig → Oath (`Lightning Blast`)            | **Planned** (`chronicle_v7.md` details framework & effect). Animation placeholder may exist.   | Not yet implemented, but planned.                                                                                                                                                                           |
+|                       | Null → Shield (`Lumina`)                  | **Planned** (`chronicle_v7.md` details framework & effect). Animation placeholder may exist.   | Not yet implemented, but planned.                                                                                                                                                                           |
+| **Mode Triggers**     | `LongShield` (5s) → Freecast             | Implemented (`IdleMode`, `FreecastMode`)                                                      | **Aligned**. Entry trigger in `IdleMode`, Exit trigger in `FreecastMode`.                                                                                                                                 |
+|                       | `LongOath` (5s) → Invocation (TBD)        | **Missing & Deprecated**.                                                                    | N/A - Invocation Mode is deprecated per chronicle.                                                                                                                                                            |
+| **Position Detection** | Dominant Axis Model, Debounce, Confidence | Uses `UltraBasicPositionDetector`. Chronicle confirms UBPD verified.                        | Assumed Aligned based on chronicle verification statements.                                                                                                                                               |
+| **LED Effects**       | Spell-specific animations                 | `showRainbowBurstEffect` exists. Others planned/placeholders exist (`AnimationSystem.h`). | **Partially Aligned/Planned**. Requires integration with QuickCast system.                                                                                                                                  |
+|                       | Freecast dynamic motion visuals           | Implemented (`FreecastMode.cpp` pattern rendering functions).                                 | **Aligned**.                                                                                                                                                                                                |
+|                       | Mode entry/exit flashes (Orange/Blue)     | Blue countdown flash for `LongShield` exit exists. Orange entry flash **Missing**.         | Partially Aligned.                                                                                                                                                                                          |
+
+**Summary of Current State & Direction:**
+1.  **Core Functionality:** `IdleMode` and `FreecastMode` are implemented and largely align with the `TrueFunctionGuidev2.md`.
+2.  **Strategic Pivot:** Project is moving *away* from Invocation/Resolution towards QuickCast spells (`chronicle_v7.md`).
+3.  **QuickCast Status:** `CalmOffer`/`Rainbow Burst` exists but needs integration. `DigOath`/`Lightning` and `NullShield`/`Lumina` are planned.
+4.  **Guide Discrepancy:** Main deviation is replacing Invocation/Resolution with QuickCasts.
+
+**Conclusion:**
+Codebase state is much better than first reported (`FreecastMode` operational). Key finding is the strategic shift to QuickCast spells (`chronicle_v7.md`), replacing the *previously planned* (per chronicle/code structure) Invocation/Resolution flow. The `TrueFunctionGuidev2.md` only ever listed Invocation Mode as a TBD placeholder and did not specify a Resolution Mode, making those sections of the guide non-applicable to the current QuickCast development plan. Development should follow the QuickCast plan outlined in the chronicle. 📊 GUIDE-ALIGNED: Analysis confirms alignment for Idle/Freecast basics. The planned QuickCast system (per chronicle_v7) replaces prior plans (also chronicle/code-based) for Invocation/Resolution; the guide itself only had Invocation as TBD placeholder, thus not specifying a sequence to deviate from.
+
+## 📝 Plan: Implementing QuickCast Spells & System Alignment (Approved 202504010239)
+
+**Objective:** To align the PrismaTech Gauntlet codebase with the functional specifications outlined in `reference/TrueFunctionGuidev2.md`, prioritizing the implementation of the QuickCast Spells system as detailed in the `working/chronicle_v7.md` (QuickCast Spells Enhancement Proposal, 202503311817), while also performing necessary codebase cleanup, documentation updates, and fixing the serial output color name discrepancy.
+
+**Guiding Principles:**
+*   Adherence to the project's core principle: **minimum necessary complexity**.
+*   Alignment with `TrueFunctionGuidev2.md` for Idle Mode, Freecast Mode, position detection, and QuickCast spell effect descriptions.
+*   Implementation follows the detailed plan within `working/chronicle_v7.md` for the QuickCast system.
+*   Maintain modularity and code quality standards.
+
+**Implementation Phases (Require Individual Approval):**
+
+**Phase 1: Foundational Fixes & Preparation**
+*   **Objective:** Address immediate usability issues and lay the groundwork for QuickCast implementation.
+*   **Steps:**
+    1.  ✅ **Fix Serial Monitor Color Names:** Identified sources (`src/main.cpp`, `examples/.../UltraBasicPositionTest.cpp`, `archive/.../UltraBasicPositionTest.cpp`) and corrected `positionNames`/`posNames` arrays. Verified fix via compilation and testing.
+    2.  ✅ **Update Core Types:** Added `SpellTransition`, `SpellType`, `SpellState` enums to `src/core/SystemTypes.h`. Updated `SystemMode` enum in `src/core/GauntletController.h` to include `QUICKCAST_SPELL` and comment out deprecated modes. Verified via compilation.
+*   **Status:** ✅ **Completed Successfully.** (Verified via compilation and on-device testing for serial output).
+
+**Phase 2: Multi-Gesture Detection Framework**
+*   **Objective:** Implement the core logic within `IdleMode` to detect multiple QuickCast gestures concurrently.
+*   **Steps:**
+    1.  **Implement `GestureTransitionTracker` Class:** Create `src/detection/GestureTransitionTracker.h/cpp` with specified methods.
+    2.  **Extend `IdleMode`:** Include tracker, add instances, update `IdleMode::update()` to use trackers, implement new detection methods (`detect...Gesture`), implement `checkForSpellTransition()`.
+
+**Phase 3: QuickCast Mode & Spell Implementation**
+*   **Objective:** Create the mode responsible for executing spell effects and implement the three defined QuickCast spells.
+*   **Steps:**
+    1.  **Implement `QuickCastSpellsMode` Class:** Create `src/modes/QuickCastSpellsMode.h/cpp` with basic structure.
+    2.  **Implement `CalmOffer -> Rainbow Burst`:** Handle `SpellType::RAINBOW`, call animation, manage state transitions (7s duration).
+    3.  **Implement `DigOath -> Lightning Blast`:** Handle `SpellType::LIGHTNING`, implement rendering logic, manage state transitions (5s duration).
+    4.  **Implement `NullShield -> Lumina`:** Handle `SpellType::LUMINA`, implement rendering, implement `NullShield` gesture detection again for exit transition.
+
+**Phase 4: System Integration & Code Cleanup**
+*   **Objective:** Integrate the new QuickCast system into the main application flow and remove obsolete code.
+*   **Steps:**
+    1.  **Integrate into `GauntletController`:** Add `QuickCastSpellsMode` instance, initialize, modify `update()` loop to handle transitions to/from this mode.
+    2.  **Code Cleanup - Deprecated Modes:** Delete `InvocationMode`, `ResolutionMode`, `PatternMatcher` files; remove corresponding enums, includes, controller logic, and animation functions.
+
+**Phase 5: Documentation Update**
+*   **Objective:** Ensure working documents accurately reflect the current system architecture and development focus.
+*   **Steps:**
+    1.  **Update `working/directoryIndex.md`:** Add/remove file entries, update diagrams.
+    2.  **Update `working/roadmap.md`:** Mark features deprecated, add QuickCast tasks, update status.
+    3.  **Update `working/glossary.md`:** Add/remove terms related to QuickCasts and deprecated modes.
+    4.  **Add Chronicle Entry:** (This entry fulfills this step for plan approval).
+
+📌 **DECISION:** This overall plan is approved conceptually. Implementation requires explicit approval for each phase individually. 
