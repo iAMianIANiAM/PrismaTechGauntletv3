@@ -120,21 +120,21 @@ namespace Config {
   
   // Define position colors (R, G, B)
   namespace Colors {
-    constexpr uint8_t OFFER_COLOR[3] = {128, 0, 255};    // Purple
-    constexpr uint8_t CALM_COLOR[3] = {0, 0, 255};       // Blue
-    constexpr uint8_t OATH_COLOR[3] = {255, 255, 0};     // Yellow
-    constexpr uint8_t DIG_COLOR[3] = {0, 255, 0};        // Green
-    constexpr uint8_t SHIELD_COLOR[3] = {255, 105, 180}; // Pink
-    constexpr uint8_t NULL_COLOR[3] = {255, 0, 0};       // Red
+    constexpr uint8_t OFFER_COLOR[3] = {128, 0, 255};    // Purple (more blue)
+    constexpr uint8_t CALM_COLOR[3] = {0, 0, 255};       // Blue (was Yellow)
+    constexpr uint8_t OATH_COLOR[3] = {255, 255, 0};     // Yellow (was Red)
+    constexpr uint8_t DIG_COLOR[3] = {0, 255, 0};        // Green (unchanged)
+    constexpr uint8_t SHIELD_COLOR[3] = {255, 105, 180}; // Pink (was Blue)
+    constexpr uint8_t NULL_COLOR[3] = {255, 0, 0};       // Red (was Orange)
     constexpr uint8_t UNKNOWN_COLOR[3] = {255, 255, 255}; // White
     constexpr uint8_t POSITION_COLORS[7][3] = {
-        {255, 0, 0},      // POS_NULL: Red
-        {255, 105, 180},  // POS_SHIELD: Pink
-        {128, 0, 255},    // POS_OFFER: Purple
-        {255, 255, 0},    // POS_OATH: Yellow
-        {0, 255, 0},      // POS_DIG: Green
-        {0, 0, 255},      // POS_CALM: Blue
-        {255, 255, 255}   // POS_UNKNOWN: White
+        {255, 0, 0},       // POS_NULL: Red (was Orange)
+        {255, 105, 180},   // POS_SHIELD: Pink (was Green/Blue)
+        {128, 0, 255},     // POS_OFFER: Purple (more blue) (was Blue)
+        {255, 255, 0},     // POS_OATH: Yellow (was Magenta/Red)
+        {0, 255, 0},       // POS_DIG: Green (unchanged)
+        {0, 0, 255},       // POS_CALM: Blue (was Cyan/Yellow)
+        {255, 127, 0}      // POS_UNDEFINED: Orange (unchanged)
     };
     
     // Countdown color constant for consistent usage
@@ -143,7 +143,7 @@ namespace Config {
       uint8_t g;
       uint8_t b;
     };
-    constexpr Color SHIELD_COUNTDOWN_COLOR = {255, 105, 180}; // Pink for Shield countdown
+    constexpr Color SHIELD_COUNTDOWN_COLOR = {255, 105, 180}; // Pink (matching Shield color, was Blue)
   }
 
   // System power states

@@ -20,11 +20,11 @@
 // Position names for debugging
 const char* positionNames[] = {
   "OFFER (Purple)",  // POS_OFFER
-  "CALM (Yellow)",   // POS_CALM
-  "OATH (Red)",      // POS_OATH
+  "CALM (Blue)",     // POS_CALM
+  "OATH (Yellow)",   // POS_OATH
   "DIG (Green)",     // POS_DIG
-  "SHIELD (Blue)",   // POS_SHIELD
-  "NULL (Orange)",   // POS_NULLPOS
+  "SHIELD (Pink)",   // POS_SHIELD
+  "NULL (Red)",      // POS_NULLPOS
   "UNKNOWN (White)"  // POS_UNKNOWN
 };
 
@@ -184,11 +184,11 @@ void handleCalibration() {
   // Position names for clearer instructions
   const char* posNames[] = {
     "OFFER (Purple - Palm up, fingers extended)",
-    "CALM (Yellow - Palm down, fingers extended)",
-    "OATH (Red - Hand vertical, palm facing inward)",
+    "CALM (Blue - Palm down, fingers extended)",
+    "OATH (Yellow - Hand vertical, palm facing inward)",
     "DIG (Green - Hand vertical, palm facing outward)",
-    "SHIELD (Blue - Arm extended forward, palm facing forward)",
-    "NULL (Orange - Arm extended backward, palm facing back)"
+    "SHIELD (Pink - Arm extended forward, palm facing forward)",
+    "NULL (Red - Arm extended backward, palm facing back)"
   };
   
   // Calibrate each position with better timing

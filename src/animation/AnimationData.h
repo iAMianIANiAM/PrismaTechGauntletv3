@@ -17,22 +17,23 @@ namespace AnimColors {
   // Basic colors
   const PROGMEM uint8_t BLACK[3] = {0, 0, 0};
   const PROGMEM uint8_t WHITE[3] = {255, 255, 255};
-  const PROGMEM uint8_t RED[3] = {255, 0, 0};
-  const PROGMEM uint8_t GREEN[3] = {0, 255, 0};
-  const PROGMEM uint8_t BLUE[3] = {0, 0, 255};
-  const PROGMEM uint8_t YELLOW[3] = {255, 255, 0};
+  const PROGMEM uint8_t RED[3] = {255, 0, 0};          // Same as NULL position
+  const PROGMEM uint8_t GREEN[3] = {0, 255, 0};        // Same as DIG position
+  const PROGMEM uint8_t BLUE[3] = {0, 0, 255};         // Same as CALM position
+  const PROGMEM uint8_t YELLOW[3] = {255, 255, 0};     // Same as OATH position
   const PROGMEM uint8_t CYAN[3] = {0, 255, 255};
   const PROGMEM uint8_t MAGENTA[3] = {255, 0, 255};
-  const PROGMEM uint8_t PURPLE[3] = {128, 0, 128};
+  const PROGMEM uint8_t PURPLE[3] = {128, 0, 255};     // Same as OFFER position
   const PROGMEM uint8_t ORANGE[3] = {255, 165, 0};
+  const PROGMEM uint8_t PINK[3] = {255, 105, 180};     // Same as SHIELD position
   
   // Position colors (matching Config.h)
-  const PROGMEM uint8_t OFFER[3] = {128, 0, 255};    // Purple
-  const PROGMEM uint8_t CALM[3] = {0, 0, 255};       // Blue  
-  const PROGMEM uint8_t OATH[3] = {255, 255, 0};     // Yellow
-  const PROGMEM uint8_t DIG[3] = {0, 255, 0};        // Green
-  const PROGMEM uint8_t SHIELD[3] = {255, 105, 180}; // Pink
-  const PROGMEM uint8_t NULL_POS[3] = {255, 0, 0};   // Red
+  const PROGMEM uint8_t OFFER[3] = {128, 0, 255};    // Purple (more blue)
+  const PROGMEM uint8_t CALM[3] = {0, 0, 255};       // Blue (was Yellow)
+  const PROGMEM uint8_t OATH[3] = {255, 255, 0};     // Yellow (was Red)
+  const PROGMEM uint8_t DIG[3] = {0, 255, 0};        // Green (unchanged)
+  const PROGMEM uint8_t SHIELD[3] = {255, 105, 180}; // Pink (was Blue)
+  const PROGMEM uint8_t NULL_POS[3] = {255, 0, 0};   // Red (was Orange)
   
   // Spell effect colors
   const PROGMEM uint8_t INFERNO_BASE[3] = {255, 60, 0};  // Deep orange-red

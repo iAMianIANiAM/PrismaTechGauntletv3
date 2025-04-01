@@ -210,17 +210,17 @@ void IdleMode::renderLEDs() {
 CRGB IdleMode::getPositionColor(uint8_t position) {
     switch (position) {
         case POS_OFFER:
-            return CRGB(128, 0, 128);  // Purple
+            return CRGB(128, 0, 255);  // Purple (more blue)
         case POS_CALM:
-            return CRGB(255, 255, 0);  // Yellow
+            return CRGB(0, 0, 255);    // Blue (was Yellow)
         case POS_OATH:
-            return CRGB(255, 0, 0);    // Red
+            return CRGB(255, 255, 0);  // Yellow (was Red)
         case POS_DIG:
-            return CRGB(0, 255, 0);    // Green
+            return CRGB(0, 255, 0);    // Green (unchanged)
         case POS_SHIELD:
-            return CRGB(0, 0, 255);    // Blue
+            return CRGB(255, 105, 180); // Pink (was Blue)
         case POS_NULLPOS:
-            return CRGB(255, 165, 0);  // Orange
+            return CRGB(255, 0, 0);    // Red (was Orange)
         case POS_UNKNOWN:
         default:
             return CRGB(255, 255, 255); // White
@@ -312,11 +312,11 @@ void IdleMode::printStatus() const {
     
     switch (currentPosition.position) {
         case POS_OFFER:    Serial.println(F("OFFER (Purple)")); break;
-        case POS_CALM:     Serial.println(F("CALM (Yellow)")); break;
-        case POS_OATH:     Serial.println(F("OATH (Red)")); break;
+        case POS_CALM:     Serial.println(F("CALM (Blue)")); break;
+        case POS_OATH:     Serial.println(F("OATH (Yellow)")); break;
         case POS_DIG:      Serial.println(F("DIG (Green)")); break;
-        case POS_SHIELD:   Serial.println(F("SHIELD (Blue)")); break;
-        case POS_NULLPOS:  Serial.println(F("NULL (Orange)")); break;
+        case POS_SHIELD:   Serial.println(F("SHIELD (Pink)")); break;
+        case POS_NULLPOS:  Serial.println(F("NULL (Red)")); break;
         case POS_UNKNOWN:  Serial.println(F("UNKNOWN (White)")); break;
         default:           Serial.println(F("DEFAULT (White)")); break;
     }

@@ -21,12 +21,12 @@ FreeCastMode::FreeCastMode()
       inShieldCountdown(false),
       currentPosition({POS_UNKNOWN, 0, 0})
 {
-    // Initialize color palette with default values
-    patternColors[0] = CRGB(255, 0, 0);   // Red
-    patternColors[1] = CRGB(0, 255, 0);   // Green
-    patternColors[2] = CRGB(0, 0, 255);   // Blue
-    patternColors[3] = CRGB(255, 255, 0); // Yellow
-    patternColors[4] = CRGB(0, 255, 255); // Cyan
+    // Initialize color palette with position colors
+    patternColors[0] = CRGB(255, 0, 0);       // Red (Null position)
+    patternColors[1] = CRGB(0, 255, 0);       // Green (Dig position)
+    patternColors[2] = CRGB(255, 105, 180);   // Pink (Shield position)
+    patternColors[3] = CRGB(128, 0, 255);     // Purple (Offer position)
+    patternColors[4] = CRGB(255, 255, 0);     // Yellow (Oath position)
 }
 
 // Initialize with dependencies
@@ -497,11 +497,11 @@ void FreeCastMode::generateColorPalette() {
     // Brightness will still be affected by motion intensity
     
     // Generate more vibrant rainbow palette
-    patternColors[0] = CRGB(255, 0, 0);     // Red
-    patternColors[1] = CRGB(0, 255, 0);     // Green
-    patternColors[2] = CRGB(0, 0, 255);     // Blue
-    patternColors[3] = CRGB(255, 0, 255);   // Magenta
-    patternColors[4] = CRGB(255, 255, 0);   // Yellow
+    patternColors[0] = CRGB(255, 0, 0);       // Red (Null position)
+    patternColors[1] = CRGB(0, 255, 0);       // Green (Dig position)
+    patternColors[2] = CRGB(255, 105, 180);   // Pink (Shield position)
+    patternColors[3] = CRGB(128, 0, 255);     // Purple (Offer position)
+    patternColors[4] = CRGB(255, 255, 0);     // Yellow (Oath position)
     
     // Scale brightness based on motion intensity
     float brightnessScale = 0.5f + (motionIntensity * 0.5f); // 0.5-1.0 brightness scale

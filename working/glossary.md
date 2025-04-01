@@ -121,29 +121,35 @@ Only components that meet the full System Integration Verification criteria shou
 
 | Term | Definition |
 |------|------------|
-| **Operational Modes** | The four distinct states of the PrismaTech Gauntlet: Idle Mode, Invocation Mode, Resolution Mode, and Freecast Mode. Each mode has unique behaviors, interactions, and visual feedback patterns. |
-| **Hand Positions** | The six defined orientations that the gauntlet can detect: Offer (palm up), Calm (palm down), Oath (hand pointing up), Dig (hand pointing down), Shield (hand to side, palm out), and Null (hand to side, palm in). Each position has a corresponding color and is detected via the dominant axis model. |
-| **Idle Mode** | The default state of the gauntlet when not actively casting. It provides real-time visual feedback of the current hand position while monitoring for trigger gestures that activate other modes. |
-| **Invocation Mode** | A structured sequence where the user's hand positions are recorded into three distinct "slots" to determine the resulting spell effect. |
-| **Resolution Mode** | The culmination of the invocation sequence, where the system evaluates the three imprinted positions and activates a corresponding spell effect. |
-| **Freecast Mode** | A creative, freeform experience where users can generate unique light patterns by moving the gauntlet in various ways. Unlike the structured Invocation Mode, Freecast allows for more expressive and dynamic interactions. |
-| **Offer Position** | Hand forward, palm up orientation. Represented by purple color (RGB: 128, 0, 128). Detected via Z-axis dominant positive. |
-| **Calm Position** | Hand forward, palm down orientation. Represented by yellow color (RGB: 255, 255, 0). Detected via Z-axis dominant negative. |
-| **Oath Position** | Hand pointing upwards. Represented by red color (RGB: 255, 0, 0). Detected via Y-axis dominant negative. |
-| **Dig Position** | Hand pointing downwards. Represented by green color (RGB: 0, 255, 0). Detected via Y-axis dominant positive. |
-| **Shield Position** | Hand to the side, palm out. Represented by blue color (RGB: 0, 0, 255). Detected via X-axis dominant negative. |
-| **Null Position** | Hand to the side, palm in. Represented by orange color (RGB: 255, 165, 0). Detected via X-axis dominant positive. |
-| **UBPD** | Ultra Basic Position Detection - The primary detection model for the device that converts raw accelerometer data to physical units (m/s²) and uses simplified dominant axis detection with explicit thresholds to identify hand positions. |
-| **Dominant Axis Detection Model** | The algorithm used for position recognition where each hand position has a primary axis that shows significantly higher values than other axes. The system detects which axis has the strongest acceleration and compares it to calibrated thresholds. |
 | **CalmOffer** | A transition gesture from "Calm" position (palm-down) to "Offer" position (palm-up) within a 1000ms window. This gesture triggers the transition from Idle Mode to Invocation Mode. |
-| **LongNull** | A gesture where the "Null" position (hand to side, palm in) is maintained continuously for 5000ms. This gesture triggers the transition to or exit from Freecast Mode. |
-| **Invocation Slots** | Three distinct slots in Invocation Mode, each represented by 4 LEDs on the ring, which record position-based imprints to determine the resulting spell effect. |
-| **Invocation Phases** | The four sequential stages of Invocation Mode: Indicator Phase (signals active slot, 1 second), Countdown Phase (visual timer, 2 seconds), Checkpoint Phase (position detection, 200ms), and Confirmation Phase (visual feedback, 1 second). |
-| **Spell Effects** | The visual animations triggered in Resolution Mode based on the positions recorded in the invocation slots. Examples include Inferno, Blizzard, Wild Growth, Detect Magic, Rainbow Burst, and Rainbow Pop, each with unique animations, colors, and durations. |
-| **Freecast Cycle** | The alternating sequence in Freecast Mode consisting of a 2-second Data Collection Phase (recording motion) followed by a 2-second Pattern Generation Phase (displaying motion-based visuals). |
-| **MPU9250** | The motion sensor used in the gauntlet for position and gesture detection. |
+| **CalmPosition** | Hand forward, palm down orientation. Represented by blue color (RGB: 0, 0, 255). Detected via Z-axis dominant negative. |
 | **Calibration Protocol** | Structured process for capturing sensor data to generate detection thresholds. |
-| **Threshold Manager** | Component for centralizing management of detection thresholds. |
+| **Calibration Mode** | Special system mode for adjusting sensor thresholds. |
+| **CalibrationThreshold** | The value that defines the transition between different hand positions. |
+| **CalibrationValue** | The value that defines the transition between different hand positions. |
+| **Config** | Header-only implementation containing system-wide constants and configuration values |
+| **DominantAxisDetectionModel** | The algorithm used for position recognition where each hand position has a primary axis that shows significantly higher values than other axes. The system detects which axis has the strongest acceleration and compares it to calibrated thresholds. |
+| **Double-Check** | Post-implementation verification protocol. Uses checklists to ensure structural, functional, and build integrity. |
+| **Freecast Cycle** | The alternating sequence in Freecast Mode consisting of a 2-second Data Collection Phase (recording motion) followed by a 2-second Pattern Generation Phase (displaying motion-based visuals). |
+| **FreecastMode** | A creative, freeform experience where users can generate unique light patterns by moving the gauntlet in various ways. Unlike the structured Invocation Mode, Freecast allows for more expressive and dynamic interactions. |
+| **HandPositions** | The six defined orientations that the gauntlet can detect: Offer (palm up), Calm (palm down), Oath (hand pointing up), Dig (hand pointing down), Shield (hand to side, palm out), and Null (hand to side, palm in). Each position has a corresponding color and is detected via the dominant axis model. |
+| **IdleMode** | The default state of the gauntlet when not actively casting. It provides real-time visual feedback of the current hand position while monitoring for trigger gestures that activate other modes. |
+| **InvocationMode** | A structured sequence where the user's hand positions are recorded into three distinct "slots" to determine the resulting spell effect. |
+| **InvocationPhases** | The four sequential stages of Invocation Mode: Indicator Phase (signals active slot, 1 second), Countdown Phase (visual timer, 2 seconds), Checkpoint Phase (position detection, 200ms), and Confirmation Phase (visual feedback, 1 second). |
+| **InvocationSlots** | Three distinct slots in Invocation Mode, each represented by 4 LEDs on the ring, which record position-based imprints to determine the resulting spell effect. |
+| **LongNull** | A gesture where the "Null" position (hand to side, palm in) is maintained continuously for 5000ms. This gesture triggers the transition to or exit from Freecast Mode. |
+| **LongOffer** | Extended duration in Offer position |
+| **MPU9250** | The motion sensor used in the gauntlet for position and gesture detection. |
+| **NullPosition** | Hand to the side, palm in. Represented by red color (RGB: 255, 0, 0). Detected via X-axis dominant positive. |
+| **OfferPosition** | Hand forward, palm up orientation. Represented by purple color (RGB: 128, 0, 255). Detected via Z-axis dominant positive. |
+| **OperationalModes** | The four distinct states of the PrismaTech Gauntlet: Idle Mode, Invocation Mode, Resolution Mode, and Freecast Mode. Each mode has unique behaviors, interactions, and visual feedback patterns. |
+| **OathPosition** | Hand pointing upwards. Represented by yellow color (RGB: 255, 255, 0). Detected via Y-axis dominant negative. |
+| **QuickCastSpell** | An effect pattern triggered from Idle Mode via a two-position gesture combination, which returns to Idle Mode upon completion of the spell effect. QuickCast spells come in two varieties: definite spells (with fixed durations that expire automatically) and channeled spells (which persist until a cancel trigger is detected). |
+| **ResolutionMode** | The culmination of the invocation sequence, where the system evaluates the three imprinted positions and activates a corresponding spell effect. |
+| **ShieldPosition** | Hand to the side, palm out. Represented by pink color (RGB: 255, 105, 180). Detected via X-axis dominant negative. |
+| **SpellEffects** | The visual animations triggered in Resolution Mode based on the positions recorded in the invocation slots. Examples include Inferno, Blizzard, Wild Growth, Detect Magic, Rainbow Burst, and Rainbow Pop, each with unique animations, colors, and durations. |
+| **ThresholdManager** | Component for centralizing management of detection thresholds. |
+| **UBPD** | Ultra Basic Position Detection - The primary detection model for the device that converts raw accelerometer data to physical units (m/s²) and uses simplified dominant axis detection with explicit thresholds to identify hand positions. |
 
 ---
 
@@ -222,18 +228,6 @@ The project uses a simplified environment scheme to maintain clarity and focus:
 
 The functionTest environment is designed to be reconfigured for each new testing need. When a new test is required, the existing test code should be archived to archive/tests/ before the environment is updated with new test code.
 
-## Position Color Standardization
-
-| Position | Color   | RGB Value      |
-|----------|---------|----------------|
-| OFFER    | Purple  | (128, 0, 255)  |
-| CALM     | Blue    | (0, 0, 255)    |
-| OATH     | Yellow  | (255, 255, 0)  |
-| DIG      | Green   | (0, 255, 0)    |
-| SHIELD   | Pink    | (255, 105, 180)|
-| NULL     | Red     | (255, 0, 0)    |
-| UNKNOWN  | White   | (255, 255, 255)|
-
 ### Development Protocols
 
 #### Chronicle Transition Protocol
@@ -308,10 +302,12 @@ A comprehensive git operation that captures the complete state of the project at
 
 | Term | Definition |
 |------|------------|
-| **Physical Units** | Sensor readings converted to standard physical units (e.g., m/s², gauss) rather than raw values. |
-| **Threshold Boundaries** | The values that define the transition between different hand positions. |
 | **Activation Energy** | The amount of motion required to trigger a position change. |
 | **Calibration Mode** | Special system mode for adjusting sensor thresholds. |
+| **CalibrationThreshold** | The value that defines the transition between different hand positions. |
+| **CalibrationValue** | The value that defines the transition between different hand positions. |
+| **Physical Units** | Sensor readings converted to standard physical units (e.g., m/s², gauss) rather than raw values. |
+| **Threshold Boundaries** | The values that define the transition between different hand positions. |
 
 ---
 
