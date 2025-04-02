@@ -66,6 +66,15 @@ private:
     void renderLightningBlast(uint32_t currentTime, uint32_t elapsedTime);
     void renderLumina(uint32_t currentTime, uint32_t elapsedTime);
 
+    // Rainbow Burst helper methods (new)
+    void renderRainbowPhase1(unsigned long elapsed);
+    void renderRainbowPhase2(unsigned long elapsed);
+    void renderRainbowPhase3(unsigned long elapsed);
+    void renderRainbowPhase4(unsigned long elapsed);
+    void renderRainbowSwirl(float progress, float brightness);
+    void renderColorPop(uint8_t led, unsigned long popTime, unsigned long elapsed, uint8_t r, uint8_t g, uint8_t b);
+    void hsvToRgb(float h, float s, float v, uint8_t &r, uint8_t &g, uint8_t &b);
+
     // Private helper methods for specific spell logic can be added here
     // e.g., void updateRainbowBurst();
     // e.g., bool checkForLuminaExitGesture();

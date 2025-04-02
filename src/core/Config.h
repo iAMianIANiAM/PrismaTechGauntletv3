@@ -145,7 +145,7 @@ namespace Config {
 
   // QuickCast Spell Parameters <-- Added Namespace
   namespace Spells {
-    constexpr uint16_t RAINBOW_DURATION_MS = 7000;   // Rainbow Burst duration (7s)
+    constexpr uint16_t RAINBOW_DURATION_MS = 8000;   // Rainbow Burst duration (8s)
     constexpr uint16_t LIGHTNING_DURATION_MS = 5000; // Lightning Blast duration (5s)
     constexpr uint16_t LUMINA_DURATION_MS = 20000;  // Lumina duration (20s)
     constexpr uint8_t LUMINA_BRIGHTNESS = 204;      // Lumina brightness (80% of 255)

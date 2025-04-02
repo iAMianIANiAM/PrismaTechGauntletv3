@@ -5,6 +5,7 @@
 // #include "../animation/AnimationController.h" // Not used
 #include "../utils/DebugTools.h" // Added for DEBUG prints
 #include <FastLED.h> // Needed for CRGB utilities if used
+#include <Arduino.h> // For math functions
 
 QuickCastSpellsMode::QuickCastSpellsMode()
     : hardwareManager_(nullptr),
@@ -140,16 +141,143 @@ void QuickCastSpellsMode::renderLEDs() {
 // --- Private Spell Rendering Methods ---
 
 void QuickCastSpellsMode::renderRainbowBurst(uint32_t currentTime, uint32_t elapsedTime) {
-    // TODO: Implement non-blocking, accelerating outward rainbow animation
-    // Example placeholder: simple rainbow cycle
-    uint8_t hue = (elapsedTime / 20) % 256; // Cycle hue over time
-    // hardwareManager_->fillRainbow(hue, 10); // This function doesn't exist in HardwareManager
-    // Placeholder: Set all LEDs to a changing color based on hue
-    CHSV hsvColor = CHSV(hue, 255, 255); // Using FastLED's HSV type
-    CRGB rgbColor; // Using FastLED's RGB type
-    hsv2rgb_rainbow(hsvColor, rgbColor);
-    hardwareManager_->setAllLEDs({rgbColor.r, rgbColor.g, rgbColor.b});
-    hardwareManager_->updateLEDs(); 
+    // Calculate elapsed time and phase
+    uint8_t phase = (elapsedTime < 2000) ? 0 : 
+                    (elapsedTime < 4000) ? 1 :
+                    (elapsedTime < 6000) ? 2 :
+                    (elapsedTime < 8000) ? 3 : 4;
+    
+    // Determine if spell is complete
+    if (elapsedTime >= Config::Spells::RAINBOW_DURATION_MS) {
+        DEBUG_PRINTLN("Rainbow Burst completed duration");
+        return;
+    }
+    
+    // Render appropriate phase animation
+    switch (phase) {
+        case 0: renderRainbowPhase1(elapsedTime); break;  // 0-2s: Slow pulse & swirl
+        case 1: renderRainbowPhase2(elapsedTime); break;  // 2-4s: Medium pulse & swirl
+        case 2: renderRainbowPhase3(elapsedTime); break;  // 4-6s: Fast pulse & swirl
+        case 3: renderRainbowPhase4(elapsedTime - 6000); break;  // 6-8s: Burst & colored pops
+    }
+}
+
+void QuickCastSpellsMode::renderRainbowPhase1(unsigned long elapsed) {
+    // 0-2s: Slow pulse (1Hz) & slow swirl (1 rotation/s)
+    float pulseProgress = (elapsed % 1000) / 1000.0f;
+    float brightness = 0.6f + 0.4f * sin(pulseProgress * 2 * PI);
+    
+    float rotationProgress = (elapsed % 1000) / 1000.0f;
+    renderRainbowSwirl(rotationProgress, brightness);
+    
+    DEBUG_PRINTLN("Rainbow Phase 1");
+}
+
+void QuickCastSpellsMode::renderRainbowPhase2(unsigned long elapsed) {
+    // 2-4s: Medium pulse (2Hz) & medium swirl (2 rotations/s)
+    float pulseProgress = (elapsed % 500) / 500.0f;
+    float brightness = 0.6f + 0.4f * sin(pulseProgress * 2 * PI);
+    
+    float rotationProgress = (elapsed % 500) / 500.0f;
+    renderRainbowSwirl(rotationProgress, brightness);
+    
+    DEBUG_PRINTLN("Rainbow Phase 2");
+}
+
+void QuickCastSpellsMode::renderRainbowPhase3(unsigned long elapsed) {
+    // 4-6s: Fast pulse (4Hz) & fast swirl (4 rotations/s)
+    float pulseProgress = (elapsed % 250) / 250.0f;
+    float brightness = 0.6f + 0.4f * sin(pulseProgress * 2 * PI);
+    
+    float rotationProgress = (elapsed % 250) / 250.0f;
+    renderRainbowSwirl(rotationProgress, brightness);
+    
+    DEBUG_PRINTLN("Rainbow Phase 3");
+}
+
+void QuickCastSpellsMode::renderRainbowPhase4(unsigned long elapsed) {
+    // 6-8s: White burst fading + colored pops
+    if (elapsed < 50) {
+        // Initial white burst at 60% brightness
+        DEBUG_PRINTLN("Rainbow WHITE BURST!");
+        for (int i = 0; i < Config::NUM_LEDS; i++) {
+            Color white = {153, 153, 153}; // 60% white
+            hardwareManager_->setLED(i, white);
+        }
+        return;
+    }
+    
+    // Fade out 6 LEDs (even indices: 0,2,4,6,8,10)
+    float fadeProgress = min(1.0f, elapsed / 2000.0f);
+    uint8_t whiteBrightness = 153 * (1.0f - fadeProgress);
+    
+    // Set fading white LEDs (even indices)
+    for (int i = 0; i < Config::NUM_LEDS; i += 2) {
+        Color fadeWhite = {whiteBrightness, whiteBrightness, whiteBrightness};
+        hardwareManager_->setLED(i, fadeWhite);
+    }
+    
+    // Colored pop sequence - predetermined timings for "random" appearance
+    // Each LED gets a ~250ms "pop" of color then turns off
+    renderColorPop(1, 300, elapsed, 255, 0, 0);      // LED 1: Red at 300ms
+    renderColorPop(7, 600, elapsed, 255, 255, 0);    // LED 7: Yellow at 600ms
+    renderColorPop(3, 900, elapsed, 0, 255, 0);      // LED 3: Green at 900ms
+    renderColorPop(9, 1200, elapsed, 0, 0, 255);     // LED 9: Blue at 1200ms
+    renderColorPop(5, 1500, elapsed, 128, 0, 255);   // LED 5: Purple at 1500ms
+    renderColorPop(11, 1800, elapsed, 255, 105, 180); // LED 11: Pink at 1800ms
+    
+    DEBUG_PRINTLN("Rainbow Phase 4");
+}
+
+void QuickCastSpellsMode::renderRainbowSwirl(float progress, float brightness) {
+    // Render rainbow pattern with given rotation progress and brightness
+    for (int i = 0; i < Config::NUM_LEDS; i++) {
+        float hue = fmod(progress + (i / (float)Config::NUM_LEDS), 1.0f);
+        uint8_t r, g, b;
+        hsvToRgb(hue, 1.0f, brightness, r, g, b);
+        Color rainbow = {r, g, b};
+        hardwareManager_->setLED(i, rainbow);
+    }
+    hardwareManager_->updateLEDs();
+}
+
+void QuickCastSpellsMode::renderColorPop(uint8_t led, 
+                                       unsigned long popTime, 
+                                       unsigned long elapsed,
+                                       uint8_t r, uint8_t g, uint8_t b) {
+    // If within the pop window, show color, otherwise off
+    if (elapsed >= popTime && elapsed < popTime + 250) {
+        Color popColor = {r, g, b};
+        hardwareManager_->setLED(led, popColor);
+    } else if (elapsed >= popTime + 250) {
+        Color black = {0, 0, 0};
+        hardwareManager_->setLED(led, black);
+    }
+}
+
+void QuickCastSpellsMode::hsvToRgb(float h, float s, float v, 
+                                 uint8_t &r, uint8_t &g, uint8_t &b) {
+    // Standard HSV to RGB conversion
+    int i = int(h * 6);
+    float f = h * 6 - i;
+    float p = v * (1 - s);
+    float q = v * (1 - f * s);
+    float t = v * (1 - (1 - f) * s);
+    
+    float r_f, g_f, b_f;
+    
+    switch (i % 6) {
+        case 0: r_f = v; g_f = t; b_f = p; break;
+        case 1: r_f = q; g_f = v; b_f = p; break;
+        case 2: r_f = p; g_f = v; b_f = t; break;
+        case 3: r_f = p; g_f = q; b_f = v; break;
+        case 4: r_f = t; g_f = p; b_f = v; break;
+        case 5: r_f = v; g_f = p; b_f = q; break;
+    }
+    
+    r = r_f * 255;
+    g = g_f * 255;
+    b = b_f * 255;
 }
 
 void QuickCastSpellsMode::renderLightningBlast(uint32_t currentTime, uint32_t elapsedTime) {

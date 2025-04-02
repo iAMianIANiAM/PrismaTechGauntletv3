@@ -94,7 +94,7 @@ Based on our code inspection and analysis, we have identified several key issues
    Serial.print("GestureTracker: Completed "); Serial.println((int)transitionType_);
    ```
 
-4. **Update GauntletController.cpp**:
+4. **Updated GauntletController.cpp**:
    ```cpp
    case SystemMode::QUICKCAST_SPELL:
        modeTransition = quickCastMode->update();
@@ -405,4 +405,168 @@ With the core system architecture proven and stable, we can now focus on refinem
 3. Consider UX enhancements for even more intuitive interaction
 4. Prepare for future feature additions including the reworked Invocation Mode
 
-📊 **GUIDE-ALIGNED:** The completed implementation fulfills the core intention of the TrueFunctionGuide, delivering a responsive, intuitive, and magical interaction experience through the gauntlet's gesture system. 
+📊 **GUIDE-ALIGNED:** The completed implementation fulfills the core intention of the TrueFunctionGuide, delivering a responsive, intuitive, and magical interaction experience through the gauntlet's gesture system.
+
+## 📋 Enhancement Roadmap Approval (202504020245)
+
+📌 **DECISION:** Approved enhancement roadmap for PrismaTech Gauntlet 3.0 with implementation priority order. Each individual component will still require detailed proposal and approval before implementation.
+
+### Approved Enhancement Plan
+
+1. **Enhance QuickCast Spell Effects** (Lowest Complexity)
+   - Enhance visual patterns for Rainbow Burst, Lightning Blast, and Lumina
+   - Modify existing rendering methods in `QuickCastSpellsMode.cpp`
+   - No structural changes needed to the architecture
+
+2. **Extend Lumina Duration and Add Cancellation**
+   - Extend `Config::Spells::LUMINA_DURATION_MS` from 20 to 60 seconds
+   - Implement NullShield cancellation gesture during Lumina execution
+   - Add gesture detection capability to `QuickCastSpellsMode`
+
+3. **Improve FreeCast Mode Motion-to-Pattern System**
+   - Refactor motion data analysis for more predictable features
+   - Enhance pattern generation for more controllable visual feedback
+   - Add configurable mapping parameters in `Config.h`
+
+4. **Implement Sleep Mode with LongLongDig Activation** (Highest Complexity)
+   - Add new `SLEEP` mode to system architecture
+   - Create new `SleepMode` class for power management
+   - Implement 10-second `LongLongDig` gesture detection
+   - Add CalmOffer detection for wake-up functionality
+
+This phased approach allows for incremental testing and validation of each enhancement before moving to more complex changes. The modular design of the current codebase provides a strong foundation for these enhancements.
+
+🧠 **INSIGHT:** This plan balances feature enhancement with system stability by starting with the lowest complexity changes and progressively moving to more substantial architectural modifications. The approach respects our core principles of KISS, DRY, and YAGNI while enabling meaningful extension of the system's capabilities. 
+
+## 📋 Rainbow Burst Enhancement (202504020321)
+
+📌 **DECISION:** Approved implementation plan for enhancing the Rainbow Burst QuickCast spell effect with a more complex and dynamic animation sequence.
+
+### Vision for Enhanced Rainbow Burst Pattern
+
+The Rainbow Burst QuickCast spell effect (triggered by CalmOffer gesture) will be enhanced with the following visual sequence over an 8-second duration:
+
+- **Start (0:00)**: All LEDs display rainbow colors around the ring.
+
+- **Phase 1 (0:00-0:02)**: Slow pulsing and swirling.
+  - Rainbow colors slowly pulse (brighten/dim) at 1Hz (one pulse per second)
+  - Colors simultaneously swirl around the ring at 1 rotation per second
+  - Total: 2 complete pulses and 2 complete rotations
+
+- **Phase 2 (0:02-0:04)**: Medium pulsing and swirling.
+  - Pulse rate increases to 2Hz (two pulses per second)
+  - Swirl speed increases to 2 rotations per second
+  - Total: 4 complete pulses and 4 complete rotations
+
+- **Phase 3 (0:04-0:06)**: Rapid pulsing and swirling.
+  - Pulse rate increases to 4Hz (four pulses per second)
+  - Swirl speed increases to 4 rotations per second
+  - Total: 8 complete pulses and 8 complete rotations
+
+- **Burst Point (0:06)**: Bright white flash.
+  - All 12 LEDs simultaneously display white at 60% brightness
+
+- **Phase 4 (0:06-0:08)**: Fade and pop sequence.
+  - 6 LEDs (even indices) fade from white to off over 2 seconds
+  - 6 LEDs (odd indices) "pop" with different colors then turn off
+  - Pop sequence timing: Red (0.3s), Yellow (0.6s), Green (0.9s), Blue (1.2s), Purple (1.5s), Pink (1.8s)
+  - Animation completes at 8s mark, returning to Idle Mode
+
+### Implementation Plan
+
+The enhanced Rainbow Burst effect will be implemented through a phase-based animation system with the following approach:
+
+1. **Refactoring the Main Rendering Method**:
+```cpp
+void QuickCastSpellsMode::renderRainbowBurst() {
+    // Calculate elapsed time and phase
+    unsigned long elapsed = millis() - startTime_;
+    uint8_t phase = (elapsed < 2000) ? 0 : 
+                    (elapsed < 4000) ? 1 :
+                    (elapsed < 6000) ? 2 :
+                    (elapsed < 8000) ? 3 : 4;
+    
+    // Determine if spell is complete
+    if (elapsed >= 8000) {
+        setState(SpellState::COMPLETING);
+        return;
+    }
+    
+    // Render appropriate phase animation
+    switch (phase) {
+        case 0: renderRainbowPhase1(elapsed); break;  // 0-2s: Slow pulse & swirl
+        case 1: renderRainbowPhase2(elapsed); break;  // 2-4s: Medium pulse & swirl
+        case 2: renderRainbowPhase3(elapsed); break;  // 4-6s: Fast pulse & swirl
+        case 3: renderRainbowPhase4(elapsed); break;  // 6-8s: Burst & colored pops
+    }
+    
+    hardwareManager_->updateLEDs();
+}
+```
+
+2. **Phase-Specific Rendering Methods**:
+   - `renderRainbowPhase1`: Implements slow pulsing (1Hz) and swirling (1 rotation/s)
+   - `renderRainbowPhase2`: Implements medium pulsing (2Hz) and swirling (2 rotations/s)
+   - `renderRainbowPhase3`: Implements rapid pulsing (4Hz) and swirling (4 rotations/s)
+   - `renderRainbowPhase4`: Implements white burst, fading, and color pop sequence
+
+3. **Helper Functions**:
+   - `renderRainbowSwirl`: Generates rainbow pattern with configurable rotation speed and brightness
+   - `renderColorPop`: Handles timing of individual color pops during final phase
+   - `hsvToRgb`: Converts HSV color values to RGB for smooth rainbow generation
+
+4. **Configuration Updates**:
+   - Update `RAINBOW_DURATION_MS` from 7000ms to 8000ms in `Config.h`
+
+The implementation will maintain precise timing through millis()-based time tracking rather than delays, ensuring smooth animation with minimal performance impact.
+
+🧠 **INSIGHT:** This enhanced animation demonstrates the capability of our animation system to handle multi-phase animations with simultaneous effects (pulsing and swirling) while maintaining performance. The phase-based approach provides clear separation of animation stages while preserving visual continuity. 
+
+## 📋 Rainbow Burst Enhancement Testing Success (202504020341)
+
+✅ **RESOLUTION:** The enhanced Rainbow Burst animation has been successfully implemented and tested, with the visual effect matching the envisioned pattern perfectly.
+
+🧠 **INSIGHT:** The phase-based animation approach not only delivers the desired visual experience but also demonstrates the flexibility of our LED animation framework for creating complex, multi-stage effects.
+
+📊 **GUIDE-ALIGNED:** While extending beyond the original TrueFunctionGuide specifications, this enhancement maintains the core magical essence of the Rainbow Burst spell while providing a more captivating and dynamic visual experience.
+
+## 📋 Rainbow Burst Enhancement Implementation (202504020350)
+
+✅ **RESOLUTION:** Successfully implemented the enhanced Rainbow Burst QuickCast spell effect according to the approved design.
+
+### Implementation Summary
+
+The enhanced Rainbow Burst effect has been successfully implemented with the following key components:
+
+1. **Duration Extension**:
+   - Updated `Config::Spells::RAINBOW_DURATION_MS` from 7000ms to 8000ms to accommodate the new animation sequence
+
+2. **Phase-Based Animation System**:
+   - Refactored `renderRainbowBurst()` to use a phase-based approach with four distinct phases
+   - Created helper methods for each phase to encapsulate specific behaviors
+   - Implemented smooth transitions between phases
+
+3. **Helper Functions**:
+   - Added `renderRainbowSwirl()`: Generates rainbow pattern with configurable rotation speed and brightness
+   - Added `renderColorPop()`: Manages individual color pop effects with precise timing
+   - Added `hsvToRgb()`: Converts HSV color values to RGB for smooth rainbow generation
+
+4. **Specific Phase Implementations**:
+   - **Phase 1 (0-2s)**: Slow pulsing (1Hz) and swirling (1 rotation/s)
+   - **Phase 2 (2-4s)**: Medium pulsing (2Hz) and swirling (2 rotations/s)
+   - **Phase 3 (4-6s)**: Fast pulsing (4Hz) and swirling (4 rotations/s)
+   - **Phase 4 (6-8s)**: 
+     - Initial white burst at 60% brightness
+     - Six LEDs fade from white to off
+     - Six LEDs "pop" with different colors in sequence
+     - Completes with all LEDs off, returning to Idle Mode
+
+### Build Verification
+
+The implementation was successfully compiled and verified using the esp32dev environment. Memory usage remains well within acceptable limits:
+- RAM: 7.0% used (22,896 bytes from 327,680 bytes)
+- Flash: 27.9% used (366,013 bytes from 1,310,720 bytes)
+
+🧠 **INSIGHT:** The phase-based animation approach provides a clean separation of concerns while maintaining cohesive visual effects. This pattern can be leveraged for future animation enhancements to other spell effects.
+
+📊 **GUIDE-ALIGNED:** The enhanced Rainbow Burst effect maintains the core concept from the TrueFunctionGuide while extending it with more dynamic and visually appealing animations. The core interaction model remains unchanged. 

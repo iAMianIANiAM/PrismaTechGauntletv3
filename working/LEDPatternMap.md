@@ -93,10 +93,14 @@ Visual effects triggered by specific gesture combinations.
 
 #### Spell Effects
 1. **Rainbow Burst** (CalmOffer)
-   - **Effect**: Radial rainbow spectrum that accelerates outward
-   - **Duration**: 7 seconds
-   - **Colors**: Full spectrum rotation
-   - **Implementation**: Progressive circular pattern with increasing speed
+   - **Effect**: Enhanced 4-phase rainbow animation with accelerating effects
+   - **Duration**: 8 seconds
+   - **Colors**: Full spectrum rotation with white burst and color pops
+   - **Implementation**: 
+     - Phase 1 (0-2s): Slow pulsing (1Hz) and swirling (1 rotation/s)
+     - Phase 2 (2-4s): Medium pulsing (2Hz) and swirling (2 rotations/s)
+     - Phase 3 (4-6s): Fast pulsing (4Hz) and swirling (4 rotations/s)
+     - Phase 4 (6-8s): White burst followed by fading and color pops
 
 2. **Lightning Blast** (DigOath)
    - **Effect**: Flash white, then simulate lightning crackles
