@@ -120,6 +120,20 @@ void QuickCastSpellsMode::exit() {
     hardwareManager_->updateLEDs();
 }
 
+/**
+ * @brief Explicitly renders LEDs for this mode.
+ * This method exists for API consistency with other modes.
+ * While update() already handles the spell-specific rendering, this ensures
+ * that the controller can call renderLEDs() on all mode types consistently.
+ */
+void QuickCastSpellsMode::renderLEDs() {
+    // LEDs are already updated within the spell render methods
+    // This method exists for API consistency with other modes
+    hardwareManager_->updateLEDs();
+    
+    DEBUG_PRINTLN("QuickCastSpellsMode::renderLEDs called");
+}
+
 // --- Private Spell Rendering Methods ---
 
 void QuickCastSpellsMode::renderRainbowBurst(uint32_t currentTime, uint32_t elapsedTime) {

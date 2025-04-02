@@ -43,6 +43,13 @@ public:
      * Performs cleanup, stops animations, and resets state.
      */
     void exit();
+    
+    /**
+     * @brief Explicitly renders LEDs for this mode.
+     * This method exists for API consistency with other modes.
+     * LED rendering is normally handled within the update() method.
+     */
+    void renderLEDs();
 
 private:
     HardwareManager* hardwareManager_;

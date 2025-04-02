@@ -115,6 +115,8 @@ void GauntletController::update() {
             
         case SystemMode::QUICKCAST_SPELL:
             modeTransition = quickCastMode->update();
+            // Explicitly render LEDs for QuickCast, similar to FreeCast mode
+            quickCastMode->renderLEDs();
             if (modeTransition == ModeTransition::TO_IDLE) {
                 currentMode = SystemMode::IDLE;
                 idleMode->initialize();

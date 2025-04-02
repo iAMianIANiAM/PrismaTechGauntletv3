@@ -433,3 +433,4 @@ Gemini Implementation Report
 - No QuickCast detections seem to work, nor spell effects display. QuickCast is completely nonfunctional, including having lost the previous functionality of the CalmOffer trigger.
 
 - FreeCast trigger in and out works, but FreeCast mode is now broken - the 2-second back-and-forth record/display cycle doesn't work anymore. 
+

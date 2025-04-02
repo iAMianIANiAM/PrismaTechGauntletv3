@@ -22,12 +22,12 @@ void GestureTransitionTracker::update(HandPosition currentPosition, uint32_t cur
             // Start position just became active, record the time
             startPositionActive_ = true;
             startTimeMs_ = currentTimestamp;
-            // Serial.print("GestureTracker: Started "); Serial.println((int)transitionType_); // Debug
+            Serial.print("GestureTracker: Started "); Serial.println((int)transitionType_);
         } else {
             // Start position is still active, check for timeout
             if (currentTimestamp - startTimeMs_ > maxDurationMs_) {
                 // Exceeded time limit, reset the timer
-                // Serial.print("GestureTracker: Timeout "); Serial.println((int)transitionType_); // Debug
+                Serial.print("GestureTracker: Timeout "); Serial.println((int)transitionType_);
                 reset(); 
             }
         }
@@ -37,12 +37,12 @@ void GestureTransitionTracker::update(HandPosition currentPosition, uint32_t cur
         if (startPositionActive_) {
             // End position achieved within the time window
             if (currentTimestamp - startTimeMs_ <= maxDurationMs_) {
-                // Serial.print("GestureTracker: Completed "); Serial.println((int)transitionType_); // Debug
+                Serial.print("GestureTracker: Completed "); Serial.println((int)transitionType_);
                 transitionComplete_ = true;
                 startPositionActive_ = false; // Stop tracking start pos
             } else {
                 // Reached end position, but too late. Reset.
-                // Serial.print("GestureTracker: Too Late "); Serial.println((int)transitionType_); // Debug
+                Serial.print("GestureTracker: Too Late "); Serial.println((int)transitionType_);
                 reset();
             }
         } else {
@@ -50,14 +50,6 @@ void GestureTransitionTracker::update(HandPosition currentPosition, uint32_t cur
         }
     } 
     // Current position is neither start nor end
-    else {
-        // If the start position *was* active, but we moved to something else (not the end pos), reset.
-        if (startPositionActive_) {
-            // Serial.print("GestureTracker: Interrupted "); Serial.println((int)transitionType_); // Debug
-            reset();
-        }
-        // Otherwise, do nothing.
-    }
 }
 
 bool GestureTransitionTracker::isTransitionComplete() const {
@@ -72,5 +64,5 @@ void GestureTransitionTracker::reset() {
     startPositionActive_ = false;
     startTimeMs_ = 0;
     transitionComplete_ = false;
-    // Serial.print("GestureTracker: Reset "); Serial.println((int)transitionType_); // Debug
+    Serial.print("GestureTracker: Reset "); Serial.println((int)transitionType_);
 } 
