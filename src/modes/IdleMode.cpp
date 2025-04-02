@@ -56,6 +56,9 @@ void IdleMode::initialize() {
     previousColor = CRGB::Black;
     colorTransitionStartTime = millis();
     
+    // Explicitly set brightness for Idle mode
+    hardwareManager->setBrightness(IDLE_BRIGHTNESS);
+    
     // Set LEDs to initial state
     renderLEDs();
 }

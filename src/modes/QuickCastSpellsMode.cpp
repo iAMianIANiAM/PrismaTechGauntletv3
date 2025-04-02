@@ -115,6 +115,9 @@ void QuickCastSpellsMode::exit() {
     spellStartTime_ = 0;
     spellDuration_ = 0;
     
+    // Reset brightness to default before clearing LEDs
+    hardwareManager_->setBrightness(Config::DEFAULT_BRIGHTNESS);
+    
     // Clear LEDs on exit to ensure clean state for IdleMode
     hardwareManager_->setAllLEDs({Config::Colors::BLACK[0], Config::Colors::BLACK[1], Config::Colors::BLACK[2]});
     hardwareManager_->updateLEDs();
