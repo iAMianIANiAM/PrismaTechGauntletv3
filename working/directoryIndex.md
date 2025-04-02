@@ -68,9 +68,14 @@ The detection subsystem processes sensor data to determine hand positions and ge
 
 ### Animation Subsystem (`src/animation/`)
 
-This subsystem does not currently exist as separate files.
-Animation logic is handled within specific modes (e.g., QuickCastSpellsMode)
-and potentially within LEDInterface.
+The animation subsystem handles LED patterns and visual effects for different system modes.
+
+| File | Description |
+|------|-------------|
+| `AnimationData.h` | Predefined animation frames and sequences for various effects |
+
+Animation logic is also integrated within specific modes (e.g., `QuickCastSpellsMode.cpp`, `FreecastMode.cpp`)
+and within `LEDInterface.cpp`.
 
 ### Utility Functions (`src/utils/`)
 
@@ -203,13 +208,12 @@ GauntletController
 
 ## 📚 Working Document Cross-References
 
-- **Chronicle**: [working/chronicle_v7.md](./chronicle_v7.md)
+- **Chronicle**: [working/chronicle_v8.md](./chronicle_v8.md)
 - **Roadmap**: [working/roadmap.md](./roadmap.md)
 - **Glossary**: [working/glossary.md](./glossary.md)
+- **LED Pattern Map**: [working/LEDPatternMap.md](./LEDPatternMap.md)
 
-## 🔄 System Architecture Update (2025-04-01)
-
-After implementation of the QuickCast spells system and removal of deprecated Invocation/Resolution modes:
+## 🔄 System Architecture (2025-04-02)
 
 ### Core Component Relationships
 
@@ -229,7 +233,7 @@ After implementation of the QuickCast spells system and removal of deprecated In
 ┌─────┴─────────────────────┴─────────┬─────────────────┘
 │     uses                            │ uses
 │   ┌──────────────────────────────┐  │  ┌─────────────────┐
-│   │ UltraBasicPositionDetector │◄─┘  │ HardwareManager │
+│   │ UltraBasicPositionDetector   │◄─┘  │ HardwareManager │
 │   └──────────────────────────────┘     └───────┬─────────┘
 │     uses                                       │ provides
 └─► ┌──────────────────────────┐                 │
@@ -253,12 +257,21 @@ After implementation of the QuickCast spells system and removal of deprecated In
 
 ### Current System State
 
-- QuickCast spells (Rainbow, Lightning, Lumina) implemented via `QuickCastSpellsMode`.
-- `IdleMode` detects QuickCast gestures and `LongShield` Freecast trigger.
-- Deprecated Invocation/Resolution modes removed.
-- Animation logic is primarily within modes, using `HardwareManager`/`LEDInterface`.
+- **[VERIFIED]** Position detection via `UltraBasicPositionDetector`
+- **[VERIFIED]** Idle Mode with position-based color display
+- **[VERIFIED]** QuickCast gesture detection (CalmOffer, DigOath, NullShield)
+- **[VERIFIED]** QuickCast spells (Rainbow, Lightning, Lumina) via `QuickCastSpellsMode`
+- **[VERIFIED]** Freecast Mode with dynamic motion-to-pattern translation
+- **[VERIFIED]** LongShield gesture for Freecast Mode entry/exit
+- **[DEPRECATED]** Invocation/Resolution mode structure
+
+### Key Updates (2025-04-02)
+- Fixed issue with QuickCast spell completion where LEDs would not reactivate properly
+- Updated gesture detection to handle intermediate positions correctly 
+- All planned functionality now implemented and verified
+- System now uses consistent LED rendering approach across all modes
 
 ---
 
-> Last updated: 2025-04-01
+> Last updated: 2025-04-02
 > This document is maintained as part of the project's working documentation set.

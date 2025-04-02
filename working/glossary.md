@@ -55,6 +55,7 @@
 | `✅ RESOLUTION:` | Document how an issue was resolved. |
 | `📌 DECISION:` | Flag finalized design or architectural choices. |
 | `🔍 TBD:` | Indicate incomplete or open-ended topics. |
+| `📊 GUIDE-ALIGNED:` | Indicate implementation that follows TrueFunctionGuide specifications. |
 
 ---
 
@@ -114,6 +115,9 @@ Only components that meet the full System Integration Verification criteria shou
 | **Small Changes, Frequent Commits** | Prefer small, focused changes with clear documentation. |
 | **Recover Before Extending** | Fix and verify existing functionality before adding new features. |
 | **Explicit Over Implicit** | Be explicit about status, intentions, and dependencies. |
+| **KISS** | Keep It Simple Stupid - add no more complexity than necessary. |
+| **DRY** | Don't Repeat Yourself - be vigilant against redundancy. |
+| **YAGNI** | You Ain't Gonna Need It - implement functionality only when it is truly necessary. |
 
 ---
 
@@ -121,13 +125,14 @@ Only components that meet the full System Integration Verification criteria shou
 
 | Term | Definition |
 |------|------------|
-| **CalmOffer** | A transition gesture from "Calm" position (palm-down) to "Offer" position (palm-up) within a 1000ms window. This gesture triggers the transition from Idle Mode to Invocation Mode. |
+| **CalmOffer** | A transition gesture from "Calm" position (palm-down) to "Offer" position (palm-up) within a 1000ms window. This gesture triggers the Rainbow Burst QuickCast spell. |
 | **CalmPosition** | Hand forward, palm down orientation. Represented by blue color (RGB: 0, 0, 255). Detected via Z-axis dominant negative. |
 | **Calibration Protocol** | Structured process for capturing sensor data to generate detection thresholds. |
 | **Calibration Mode** | Special system mode for adjusting sensor thresholds. |
 | **CalibrationThreshold** | The value that defines the transition between different hand positions. |
 | **CalibrationValue** | The value that defines the transition between different hand positions. |
 | **Config** | Header-only implementation containing system-wide constants and configuration values |
+| **DigOath** | A transition gesture from "Dig" position (fingers down) to "Oath" position (fingers up) within a 1000ms window. This gesture triggers the Lightning Blast QuickCast spell. |
 | **DominantAxisDetectionModel** | The algorithm used for position recognition where each hand position has a primary axis that shows significantly higher values than other axes. The system detects which axis has the strongest acceleration and compares it to calibrated thresholds. |
 | **Double-Check** | Post-implementation verification protocol. Uses checklists to ensure structural, functional, and build integrity. |
 | **Freecast Cycle** | The alternating sequence in Freecast Mode consisting of a 2-second Data Collection Phase (recording motion) followed by a 2-second Pattern Generation Phase (displaying motion-based visuals). |
@@ -135,20 +140,24 @@ Only components that meet the full System Integration Verification criteria shou
 | **HandPositions** | The six defined orientations that the gauntlet can detect: Offer (palm up), Calm (palm down), Oath (hand pointing up), Dig (hand pointing down), Shield (hand to side, palm out), and Null (hand to side, palm in). Each position has a corresponding color and is detected via the dominant axis model. |
 | **IdleMode** | The default state of the gauntlet when not actively casting. It provides real-time visual feedback of the current hand position while monitoring for QuickCast trigger gestures (`CalmOffer`, `DigOath`, `NullShield`) and the Freecast mode trigger (`LongShield`). |
 | **InvocationMode** | **⚫ DEPRECATED:** Originally planned as a structured sequence mode. Replaced by `QuickCastSpellsMode`. |
-| **InvocationPhases** | The four sequential stages of Invocation Mode: Indicator Phase (signals active slot, 1 second), Countdown Phase (visual timer, 2 seconds), Checkpoint Phase (position detection, 200ms), and Confirmation Phase (visual feedback, 1 second). |
-| **InvocationSlots** | Three distinct slots in Invocation Mode, each represented by 4 LEDs on the ring, which record position-based imprints to determine the resulting spell effect. |
-| **LongNull** | A gesture where the "Null" position (hand to side, palm in) is maintained continuously for 5000ms. This gesture triggers the transition to or exit from Freecast Mode. |
-| **LongOffer** | Extended duration in Offer position |
+| **InvocationPhases** | **⚫ DEPRECATED:** The four sequential stages of Invocation Mode: Indicator Phase, Countdown Phase, Checkpoint Phase, and Confirmation Phase. |
+| **InvocationSlots** | **⚫ DEPRECATED:** Three distinct slots in Invocation Mode, each represented by 4 LEDs on the ring, which record position-based imprints to determine the resulting spell effect. |
+| **LightningBlast** | A QuickCast spell effect triggered by the DigOath gesture. Features flash white, then simulated lightning crackles with red, blue, and purple, lasting for 5 seconds. |
+| **LongShield** | A gesture where the "Shield" position (hand to side, palm out) is maintained continuously for 5000ms. This gesture triggers the transition to or exit from Freecast Mode. Replaced the deprecated LongNull gesture. |
+| **LongOffer** | **⚫ DEPRECATED:** Extended duration in Offer position. Not currently used in the system. |
+| **Lumina** | A QuickCast spell effect triggered by the NullShield gesture. Produces a utility white light using 6/12 LEDs at 80% brightness for 20 seconds. Functions as a flashlight. |
 | **MPU9250** | The motion sensor used in the gauntlet for position and gesture detection. |
 | **NullPosition** | Hand to the side, palm in. Represented by red color (RGB: 255, 0, 0). Detected via X-axis dominant positive. |
+| **NullShield** | A transition gesture from "Null" position (palm in) to "Shield" position (palm out) within a 1000ms window. This gesture triggers the Lumina QuickCast spell. |
 | **OfferPosition** | Hand forward, palm up orientation. Represented by purple color (RGB: 128, 0, 255). Detected via Z-axis dominant positive. |
 | **OperationalModes** | The distinct states of the PrismaTech Gauntlet: `IdleMode`, `QuickCastSpellsMode`, and `FreecastMode`. |
 | **OathPosition** | Hand pointing upwards. Represented by yellow color (RGB: 255, 255, 0). Detected via Y-axis dominant negative. |
 | **QuickCastSpell** | An effect pattern triggered from Idle Mode via a two-position gesture combination (`CalmOffer`, `DigOath`, `NullShield`), which returns to Idle Mode upon completion of the spell effect. Examples: `RainbowBurst`, `LightningBlast`, `Lumina`. |
 | **QuickCastSpellsMode** | **🟢 ACTIVE:** Operational mode responsible for executing the visual effects of triggered QuickCast spells (`RainbowBurst`, `LightningBlast`, `Lumina`) for their defined durations. |
+| **RainbowBurst** | A QuickCast spell effect triggered by the CalmOffer gesture. Features a radial rainbow spectrum that accelerates outward, lasting for 7 seconds. |
 | **ResolutionMode** | **⚫ DEPRECATED:** Originally planned as the spell effect execution mode following Invocation. Spell effects are now handled by `QuickCastSpellsMode`. |
 | **ShieldPosition** | Hand to the side, palm out. Represented by pink color (RGB: 255, 105, 180). Detected via X-axis dominant negative. |
-| **SpellEffects** | The visual animations triggered in Resolution Mode based on the positions recorded in the invocation slots. Examples include Inferno, Blizzard, Wild Growth, Detect Magic, Rainbow Burst, and Rainbow Pop, each with unique animations, colors, and durations. |
+| **SpellEffects** | The visual animations triggered by QuickCast gestures. Current implementations include Rainbow Burst, Lightning Blast, and Lumina, each with unique animations, colors, and durations. |
 | **ThresholdManager** | Component for centralizing management of detection thresholds. |
 | **UBPD** | Ultra Basic Position Detection - The primary detection model for the device that converts raw accelerometer data to physical units (m/s²) and uses simplified dominant axis detection with explicit thresholds to identify hand positions. |
 
@@ -166,6 +175,7 @@ Only components that meet the full System Integration Verification criteria shou
 - **Config**: Header-only implementation containing system-wide constants and configuration values
 - **LEDInterface**: Hardware abstraction layer for controlling the LED system
 - **MPU9250Interface**: Hardware abstraction layer for the motion processing unit
+- **GestureTransitionTracker**: Component that tracks transitions between two hand positions within a specified time window
 
 #### Operational Modes
 
@@ -180,17 +190,18 @@ Only components that meet the full System Integration Verification criteria shou
 - **Offer**: Palm up, fingers extended
 - **Calm**: Palm down, fingers extended
 - **Oath**: Palm vertical (thumb up), fingers extended
-- **Dig**: Fingers curled into loose fist
-- **Shield**: Palm vertical (thumb up), fingers curled
-- **Null**: No recognized position (transitional or undefined)
+- **Dig**: Fingers pointed down
+- **Shield**: Palm vertical (thumb up), facing outward
+- **Null**: Palm vertical, facing inward
 
 #### Gestures
 
 - **CalmOffer**: Transition from Calm to Offer position
-- **OfferCalm**: Transition from Offer to Calm position
-- **LongNull**: Extended duration in Null position
-- **LongOffer**: Extended duration in Offer position
-- **ShieldDig**: Transition from Shield to Dig position
+- **DigOath**: Transition from Dig to Oath position
+- **NullShield**: Transition from Null to Shield position
+- **LongShield**: Extended duration in Shield position
+- **~~LongNull~~**: Extended duration in Null position (deprecated)
+- **~~LongOffer~~**: Extended duration in Offer position (deprecated)
 
 ### Implementation Status Indicators
 
@@ -312,5 +323,7 @@ A comprehensive git operation that captures the complete state of the project at
 | **Threshold Boundaries** | The values that define the transition between different hand positions. |
 
 ---
+
+> Last updated: 2025-04-02
 
 > Claude should suggest additions or edits when new terms, acronyms, or conventions arise during development.
