@@ -3,6 +3,12 @@
 #include <Arduino.h>
 #include "../utils/DebugTools.h"
 
+// LUTT Diagnostic includes (conditionally compiled)
+#if DIAG_LOGGING_ENABLED
+#include "../diagnostics/DiagnosticLogger.h"
+#include "../diagnostics/StateSnapshotCapture.h"
+#endif
+
 GauntletController::GauntletController() 
     : hardwareManager(nullptr), 
       positionDetector(nullptr),
@@ -13,9 +19,16 @@ GauntletController::GauntletController()
       lastUpdateTime(0),
       updateInterval(20) // 50Hz update rate
 {
+    #if DIAG_LOGGING_ENABLED
+    DIAG_INFO(DIAG_TAG_MODE, "GauntletController constructed");
+    #endif
 }
 
 GauntletController::~GauntletController() {
+    #if DIAG_LOGGING_ENABLED
+    DIAG_INFO(DIAG_TAG_MODE, "GauntletController destroyed");
+    #endif
+
     // Free allocated resources
     if (idleMode) {
         delete idleMode;
@@ -39,10 +52,19 @@ GauntletController::~GauntletController() {
 void GauntletController::initialize() {
     DEBUG_PRINTLN("GauntletController::initialize() called");
     
+    #if DIAG_LOGGING_ENABLED
+    DIAG_INFO(DIAG_TAG_MODE, "GauntletController initializing");
+    #endif
+    
     // Get HardwareManager instance
     hardwareManager = HardwareManager::getInstance();
     if (!hardwareManager || !hardwareManager->init()) {
         DEBUG_PRINTLN("ERROR: HardwareManager initialization failed!");
+        
+        #if DIAG_LOGGING_ENABLED
+        DIAG_CRITICAL(DIAG_TAG_MODE, "HardwareManager initialization failed");
+        #endif
+        
         while(1) delay(1000);
     }
     
@@ -50,6 +72,11 @@ void GauntletController::initialize() {
     positionDetector = new UltraBasicPositionDetector();
     if (!positionDetector->init(hardwareManager)) {
         Serial.println(F("Position detector initialization failed!"));
+        
+        #if DIAG_LOGGING_ENABLED
+        DIAG_CRITICAL(DIAG_TAG_MODE, "Position detector initialization failed");
+        #endif
+        
         while(1) delay(1000);
     }
     
@@ -57,6 +84,11 @@ void GauntletController::initialize() {
     idleMode = new IdleMode();
     if (!idleMode->init(hardwareManager, positionDetector)) {
         DEBUG_PRINTLN("ERROR: IdleMode initialization failed!");
+        
+        #if DIAG_LOGGING_ENABLED
+        DIAG_CRITICAL(DIAG_TAG_MODE, "IdleMode initialization failed");
+        #endif
+        
         while(1) delay(1000);
     }
     idleMode->initialize();
@@ -65,6 +97,11 @@ void GauntletController::initialize() {
     quickCastMode = new QuickCastSpellsMode();
     if (!quickCastMode->init(hardwareManager)) {
         Serial.println(F("QuickCastSpells mode initialization failed!"));
+        
+        #if DIAG_LOGGING_ENABLED
+        DIAG_CRITICAL(DIAG_TAG_MODE, "QuickCastSpellsMode initialization failed");
+        #endif
+        
         while(1) delay(1000);
     }
     
@@ -72,6 +109,11 @@ void GauntletController::initialize() {
     freecastMode = new FreeCastMode();
     if (!freecastMode->init(hardwareManager, positionDetector)) {
         DEBUG_PRINTLN("ERROR: FreeCastMode initialization failed!");
+        
+        #if DIAG_LOGGING_ENABLED
+        DIAG_CRITICAL(DIAG_TAG_MODE, "FreeCastMode initialization failed");
+        #endif
+        
         while(1) delay(1000);
     }
     
@@ -80,6 +122,10 @@ void GauntletController::initialize() {
     lastUpdateTime = millis();
     
     Serial.println(F("GauntletController initialized successfully"));
+    
+    #if DIAG_LOGGING_ENABLED
+    DIAG_INFO(DIAG_TAG_MODE, "GauntletController initialized successfully");
+    #endif
 }
 
 void GauntletController::update() {
@@ -89,6 +135,10 @@ void GauntletController::update() {
     // Update current mode
     ModeTransition modeTransition = ModeTransition::NONE;
     SpellTransition spellTransition = SpellTransition::NONE;
+    
+    #if DIAG_LOGGING_ENABLED
+    unsigned long updateStartTime = millis();
+    #endif
 
     switch (currentMode) {
         case SystemMode::IDLE:
@@ -98,6 +148,11 @@ void GauntletController::update() {
             
             if (spellTransition != SpellTransition::NONE) {
                 DEBUG_PRINTF("Spell transition detected: %d\n", static_cast<int>(spellTransition));
+                
+                #if DIAG_LOGGING_ENABLED
+                DIAG_INFO(DIAG_TAG_MODE, "Spell transition detected: %d", (int)spellTransition);
+                #endif
+                
                 // Pass the detected spell type to QuickCast mode
                 SpellType typeToCast = SpellType::NONE;
                 if (spellTransition == SpellTransition::TO_RAINBOW) typeToCast = SpellType::RAINBOW;
@@ -105,6 +160,17 @@ void GauntletController::update() {
                 else if (spellTransition == SpellTransition::TO_LUMINA) typeToCast = SpellType::LUMINA;
                 
                 if (typeToCast != SpellType::NONE) {
+                    #if DIAG_LOGGING_ENABLED
+                    DIAG_INFO(DIAG_TAG_MODE, "Transitioning to QuickCast Mode with spell type: %d", (int)typeToCast);
+                    
+                    // Capture mode transition
+                    StateSnapshotCapture::capture(SNAPSHOT_TRIGGER_MODE_CHANGE, "GauntletController::update");
+                    StateSnapshotCapture::addField("previousMode", "IDLE");
+                    StateSnapshotCapture::addField("newMode", "QUICKCAST_SPELL");
+                    StateSnapshotCapture::addField("spellType", (int)typeToCast);
+                    StateSnapshotCapture::addField("spellTransition", (int)spellTransition);
+                    #endif
+                    
                     quickCastMode->enter(typeToCast);
                     currentMode = SystemMode::QUICKCAST_SPELL;
                     modeTransition = ModeTransition::NONE; // Prevent immediate mode change after spell start
@@ -118,6 +184,16 @@ void GauntletController::update() {
             // Explicitly render LEDs for QuickCast, similar to FreeCast mode
             quickCastMode->renderLEDs();
             if (modeTransition == ModeTransition::TO_IDLE) {
+                #if DIAG_LOGGING_ENABLED
+                DIAG_INFO(DIAG_TAG_MODE, "QuickCast completed, transitioning back to Idle");
+                
+                // Capture mode transition
+                StateSnapshotCapture::capture(SNAPSHOT_TRIGGER_MODE_CHANGE, "GauntletController::update");
+                StateSnapshotCapture::addField("previousMode", "QUICKCAST_SPELL");
+                StateSnapshotCapture::addField("newMode", "IDLE");
+                StateSnapshotCapture::addField("reason", "SPELL_COMPLETE");
+                #endif
+                
                 currentMode = SystemMode::IDLE;
                 idleMode->initialize();
                 Serial.println(F("Transitioning back to Idle Mode from QuickCast"));
@@ -127,10 +203,26 @@ void GauntletController::update() {
         case SystemMode::FREECAST:
             modeTransition = freecastMode->update();
             freecastMode->renderLEDs();
+            if (modeTransition == ModeTransition::TO_IDLE) {
+                #if DIAG_LOGGING_ENABLED
+                DIAG_INFO(DIAG_TAG_MODE, "FreeCast completed, transitioning back to Idle");
+                
+                // Capture mode transition
+                StateSnapshotCapture::capture(SNAPSHOT_TRIGGER_MODE_CHANGE, "GauntletController::update");
+                StateSnapshotCapture::addField("previousMode", "FREECAST");
+                StateSnapshotCapture::addField("newMode", "IDLE");
+                StateSnapshotCapture::addField("reason", "FREECAST_EXIT");
+                #endif
+            }
             break;
             
         default:
              Serial.print(F("ERROR: Unknown SystemMode: ")); Serial.println((int)currentMode);
+             
+             #if DIAG_LOGGING_ENABLED
+             DIAG_ERROR(DIAG_TAG_MODE, "Unknown SystemMode: %d", (int)currentMode);
+             #endif
+             
              currentMode = SystemMode::IDLE;
              idleMode->initialize();
              break;
@@ -138,8 +230,21 @@ void GauntletController::update() {
     
     // Handle mode transitions
     if (modeTransition != ModeTransition::NONE) {
+        #if DIAG_LOGGING_ENABLED
+        DIAG_INFO(DIAG_TAG_MODE, "Mode transition detected: %d", (int)modeTransition);
+        #endif
+        
         handleModeTransition(modeTransition);
     }
+    
+    #if DIAG_LOGGING_ENABLED
+    unsigned long updateDuration = millis() - updateStartTime;
+    // Log only if update took longer than expected
+    if (updateDuration > updateInterval) {
+        DIAG_WARNING(DIAG_TAG_MODE, "Slow update cycle: %lu ms (target: %lu ms)", 
+                    updateDuration, updateInterval);
+    }
+    #endif
     
     // Maintain consistent loop timing
     maintainLoopTiming();
@@ -175,6 +280,22 @@ SystemMode GauntletController::getCurrentMode() const {
 }
 
 void GauntletController::handleModeTransition(ModeTransition modeTransition) {
+    #if DIAG_LOGGING_ENABLED
+    DIAG_INFO(DIAG_TAG_MODE, "Handling mode transition: %d from mode: %d", 
+             (int)modeTransition, (int)currentMode);
+             
+    // Determine new mode based on transition
+    SystemMode newMode = currentMode; // Default to current
+    if (modeTransition == ModeTransition::TO_FREECAST) newMode = SystemMode::FREECAST;
+    else if (modeTransition == ModeTransition::TO_IDLE) newMode = SystemMode::IDLE;
+    
+    // Capture snapshot for mode transition
+    StateSnapshotCapture::capture(SNAPSHOT_TRIGGER_MODE_CHANGE, "GauntletController::handleModeTransition");
+    StateSnapshotCapture::addField("previousMode", (int)currentMode);
+    StateSnapshotCapture::addField("newMode", (int)newMode);
+    StateSnapshotCapture::addField("transitionType", (int)modeTransition);
+    #endif
+    
     switch (modeTransition) {
         case ModeTransition::TO_FREECAST:
             currentMode = SystemMode::FREECAST;
