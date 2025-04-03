@@ -3,7 +3,7 @@
 
 #include "../core/SystemTypes.h"
 #include "../hardware/HardwareManager.h"
-// #include "../animation/AnimationController.h" // Removed include for non-existent controller
+// Removed: #include "../detection/UltraBasicPositionDetector.h"
 #include <stdint.h>
 
 /**
@@ -16,11 +16,11 @@
 class QuickCastSpellsMode {
 public:
     QuickCastSpellsMode();
+    ~QuickCastSpellsMode();
 
     /**
      * @brief Initializes the mode with necessary dependencies.
      * @param hardware Pointer to the HardwareManager instance.
-     // Removed AnimationController dependency from init signature
      * @return True if initialization is successful, false otherwise.
      */
     bool init(HardwareManager* hardware);
@@ -53,7 +53,6 @@ public:
 
 private:
     HardwareManager* hardwareManager_;
-    // AnimationController* animationController_; // Removed member
 
     SpellType activeSpell_;
     SpellState spellState_;
@@ -61,12 +60,14 @@ private:
     uint32_t spellDuration_;
     uint32_t lastUpdateTime_;
 
+    // Removed: All position detection and gesture recognition related variables
+    
     // Private Spell Rendering Methods
     void renderRainbowBurst(uint32_t currentTime, uint32_t elapsedTime);
     void renderLightningBlast(uint32_t currentTime, uint32_t elapsedTime);
     void renderLumina(uint32_t currentTime, uint32_t elapsedTime);
 
-    // Rainbow Burst helper methods (new)
+    // Rainbow Burst helper methods
     void renderRainbowPhase1(unsigned long elapsed);
     void renderRainbowPhase2(unsigned long elapsed);
     void renderRainbowPhase3(unsigned long elapsed);
@@ -75,9 +76,10 @@ private:
     void renderColorPop(uint8_t led, unsigned long popTime, unsigned long elapsed, uint8_t r, uint8_t g, uint8_t b);
     void hsvToRgb(float h, float s, float v, uint8_t &r, uint8_t &g, uint8_t &b);
 
-    // Private helper methods for specific spell logic can be added here
-    // e.g., void updateRainbowBurst();
-    // e.g., bool checkForLuminaExitGesture();
+    // Removed: Lumina cancellation method
+    
+    // Spell cleanup helper
+    void cleanupSpell();
 };
 
 #endif // QUICKCAST_SPELLS_MODE_H 

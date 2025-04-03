@@ -1,6 +1,7 @@
 #include "IdleMode.h"
 #include "../core/Config.h"
 #include "../core/SystemTypes.h"
+#include "../diagnostics/VisualDebugIndicator.h"
 // GestureTransitionTracker is included via IdleMode.h
 
 // Define the static constants
@@ -100,6 +101,10 @@ void IdleMode::update() {
         unsigned long shieldDuration = currentTime - shieldPositionStartTime;
         if (shieldDuration >= Config::LONGSHIELD_WARNING_MS) { // 3 second threshold
             inShieldCountdown = true;
+            
+            // Update visual debug indicator to show shield countdown
+            float progress = (float)shieldDuration / (float)Config::LONGSHIELD_TIME_MS;
+            VisualDebugIndicator::updateGestureProgress(progress, 2);
         }
     }
     
@@ -217,9 +222,6 @@ bool IdleMode::detectLongShieldGesture() {
                 // Reset state before transition
                 inShieldCountdown = false; 
                 shieldPositionStartTime = 0; 
-                #ifdef DEBUG_MODE
-                Serial.println(F("LongShield detected! Triggering Freecast."));
-                #endif
                 return true;
             }
         }

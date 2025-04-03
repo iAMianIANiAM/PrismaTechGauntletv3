@@ -434,3 +434,7 @@ Gemini Implementation Report
 
 - FreeCast trigger in and out works, but FreeCast mode is now broken - the 2-second back-and-forth record/display cycle doesn't work anymore. 
 
+
+
+
+Now, we'll use those to guide the somewhat stickier next task - a codebase audit and cleanup. I want to ensure that, even though the program is functional, that any redundant or nonfunctional code, or any potential malignant code, is cleaned up and the codebase is in a clean, efficient form. I also want to make sure it is well-suited to handle the minor tweaks and changes I'd like to make - namely,

@@ -1,5 +1,9 @@
 #include <Arduino.h>
 #include "core/GauntletController.h"
+#include "diagnostics/DiagnosticLogger.h"
+#include "diagnostics/StateSnapshotCapture.h"
+#include "diagnostics/VisualDebugIndicator.h"
+#include "diagnostics/CommandLineInterface.h"
 
 // Serial communication
 #define SERIAL_BAUD_RATE 115200
@@ -39,6 +43,15 @@ void setup() {
   // This handles initialization of HardwareManager, PositionDetector, and all modes
   gauntletController.initialize(); 
 
+  // Initialize LUTT components if enabled
+  DiagnosticLogger::setEnabled(true);
+  StateSnapshotCapture::init();
+  // Get HardwareManager pointer from GauntletController
+  VisualDebugIndicator::init(gauntletController.getHardwareManager());
+  CommandLineInterface::init();
+  
+  DIAG_LOG(DIAG_LEVEL_INFO, DIAG_TAG_MODE, "System initialized successfully");
+
   // Optional: Add a ready indicator if desired (handled by controller init potentially)
   Serial.println(F("\nGauntlet ready."));
   Serial.println(F("------------------------------------------------------"));
@@ -48,6 +61,10 @@ void loop() {
   // Main loop simply updates the controller
   // The controller manages modes, timing, and hardware updates internally
   gauntletController.update();
+
+  // Process LUTT diagnostics
+  VisualDebugIndicator::process();
+  CommandLineInterface::process();
 
   // No delay needed here, controller's maintainLoopTiming handles it
 }

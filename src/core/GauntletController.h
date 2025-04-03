@@ -60,6 +60,14 @@ public:
      * @return Current SystemMode
      */
     SystemMode getCurrentMode() const;
+    
+    /**
+     * @brief Get the hardware manager instance
+     * @return Pointer to the HardwareManager
+     */
+    HardwareManager* getHardwareManager() const {
+        return hardwareManager;
+    }
 };
 
 #endif // GAUNTLET_CONTROLLER_H 

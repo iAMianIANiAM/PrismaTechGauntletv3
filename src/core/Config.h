@@ -147,7 +147,7 @@ namespace Config {
   namespace Spells {
     constexpr uint16_t RAINBOW_DURATION_MS = 8000;   // Rainbow Burst duration (8s)
     constexpr uint16_t LIGHTNING_DURATION_MS = 5000; // Lightning Blast duration (5s)
-    constexpr uint16_t LUMINA_DURATION_MS = 20000;  // Lumina duration (20s)
+    constexpr uint16_t LUMINA_DURATION_MS = 60000;  // Lumina duration (60s) - Updated from 20s
     constexpr uint8_t LUMINA_BRIGHTNESS = 204;      // Lumina brightness (80% of 255)
   }
 }

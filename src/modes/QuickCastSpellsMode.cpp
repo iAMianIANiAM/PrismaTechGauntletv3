@@ -17,12 +17,17 @@ QuickCastSpellsMode::QuickCastSpellsMode()
       lastUpdateTime_(0) // Added for animation timing
     {}
 
+QuickCastSpellsMode::~QuickCastSpellsMode() {
+    // No resources to clean up
+}
+
 bool QuickCastSpellsMode::init(HardwareManager* hardware) {
     hardwareManager_ = hardware;
     // animationController_ = animation; // Removed
     if (!hardwareManager_) {
         return false;
     }
+    
     return true;
 }
 
@@ -34,7 +39,7 @@ void QuickCastSpellsMode::enter(SpellType spellType) {
 
     hardwareManager_->setAllLEDs({Config::Colors::BLACK[0], Config::Colors::BLACK[1], Config::Colors::BLACK[2]});
     hardwareManager_->updateLEDs();
-
+    
     switch (activeSpell_) {
         case SpellType::RAINBOW:
             spellDuration_ = Config::Spells::RAINBOW_DURATION_MS;
@@ -51,7 +56,7 @@ void QuickCastSpellsMode::enter(SpellType spellType) {
             DEBUG_PRINTLN("QuickCast: Entering Lightning Blast");
             break;
         case SpellType::LUMINA:
-            spellDuration_ = Config::Spells::LUMINA_DURATION_MS;
+            spellDuration_ = Config::Spells::LUMINA_DURATION_MS; // Maintained at 60 seconds
             // Initial setup for Lumina: Set 6 LEDs to white at 80%
             hardwareManager_->setAllLEDs({Config::Colors::BLACK[0], Config::Colors::BLACK[1], Config::Colors::BLACK[2]});
             // Set brightness first
@@ -72,13 +77,18 @@ void QuickCastSpellsMode::enter(SpellType spellType) {
 }
 
 ModeTransition QuickCastSpellsMode::update() {
+    // Early exit and transition if spell was cancelled
+    if (spellState_ == SpellState::INACTIVE && activeSpell_ == SpellType::NONE) {
+        DEBUG_PRINTLN("QuickCast: Detected cancellation state, transitioning to IDLE");
+        return ModeTransition::TO_IDLE;
+    }
+    
     if (spellState_ != SpellState::RUNNING) {
         return ModeTransition::NONE; 
     }
 
     uint32_t currentTime = millis();
     uint32_t elapsedTime = currentTime - spellStartTime_;
-    // uint32_t deltaTime = currentTime - lastUpdateTime_; // Time since last update
 
     // Render the active spell animation
     switch (activeSpell_) {
@@ -102,15 +112,13 @@ ModeTransition QuickCastSpellsMode::update() {
         return ModeTransition::TO_IDLE;
     }
     
-    // No special exit for Lumina needed per guide (only timeout)
-
     lastUpdateTime_ = currentTime; // Store time for next delta calculation
     return ModeTransition::NONE; // Stay in this mode
 }
 
 void QuickCastSpellsMode::exit() {
     DEBUG_PRINTLN("Exiting QuickCastSpellsMode.");
-        
+    
     spellState_ = SpellState::INACTIVE;
     activeSpell_ = SpellType::NONE;
     spellStartTime_ = 0;
@@ -328,4 +336,21 @@ void QuickCastSpellsMode::renderLumina(uint32_t currentTime, uint32_t elapsedTim
         hardwareManager_->setLED(i, {Config::Colors::UNKNOWN_COLOR[0], Config::Colors::UNKNOWN_COLOR[1], Config::Colors::UNKNOWN_COLOR[2]});
     }
     hardwareManager_->updateLEDs();
+}
+
+// New method for spell cleanup
+void QuickCastSpellsMode::cleanupSpell() {
+    DEBUG_PRINTF("QuickCast: Cleaning up spell '%d'\n", static_cast<int>(activeSpell_));
+    
+    // Reset brightness to default
+    hardwareManager_->setBrightness(Config::DEFAULT_BRIGHTNESS);
+    
+    // Clear LEDs
+    hardwareManager_->setAllLEDs({Config::Colors::BLACK[0], Config::Colors::BLACK[1], Config::Colors::BLACK[2]});
+    hardwareManager_->updateLEDs();
+    
+    // Reset spell state
+    activeSpell_ = SpellType::NONE;
+    spellStartTime_ = 0;
+    spellDuration_ = 0;
 } 
