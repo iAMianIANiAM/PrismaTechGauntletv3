@@ -3,6 +3,7 @@
 
 #include "../core/SystemTypes.h"
 #include "../core/Config.h"
+#include <FastLED.h>
 
 /**
  * @brief Interface to control the WS2812 RGB LED ring
@@ -27,6 +28,12 @@ public:
    * @param color RGB color value
    */
   void setAllLEDs(const Color& color);
+  
+  /**
+   * @brief Fill all LEDs with a solid CRGB color
+   * @param color CRGB color for FastLED compatibility
+   */
+  void fillSolid(CRGB color);
   
   /**
    * @brief Set a range of LEDs to the same color

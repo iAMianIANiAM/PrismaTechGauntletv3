@@ -156,6 +156,7 @@ Only components that meet the full System Integration Verification criteria shou
 | **QuickCastSpellsMode** | **🟢 ACTIVE:** Operational mode responsible for executing the visual effects of triggered QuickCast spells (`RainbowBurst`, `LightningBlast`, `Lumina`) for their defined durations. |
 | **RainbowBurst** | A QuickCast spell effect triggered by the CalmOffer gesture. Features a radial rainbow spectrum that accelerates outward, lasting for 7 seconds. |
 | **ResolutionMode** | **⚫ DEPRECATED:** Originally planned as the spell effect execution mode following Invocation. Spell effects are now handled by `QuickCastSpellsMode`. |
+| **ShakeCancel** | A motion-based universal cancellation gesture that allows exiting any non-idle mode by performing a quick shake of the Gauntlet. Provides a consistent, position-independent way to cancel operations. |
 | **ShieldPosition** | Hand to the side, palm out. Represented by pink color (RGB: 255, 105, 180). Detected via X-axis dominant negative. |
 | **SpellEffects** | The visual animations triggered by QuickCast gestures. Current implementations include Rainbow Burst, Lightning Blast, and Lumina, each with unique animations, colors, and durations. |
 | **ThresholdManager** | Component for centralizing management of detection thresholds. |

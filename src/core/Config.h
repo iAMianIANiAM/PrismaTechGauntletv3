@@ -150,6 +150,24 @@ namespace Config {
     constexpr uint16_t LUMINA_DURATION_MS = 60000;  // Lumina duration (60s) - Updated from 20s
     constexpr uint8_t LUMINA_BRIGHTNESS = 204;      // Lumina brightness (80% of 255)
   }
+  
+  // Shake Detection Parameters
+  namespace ShakeDetection {
+    // Detection thresholds
+    constexpr uint32_t SHAKE_HIGH_THRESHOLD = 19000;  // High acceleration threshold (corrected from calibration)
+    constexpr uint32_t SHAKE_LOW_THRESHOLD = 15400;   // Low acceleration threshold
+    
+    // Detection parameters
+    constexpr uint8_t SHAKE_REQUIRED_CROSSINGS = 5;     // Crossings needed to trigger detection
+    constexpr uint16_t SHAKE_MAX_CROSSING_INTERVAL_MS = 300; // Max time between crossings
+    
+    // Timing parameters
+    constexpr uint16_t SHAKE_COOLDOWN_MS = 1000;        // Prevent rapid re-triggering
+    
+    // Cancellation animation
+    constexpr uint8_t CANCEL_FLASH_COUNT = 3;          // Number of flashes for cancel animation
+    constexpr uint16_t CANCEL_FLASH_DURATION_MS = 50;  // Duration of each flash
+  }
 }
 
 #endif // CONFIG_H 

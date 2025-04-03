@@ -48,6 +48,22 @@ void LEDInterface::setAllLEDs(const Color& color) {
   }
 }
 
+/**
+ * @brief Fill all LEDs with a solid CRGB color
+ * @param color CRGB color for FastLED compatibility
+ */
+void LEDInterface::fillSolid(CRGB color) {
+  // Set FastLED array directly
+  fill_solid(leds, Config::NUM_LEDS, color);
+  
+  // Update internal buffer to match
+  for (int i = 0; i < Config::NUM_LEDS; i++) {
+    ledBuffer[i].r = leds[i].r;
+    ledBuffer[i].g = leds[i].g;
+    ledBuffer[i].b = leds[i].b;
+  }
+}
+
 void LEDInterface::setLEDRange(uint8_t startIndex, uint8_t count, const Color& color) {
   uint8_t endIndex = startIndex + count - 1;
   if (endIndex >= Config::NUM_LEDS) {

@@ -44,6 +44,11 @@ private:
     
     // Private helper methods
     void handleModeTransition(ModeTransition transition);
+    void handleShakeCancellation();
+    void playCancelAnimation();
+    
+    // State tracking
+    bool inModeTransition; // Flag to prevent cancellation during transitions
     
 public:
     GauntletController();

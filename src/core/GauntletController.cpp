@@ -17,7 +17,8 @@ GauntletController::GauntletController()
       freecastMode(nullptr),
       currentMode(SystemMode::IDLE),
       lastUpdateTime(0),
-      updateInterval(20) // 50Hz update rate
+      updateInterval(20), // 50Hz update rate
+      inModeTransition(false)
 {
     #if DIAG_LOGGING_ENABLED
     DIAG_INFO(DIAG_TAG_MODE, "GauntletController constructed");
@@ -132,6 +133,19 @@ void GauntletController::update() {
     // Update hardware first
     hardwareManager->update();
     
+    // Check for shake cancellation (only in non-idle modes)
+    if (currentMode != SystemMode::IDLE) {
+        ShakeGestureDetector* shakeDetector = hardwareManager->getShakeDetector();
+        if (shakeDetector && shakeDetector->isShakeDetected()) {
+            DEBUG_PRINTLN("Shake cancellation detected");
+            handleShakeCancellation();
+            
+            // Skip further updates this cycle
+            maintainLoopTiming();
+            return;
+        }
+    }
+    
     // Update current mode
     ModeTransition modeTransition = ModeTransition::NONE;
     SpellTransition spellTransition = SpellTransition::NONE;
@@ -139,6 +153,11 @@ void GauntletController::update() {
     #if DIAG_LOGGING_ENABLED
     unsigned long updateStartTime = millis();
     #endif
+
+    // Starting mode transition - set flag
+    if (modeTransition != ModeTransition::NONE || spellTransition != SpellTransition::NONE) {
+        inModeTransition = true;
+    }
 
     switch (currentMode) {
         case SystemMode::IDLE:
@@ -234,7 +253,9 @@ void GauntletController::update() {
         DIAG_INFO(DIAG_TAG_MODE, "Mode transition detected: %d", (int)modeTransition);
         #endif
         
+        inModeTransition = true;
         handleModeTransition(modeTransition);
+        inModeTransition = false;
     }
     
     #if DIAG_LOGGING_ENABLED
@@ -307,5 +328,63 @@ void GauntletController::handleModeTransition(ModeTransition modeTransition) {
             currentMode = SystemMode::IDLE;
             break;
         // Handle other transitions (e.g., TO_INVOCATION) if added later
+    }
+}
+
+void GauntletController::handleShakeCancellation() {
+    // Skip if already transitioning between modes
+    if (inModeTransition) {
+        DEBUG_PRINTLN("Shake cancellation ignored - already in transition");
+        return;
+    }
+    
+    #if DIAG_LOGGING_ENABLED
+    DIAG_INFO(DIAG_TAG_MODE, "Shake cancellation detected, exiting mode: %d", (int)currentMode);
+    
+    // Capture mode transition
+    StateSnapshotCapture::capture(SNAPSHOT_TRIGGER_MODE_CHANGE, "GauntletController::handleShakeCancellation");
+    StateSnapshotCapture::addField("previousMode", (int)currentMode);
+    StateSnapshotCapture::addField("newMode", (int)SystemMode::IDLE);
+    StateSnapshotCapture::addField("reason", "SHAKE_CANCEL");
+    #endif
+    
+    // Play cancellation animation
+    playCancelAnimation();
+    
+    // Clean up based on current mode
+    switch (currentMode) {
+        case SystemMode::QUICKCAST_SPELL:
+            quickCastMode->stopActiveSpell();
+            break;
+        case SystemMode::FREECAST:
+            freecastMode->reset();
+            break;
+        default:
+            // Nothing to do for other modes
+            break;
+    }
+    
+    // Transition to idle mode
+    idleMode->initialize();
+    currentMode = SystemMode::IDLE;
+    
+    DEBUG_PRINTLN("Transitioned to Idle Mode via ShakeCancel");
+}
+
+void GauntletController::playCancelAnimation() {
+    LEDInterface* ledInterface = hardwareManager->getLEDInterface();
+    
+    // Simple white flash sequence
+    for (int i = 0; i < Config::ShakeDetection::CANCEL_FLASH_COUNT; i++) {
+        // Convert to CRGB for FastLED compatibility
+        CRGB white = CRGB::White;
+        ledInterface->fillSolid(white);
+        ledInterface->show();
+        delay(Config::ShakeDetection::CANCEL_FLASH_DURATION_MS);
+        
+        CRGB black = CRGB::Black;
+        ledInterface->fillSolid(black);
+        ledInterface->show();
+        delay(Config::ShakeDetection::CANCEL_FLASH_DURATION_MS);
     }
 } 

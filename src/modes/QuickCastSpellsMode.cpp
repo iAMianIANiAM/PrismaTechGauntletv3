@@ -146,6 +146,45 @@ void QuickCastSpellsMode::renderLEDs() {
     DEBUG_PRINTLN("QuickCastSpellsMode::renderLEDs called");
 }
 
+/**
+ * @brief Immediately stops the active spell and cleans up
+ * 
+ * Used by ShakeCancel to abort spell animations early
+ */
+void QuickCastSpellsMode::stopActiveSpell() {
+    DEBUG_PRINTLN("QuickCast: Cancelling active spell");
+    
+    // Note the active spell for diagnostic purposes
+    #if DIAG_LOGGING_ENABLED
+    if (activeSpell_ != SpellType::NONE && spellState_ == SpellState::RUNNING) {
+        const char* spellName = "Unknown";
+        switch (activeSpell_) {
+            case SpellType::RAINBOW: spellName = "Rainbow"; break;
+            case SpellType::LIGHTNING: spellName = "Lightning"; break;
+            case SpellType::LUMINA: spellName = "Lumina"; break;
+            default: break;
+        }
+        
+        unsigned long duration = millis() - spellStartTime_;
+        DIAG_INFO(DIAG_TAG_MODE, "Cancelling %s spell after %lu ms (total duration: %lu ms)", 
+                 spellName, duration, spellDuration_);
+    }
+    #endif
+    
+    // Reset brightness to default
+    hardwareManager_->setBrightness(Config::DEFAULT_BRIGHTNESS);
+    
+    // Clear LEDs
+    hardwareManager_->setAllLEDs({Config::Colors::BLACK[0], Config::Colors::BLACK[1], Config::Colors::BLACK[2]});
+    hardwareManager_->updateLEDs();
+    
+    // Reset state
+    spellState_ = SpellState::INACTIVE;
+    activeSpell_ = SpellType::NONE;
+    spellStartTime_ = 0;
+    spellDuration_ = 0;
+}
+
 // --- Private Spell Rendering Methods ---
 
 void QuickCastSpellsMode::renderRainbowBurst(uint32_t currentTime, uint32_t elapsedTime) {

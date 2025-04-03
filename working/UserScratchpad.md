@@ -1,6 +1,6 @@
-User Scratchpad
+# User Scratchpad
 
-
+## **This document is for HUMAN USER USE ONLY - AI Coding Assistants are NOT PERMITTED to add, modify, or delete text within this document under ANY CIRCUMSTANCES. Do NOT reference or rely on any information in this document unless it has been specifically highlighted and referenced by the user. Any other information may be out-of-date, incorrect, or completely unrelated.**
 
 Thank you for your detailed analysis, and I feel I should explain. I am still learning best practices for AI-assisted programming, and failed to employ some in the last attempt to develop this device. As a result, the codebase ended up bloated, convoluted, and ultimately unable to be reconciled, which is what partially motivated this re-factor. To that end, and to answer question 1,  I actually want to limit your exposure to the previous codebase, for fear that some of the poor choices and haphazard structure will negatively affect your development of this version of the program. 
 
@@ -438,3 +438,15 @@ Gemini Implementation Report
 
 
 Now, we'll use those to guide the somewhat stickier next task - a codebase audit and cleanup. I want to ensure that, even though the program is functional, that any redundant or nonfunctional code, or any potential malignant code, is cleaned up and the codebase is in a clean, efficient form. I also want to make sure it is well-suited to handle the minor tweaks and changes I'd like to make - namely,
+
+
+
+Clean up Lumina Implementation
+Propose/Implement robust universal troubleshooting toolkit (RUTT).
+Propose/Implement ShakeCancel
+
+
+Please draft a detailed proposal for the new, special "ShakeCancel" gesture (as I'm choosing to call it) and appropriate detection and functionality. The proposal should include ensuring that we have cleaned up the previous attempt at implementing cancel functionality in Lumina. Describe various ways it could be implemented - can the shake return to Idle from *any* device state? If so, should we replace the trigger for ending FreeCast mode with ShakeCancel, for consistency? If it is more limited, to what animations/modes would it apply? Give me a technical and feasibility overview for the various ways that ShakeCancel could be implemented, what technical issues we may face, and how we may mitigate them.  
+
+
+ Triple-position-gesture (TriGest)-detection (e.g. NullCalmNull, OfferOathNull), additional QuickCast spells triggered by those TriGests; reworking FreeCast mode to have more predictable interaction between motion and color pattern expression.

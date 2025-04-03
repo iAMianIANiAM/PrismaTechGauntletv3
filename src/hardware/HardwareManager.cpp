@@ -154,6 +154,13 @@ bool HardwareManager::init() {
     DEBUG_PRINTLN("Initializing power management...");
     power.init();
     
+    // Initialize shake detector
+    DEBUG_PRINTLN("Initializing shake gesture detector...");
+    if (!shakeDetector.init(&imu)) {
+        DEBUG_PRINTLN("WARNING: Failed to initialize shake detector");
+        // Continue anyway - not a critical component
+    }
+    
     // Set active power state
     setPowerState(true);
     
@@ -196,6 +203,9 @@ void HardwareManager::update() {
         if (isRecordingMotion && motionDataCount < MAX_MOTION_SAMPLES) {
             motionData[motionDataCount++] = latestSensorData;
         }
+        
+        // Update shake detector
+        shakeDetector.update();
     }
     
     // Update LEDs at the configured interval (50ms default)

@@ -5,6 +5,7 @@
 #include "MPU9250Interface.h"
 #include "LEDInterface.h"
 #include "PowerManager.h"
+#include "../detection/ShakeGestureDetector.h"
 
 // Maximum number of motion samples to store
 #define MAX_MOTION_SAMPLES 100
@@ -122,6 +123,18 @@ public:
    * @return True if test passed, false if failed
    */
   bool runSelfTest(HardwareComponent component);
+  
+  /**
+   * @brief Get the ShakeGestureDetector instance
+   * @return Pointer to the ShakeGestureDetector
+   */
+  ShakeGestureDetector* getShakeDetector() { return &shakeDetector; }
+  
+  /**
+   * @brief Get the LEDInterface instance
+   * @return Pointer to the LEDInterface
+   */
+  LEDInterface* getLEDInterface() { return &leds; }
 
 private:
   // Private constructor for singleton pattern
@@ -131,6 +144,7 @@ private:
   MPU9250Interface imu;
   LEDInterface leds;
   PowerManager power;
+  ShakeGestureDetector shakeDetector;
   
   // Sensor data buffer
   SensorData latestSensorData;

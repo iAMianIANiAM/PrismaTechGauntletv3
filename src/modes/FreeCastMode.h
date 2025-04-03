@@ -99,6 +99,13 @@ public:
     ModeTransition update();
     void renderLEDs();
     
+    /**
+     * @brief Reset FreeCast mode state
+     * 
+     * Resets state for clean exit when cancelled via shake gesture
+     */
+    void reset();
+    
     #ifdef DEBUG_MODE
     void printStatus() const;
     #endif

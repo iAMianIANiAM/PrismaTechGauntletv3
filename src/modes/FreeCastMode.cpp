@@ -235,6 +235,39 @@ void FreeCastMode::renderLEDs() {
     hardwareManager->updateLEDs();
 }
 
+/**
+ * @brief Reset FreeCast mode state
+ * 
+ * Resets state for clean exit when cancelled via shake gesture
+ */
+void FreeCastMode::reset() {
+    // Reset core state
+    currentState = FreeCastState::INITIALIZING;
+    motionBufferIndex = 0;
+    motionBufferCount = 0;
+    
+    // Reset timing
+    phaseStartTime = millis();
+    
+    // Reset gesture tracking
+    nullPositionStartTime = 0;
+    inNullCountdown = false;
+    shieldPositionStartTime = 0;
+    inShieldCountdown = false;
+    
+    // Clear LEDs
+    hardwareManager->setAllLEDs(Color{0, 0, 0});
+    hardwareManager->updateLEDs();
+    
+    #ifdef DEBUG_MODE
+    Serial.println(F("FreeCast Mode: Reset by ShakeCancel"));
+    #endif
+    
+    #if DIAG_LOGGING_ENABLED
+    DIAG_INFO(DIAG_TAG_MODE, "FreeCastMode reset by ShakeCancel");
+    #endif
+}
+
 // Collect motion data during recording phase
 void FreeCastMode::collectMotionData() {
     // Get current processed sensor data

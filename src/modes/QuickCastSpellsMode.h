@@ -50,6 +50,13 @@ public:
      * LED rendering is normally handled within the update() method.
      */
     void renderLEDs();
+    
+    /**
+     * @brief Immediately stops the active spell and cleans up
+     * 
+     * Used by ShakeCancel to abort spell animations early
+     */
+    void stopActiveSpell();
 
 private:
     HardwareManager* hardwareManager_;
