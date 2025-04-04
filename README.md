@@ -24,9 +24,9 @@ The PrismaTech Gauntlet 3.0 is a wearable electronic device that uses an IMU (In
 
 ### QuickCast Spells Mode
 Three predefined spell effects triggered by specific hand position transitions:
-- **Rainbow Burst** (CalmOffer): Multi-phase rainbow animation with increasing intensity
-- **Lightning Blast** (DigOath): Flash white with colored lightning crackles
-- **Lumina** (NullShield): Steady white light for utility purposes (flashlight)
+- **Rainbow Burst**: Multi-phase rainbow animation with increasing intensity
+- **Lightning Blast**: Flash white with colored lightning crackles
+- **Lumina**: Steady white light for utility purposes (flashlight)
 
 ### Freecast Mode
 - Enter by holding the Shield position for 5 seconds
@@ -36,67 +36,18 @@ Three predefined spell effects triggered by specific hand position transitions:
 
 ## Hardware Requirements
 
-- ESP32 microcontroller
+- ESP32-WROOM USB-C microcontroller
 - MPU-9250 9-axis IMU sensor (or compatible)
 - WS2812 12-LED RGB ring
-- Portable power source
+- Portable 5V2A USB-C power source
 
-## Project Structure
 
-```
-/
-├── src/                  # Main firmware source code
-│   ├── core/             # Core subsystem (Config, Controller, Types)
-│   ├── modes/            # Operational modes implementation
-│   ├── hardware/         # Hardware abstraction layer
-│   ├── detection/        # Position and gesture detection
-│   ├── animation/        # LED patterns and effects
-│   ├── utils/            # Utility functions
-│   └── diagnostics/      # System monitoring and troubleshooting
-├── examples/             # Example applications and tests
-├── test/                 # Test framework
-├── reference/            # Reference documentation
-├── working/              # Active working documents
-└── platformio.ini        # PlatformIO configuration
-```
 
-## Key Components
-
-- **GauntletController**: Main system controller managing mode transitions
-- **UltraBasicPositionDetector**: Position detection using dominant axis algorithm
-- **GestureTransitionTracker**: Tracks transitions between hand positions
-- **ShakeGestureDetector**: Detects shake motion for universal cancellation
-- **HardwareManager**: Central manager for all hardware interfaces
-- **LEDInterface**: Controls the LED display patterns
-
-## Getting Started
-
-### Building and Uploading
-
-```bash
-# Main application
-pio run -e esp32dev -t upload
-
-# Calibration environment
-pio run -e calibration -t upload
-
-# Function test environment
-pio run -e functionTest -t upload
-```
-
-### Monitor Serial Output
-
-```bash
-pio device monitor -p COM7 -b 115200
-```
-
-## Documentation
-
-- **TrueFunctionGuide**: Authoritative specification for system behavior
-- **LEDPatternMap**: Documentation of all LED patterns
-- **DirectoryIndex**: Codebase structure and relationship documentation
-- **Chronicle**: Development history and progress tracking
 
 ## License
 
-© 2025 PrismaTech - All Rights Reserved 
+This project is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/).
+
+You are free to use, share, and adapt this work **for non-commercial purposes**, as long as you provide proper attribution. Commercial use of any kind is not permitted without explicit permission.
+
+If you want to use this work commercially, contact me first. Otherwise—tinker away, remix, and enjoy!
