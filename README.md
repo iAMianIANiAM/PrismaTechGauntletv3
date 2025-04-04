@@ -6,6 +6,10 @@ A wearable gesture-based interface that enables "spellcasting" through specific 
 
 The PrismaTech Gauntlet 3.0 is a wearable electronic device that uses an IMU (Inertial Measurement Unit) to detect hand positions and gestures, providing visual feedback through an LED ring. The device creates an interactive spellcasting experience through position detection, gesture recognition, and dynamic LED animations.
 
+## Developer Info
+
+I'm Ian, just a random attorney/gamer/hobbyist tinkerer with no formal STEM training, making my way through this brave new world of "vibe coding" to try and make a neat device. All code elements, and large amounts of documentation, were written by Generative AI Coding assistants - primarily Claude3.7sonnet, with a guest appearance by gemini-2.5-pro-exp-03-25 for the QuickCast implementation (Gemini did alright, but I ultimately switched back to Claude). But a whoooole lot of planning and prompting text was written by me to guide us both there. I tried to do the thinking, planning, and words-ing, and leave the calculating, computing, and coding to Claude, and we seemed to find a productive workflow. Vital to this workflow was the implementation of the Lexica Lumina Laboratories AI Coding Assistant Global Ruleset 2.3, a comprehensive regime of AI-Coding Assitant rules, protocols, and working documents that I have personally developed and iterated on over months of "vibe coding". Key features include a rigidly-enforced standard protocol of "User requests proposal, AI drafts proposal, user reviews. Then user either decides to send back for revision, resulting in another proposal-review cycle, or user approves proposal, and AI proceeds to implementation." In addition, the rules enforce the use of several "working documents" (namely the "Chronicle" system) that I have found to greatly enhance the coding AI assitant's capacity to preserve context and follow instructions. All in all a very educational experience, and the gauntlet's pretty nifty as well. 
+
 ## Features
 
 - **Hand Position Detection**: Recognizes six distinct hand positions using dominant axis detection
