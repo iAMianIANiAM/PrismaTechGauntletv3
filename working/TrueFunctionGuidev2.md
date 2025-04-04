@@ -2,12 +2,12 @@
 
 ## Overview
 
-The **PrismaTech Gauntlet** is a wearable gesture-based interface that enables users to perform “spellcasting” through specific hand orientations and transitions. Built around an IMU (Inertial Measurement Unit), it interprets hand poses and motion, producing LED-based visual feedback to reinforce interaction states.
+The **PrismaTech Gauntlet** is a wearable gesture-based interface that enables users to perform "spellcasting" through specific hand orientations and transitions. Built around an IMU (Inertial Measurement Unit), it interprets hand poses and motion, producing LED-based visual feedback to reinforce interaction states.
 
 The system features **three primary operational modes**:
 1. **Idle Mode** – Passive monitoring and visual feedback
-2. **Freecast Mode** – Dynamic, movement-driven effects
-3. **Invocation Mode (TBD)** – Placeholder for future structured casting
+2. **QuickCast Spells Mode** – Predefined spell effects triggered by specific gestures
+3. **Freecast Mode** – Dynamic, movement-driven effects
 
 > **Calibration Note**: All numeric thresholds in this guide are provisional and intended for illustrative purposes. Final values must be derived from hardware-specific calibration.
 
@@ -21,11 +21,11 @@ Idle Mode is the base operational state. It continuously:
 - Listens for gestures that trigger spells or mode changes
 
 ### LED Feedback:
-Four key LEDs (indices 0, 3, 6, 9) are illuminated at 80% brightness, color-coded by hand position:
+LED indices are illuminated at 80% brightness with smooth color interpolation between position changes, color-coded by hand position:
 
 | Hand Position | Pose Description | LED Color (RGB) |
 |---------------|------------------|-----------------|
-| Offer         | Palm up          | (215, 0, 255)   |
+| Offer         | Palm up          | (128, 0, 255)   |
 | Calm          | Palm down        | (0, 0, 255)     |
 | Oath          | Fingers up       | (255, 255, 0)   |
 | Dig           | Fingers down     | (0, 255, 0)     |
@@ -39,18 +39,18 @@ Four key LEDs (indices 0, 3, 6, 9) are illuminated at 80% brightness, color-code
 - **Compound Gestures**: Future support for multi-sequence actions (e.g., `DigOathOffer`)
 
 ### QuickCast Spells:
-Trigger via fast transitions (within 1000ms) from an “opening” position to its paired “closing” position.
+Trigger via fast transitions (within 1000ms) from an "opening" position to its paired "closing" position.
 
 | Gesture      | Trigger Sequence   | Spell Name       | Description |
 |--------------|--------------------|------------------|-------------|
-| CalmOffer    | Calm → Offer       | Rainbow Burst    | Accelerating outward rainbow
-| DigOath      | Dig → Oath         | Lightning Blast  | Flash & crackle lightning
-| NullShield   | Null → Shield      | Lumina           | Steady flashlight-style glow
+| CalmOffer    | Calm → Offer       | Rainbow Burst    | Multi-phase rainbow animation with increasing intensity |
+| DigOath      | Dig → Oath         | Lightning Blast  | Flash & crackle lightning |
+| NullShield   | Null → Shield      | Lumina           | Steady flashlight-style glow |
 
 **Timer Mechanics:**
-- Each “opening” pose starts a 1000ms countdown
+- Each "opening" pose starts a 1000ms countdown
 - Multiple timers may run concurrently
-- Matching “closing” pose during active window triggers the effect
+- Matching "closing" pose during active window triggers the effect
 - Spell activation resets all active timers and returns to Idle
 
 ---
@@ -65,19 +65,30 @@ Holding **Shield** pose for 5 seconds triggers Freecast Mode.
 
 ---
 
-## Gesture: LongOath (Invocation Mode Trigger – Not Yet Implemented)
+## Universal Cancellation: ShakeCancel
 
-Reserved for future use. Holding the **Oath** pose for 5 seconds will eventually initiate Invocation Mode.
+The **ShakeCancel** gesture provides a universal method to exit any non-idle mode and return to Idle Mode.
 
-- **Planned Feedback**: Yellow LED flash in final 2 seconds
-- **Abort Condition**: Pose change before timeout cancels the attempt
-- **Implementation Status**: Placeholder only
+### Activation:
+- Perform a quick, deliberate shake motion with the Gauntlet
+- System detects rapid acceleration changes across multiple axes
+
+### Behavior:
+- Available in all operational modes except Idle Mode
+- Immediately terminates current mode and returns to Idle Mode
+- Provides consistent escape mechanism regardless of current hand position
+- Brief red flash to indicate cancellation
+
+### Technical Parameters:
+- Requires detection of acceleration exceeding threshold across multiple axes
+- Must distinguish between intentional shaking and normal movement
+- Configurable sensitivity via Config::ShakeDetection namespace
 
 ---
 
 ## Position Detection Logic
 
-Uses a **Dominant Axis Detection Model** via the IMU’s accelerometer readings.
+Uses a **Dominant Axis Detection Model** via the IMU's accelerometer readings.
 
 ### Detection Method:
 - Each pose is mapped to a single dominant axis that must exceed a threshold
@@ -94,7 +105,7 @@ Uses a **Dominant Axis Detection Model** via the IMU’s accelerometer readings.
 | Calm         | Z                    | Negative  |
 | Oath         | Y                    | Negative  |
 | Dig          | Y                    | Positive  |
-| Shield       | X (+Z condition)     | Negative  |
+| Shield       | X                    | Negative  |
 | Null         | X                    | Positive  |
 | Default      | —                    | No match  |
 
@@ -103,18 +114,22 @@ Uses a **Dominant Axis Detection Model** via the IMU’s accelerometer readings.
 ## QuickCast Spell Effects
 
 ### Rainbow Burst (CalmOffer)
-- **Effect**: Radial rainbow spectrum that accelerates outward
-- **Duration**: 7s
-- **Feature**: Ends with all LEDs saturated in bold color burst
+- **Effect**: Multi-phase rainbow animation that increases in intensity
+- **Duration**: 8s (Config::Spells::RAINBOW_DURATION_MS)
+- **Implementation**: Four distinct phases
+  - Phase 1 (0-2s): Slow pulsing and swirling
+  - Phase 2 (2-4s): Medium pulsing and swirling
+  - Phase 3 (4-6s): Fast pulsing and swirling
+  - Phase 4 (6-8s): White burst followed by color pops
 
 ### Lightning Blast (DigOath)
 - **Effect**: Flash white, then simulate lightning crackles with red, blue, purple
 - **Duration**: 5s
-- **Feature**: Randomized bright white “sparkle” pops
+- **Feature**: Randomized bright white "sparkle" pops
 
 ### Lumina (NullShield)
 - **Effect**: Utility white light (6/12 LEDs), 80% brightness
-- **Duration**: 20s
+- **Duration**: 60s (Config::Spells::LUMINA_DURATION_MS)
 - **Feature**: Slowly fades out; usable as flashlight
 
 ---
@@ -153,6 +168,7 @@ Allows continuous, expressive spellcasting based on motion. System loops between
 - Hold `Shield` for 5 seconds again (same as entry)
 - Blue LED countdown begins at 3s
 - Cancels if pose changes
+- Alternatively, use ShakeCancel gesture for immediate exit
 
 ### Freecast Timeline:
 | Time       | Phase               | LEDs               | Notes                              |
@@ -164,12 +180,6 @@ Allows continuous, expressive spellcasting based on motion. System loops between
 | 6.5–8.5s   | Playback #2          | New pattern         | Reflects new data                  |
 | Repeat     | Loop                 | Alternating states  | Cast → Feedback rhythm             |
 | —          | Exit trigger         | Blue countdown flash| Hold LongShield to exit            |
-
----
-
-## Invocation Mode (Placeholder)
-- **Trigger**: LongOath (not yet functional)
-- **Status**: TBD — to be redesigned in future version
 
 ---
 
@@ -201,17 +211,25 @@ Allows continuous, expressive spellcasting based on motion. System loops between
 ## LED Feedback Summary
 
 ### Idle Mode
-- 4 LEDs (0,3,6,9): Position color (80%)
+- Position-specific LED color based on current hand position
+- Smooth color interpolation during position transitions
 - Blue flashing: `LongShield` countdown
 - Spell effects override temporarily, then reset
+
+### QuickCast Spells Mode
+- Rainbow Burst: Multi-phase animation with increasing intensity
+- Lightning Blast: White flashes with colored lightning effect
+- Lumina: Steady white light for utility purposes
 
 ### Freecast Mode
 - Orange flash: Enter mode
 - Blue flash: Exit countdown
 - Dynamic effects: Based on motion phase
+- Alternating capture and playback phases
 
-### Invocation Mode
-- TBD
+### Universal Cancellation
+- Brief red flash when ShakeCancel is detected
+- Immediate return to Idle Mode LED pattern
 
 ---
 
@@ -219,5 +237,10 @@ Allows continuous, expressive spellcasting based on motion. System loops between
 
 The **PrismaTech Gauntlet** blends intuitive gesture detection with immersive visual effects to simulate a spellcasting experience. With clearly defined modes, modular code structure, and robust input handling, it offers a reliable platform for magical interaction.
 
-The defined system—**Idle**, **Freecast**, and placeholder **Invocation**—supports both structured and creative interactions. Core behaviors prioritize clarity for AI-based implementation and modular expansion.
+The system consists of three operational modes:
+1. **Idle Mode** - Default state with position monitoring and gesture detection
+2. **QuickCast Spells Mode** - Executes predefined spell effects triggered by specific gestures
+3. **Freecast Mode** - Creative mode for generating dynamic light patterns based on motion
+
+Core behaviors prioritize clarity for implementation and modular expansion, with consistent visual feedback and intuitive gesture control.
 

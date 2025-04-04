@@ -3,6 +3,8 @@
 > *Current Date: 2025-04-02*
 >
 > *This chronicle serves as the primary running journal of development activity and historical record for the PrismaTech Gauntlet 3.0 project. It contains ideas, test results, trial/error logs, decisions, and development plans.*
+>
+> **IMPORTANT:** All new entries must be added to the **END** of this chronicle. If a date/timestamp is provided by the user, apply it; if not, label the entry "DATE/TIME UNKNOWN". Do NOT input your own evaluation of the time.
 
 ## 📋 Migration Summary (202504022026)
 
@@ -513,4 +515,85 @@ The ShakeCancel feature has proven to be a robust and valuable addition to the s
 3. **Consistency**: Works identically across all system modes
 4. **User Experience**: Clear feedback (quick flash) followed by graceful mode exit
 
-🧠 **INSIGHT:** This successful implementation validates our disciplined approach to calibration-driven parameter tuning. The precise thresholds derived from real-world data collection allowed us to achieve reliable gesture detection without extensive algorithm complexity. This reinforces our commitment to the KISS principle while delivering robust functionality. 
+🧠 **INSIGHT:** This successful implementation validates our disciplined approach to calibration-driven parameter tuning. The precise thresholds derived from real-world data collection allowed us to achieve reliable gesture detection without extensive algorithm complexity. This reinforces our commitment to the KISS principle while delivering robust functionality.
+
+## 📋 Documentation Cleanup and Reorganization (202504040129)
+
+✅ **RESOLUTION:** Completed a comprehensive documentation cleanup and reorganization effort across multiple critical project documents, resulting in significantly improved alignment between documentation and implementation.
+
+### Project-Wide Documentation Review
+
+A systematic review and update of key project documentation was completed using the Document Review Protocol (DocRev). This effort used a temporary tracking document (`WTEMP_Housekeeping.md`) to organize and document the review process, which has now been deleted after serving its purpose.
+
+### Completed Documentation Tasks
+
+1. **DirectoryIndex Document Review**
+   - Updated to accurately reflect current project structure
+   - Added missing files and directories (docs/, logs/, utils/, .pio/)
+   - Corrected casing inconsistencies (FreeCastMode vs FreecastMode)
+   - Added ShakeGestureDetector and GestureRecognizer to detection subsystem
+   - Updated system architecture diagrams and relationship mappings
+   - Corrected file references and cross-document links
+
+2. **TrueFunctionGuidev2 Document Review**
+   - Removed all [$$$] incomplete section markers
+   - Added comprehensive section on Universal Cancellation (ShakeCancel)
+   - Updated spell durations to match actual code implementation
+     - Rainbow Burst: 7s → 8s (Config::Spells::RAINBOW_DURATION_MS)
+     - Lumina: 20s → 60s (Config::Spells::LUMINA_DURATION_MS)
+   - Added detailed four-phase description of Rainbow Burst implementation
+   - Updated mode transition descriptions to include ShakeCancel
+   - Corrected position color values to match Config.h definitions
+   - Removed all references to deprecated modes
+
+3. **LEDPatternMap Document Review**
+   - Updated all spell durations with explicit references to Config constants
+   - Added comprehensive ShakeCancel documentation (patterns, timing, troubleshooting)
+   - Updated color specifications to match actual implementation
+   - Added implementation details for animation phases and transitions
+   - Enhanced troubleshooting and best practices sections
+   - Added specific Config namespace references throughout
+
+4. **README.md Rewrite**
+   - Completely replaced diagnostic tool content with proper project overview
+   - Created comprehensive project description with clear feature explanations
+   - Added detailed operational mode descriptions
+   - Included hardware requirements and project structure information
+   - Added getting started instructions and documentation references
+
+5. **Glossary Restructuring**
+   - Reorganized by functional domains to improve navigation and usability
+   - Standardized term format with consistent status indicators
+   - Added comprehensive table of contents and alphabetical index
+   - Separated protocols from terminology definitions
+   - Consolidated redundant information into single source of truth for each term
+   - Added cross-references and improved navigation between related terms
+
+### Key Improvements
+
+🧠 **INSIGHT:** The documentation reorganization revealed several valuable patterns:
+
+1. **Documentation-Code Discrepancies**
+   - Most discrepancies were related to timing parameters and color values
+   - ShakeCancel feature was implemented but poorly documented
+   - Config.h constants were often referenced inconsistently across documentation
+
+2. **Organizational Patterns**
+   - Domain-based organization significantly improves glossary usability
+   - Consistent formatting and status indicators enhance information clarity
+   - Cross-referencing between documents creates a more cohesive documentation system
+
+3. **Documentation Maintenance**
+   - Regular document reviews are essential as implementation evolves
+   - Tracking changes in a temporary document (WTEMP format) proved highly effective
+   - Status indicators ([VERIFIED], [IMPLEMENTED], etc.) provide valuable context
+
+### Impact on Development
+
+This documentation cleanup has:
+- Eliminated confusion around feature implementation status
+- Created a single source of truth for key system parameters
+- Improved onboarding by providing clear and accurate project information
+- Established a solid foundation for future documentation maintenance
+
+📌 **DECISION:** Going forward, all major implementation work will include a corresponding documentation update cycle using the DocRev protocol to maintain alignment between code and documentation. 

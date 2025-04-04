@@ -32,6 +32,7 @@ To maintain an organized, navigable project history while ensuring both concise 
 ### 4. New Chronicle Structure
 - **Header**: Standard project header with version number
 - **Current Date**: Explicitly noted current calendar date at the top of the document
+- **Entry Instructions**: Clear instruction at the top mandating that all new entries must be added to the **END** of the chronicle. If user provides a date/timestamp, apply it; if not, label the entry "DATE/TIME UNKNOWN". Do NOT input your own evaluation of the time.
 - **Migration Summary**: Comprehensive overview of previous chronicle content
 - **Key Completed Components**: List of verified or implemented items
 - **Active Work Streams**: Ongoing development efforts
@@ -86,6 +87,8 @@ Upon user authorization, Claude will:
 > *Current Date: YYYY-MM-DD*
 >
 > *This chronicle serves as the primary running journal of development activity and historical record for the PrismaTech Gauntlet 3.0 project. It contains ideas, test results, trial/error logs, decisions, and development plans.*
+>
+> **IMPORTANT:** All new entries must be added to the **END** of this chronicle. If a date/timestamp is provided by the user, apply it; if not, label the entry "DATE/TIME UNKNOWN". Do NOT input your own evaluation of the time.
 
 ## 📋 Migration Summary (YYYY-MM-DD)
 

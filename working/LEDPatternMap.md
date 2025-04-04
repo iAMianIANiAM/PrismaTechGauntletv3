@@ -15,7 +15,7 @@ These patterns directly reflect the current hand position.
 - **Control Flow**:
   1. Position detected by `UltraBasicPositionDetector`
   2. Position mapped to color via `Config::Colors::*_COLOR`
-  3. Color applied to all LEDs via `HardwareManager::setAllLEDs()`
+  3. Color applied with smooth interpolation
   4. Update applied via `HardwareManager::updateLEDs()`
 
 #### Position-to-Color Mapping
@@ -78,6 +78,12 @@ Visual feedback during mode changes.
    - Immediate transition to spell effect
    - No dedicated transition animation
 
+4. **ShakeCancel**
+   - Color: White (255, 255, 255)
+   - Pattern: Three rapid flashes (50ms on, 50ms off)
+   - Location: `GauntletController::playCancelAnimation()`
+   - Configurable via `Config::ShakeDetection` namespace
+
 ### 4. QuickCast Spell Effects
 Visual effects triggered by specific gesture combinations.
 
@@ -94,7 +100,7 @@ Visual effects triggered by specific gesture combinations.
 #### Spell Effects
 1. **Rainbow Burst** (CalmOffer)
    - **Effect**: Enhanced 4-phase rainbow animation with accelerating effects
-   - **Duration**: 8 seconds
+   - **Duration**: 8 seconds (Config::Spells::RAINBOW_DURATION_MS)
    - **Colors**: Full spectrum rotation with white burst and color pops
    - **Implementation**: 
      - Phase 1 (0-2s): Slow pulsing (1Hz) and swirling (1 rotation/s)
@@ -104,15 +110,15 @@ Visual effects triggered by specific gesture combinations.
 
 2. **Lightning Blast** (DigOath)
    - **Effect**: Flash white, then simulate lightning crackles
-   - **Duration**: 5 seconds
-   - **Colors**: White flashes with blue/purple accents
-   - **Implementation**: Random bright flashes with decay patterns
+   - **Duration**: 5 seconds (Config::Spells::LIGHTNING_DURATION_MS)
+   - **Colors**: White flashes with red, blue, and purple accents
+   - **Implementation**: Random bright flashes with colored lightning effects
 
 3. **Lumina** (NullShield)
    - **Effect**: Steady white light (flashlight functionality)
-   - **Duration**: 20 seconds
-   - **Colors**: Pure white at 80% brightness
-   - **Implementation**: Stable illumination of 6/12 LEDs
+   - **Duration**: 60 seconds (Config::Spells::LUMINA_DURATION_MS)
+   - **Colors**: Pure white at 80% brightness (Config::Spells::LUMINA_BRIGHTNESS)
+   - **Implementation**: Stable illumination of 6/12 LEDs with slow fade out
 
 ### 5. FreeCast Mode Patterns
 Dynamic patterns based on motion characteristics.
@@ -121,10 +127,10 @@ Dynamic patterns based on motion characteristics.
 - **Location**: `FreeCastMode.cpp`
 - **Trigger**: Motion analysis during recording phase
 - **Control Flow**:
-  1. Motion data collected for 2 seconds
+  1. Motion data collected for 2 seconds (Config::FREECAST_COLLECTION_MS)
   2. Pattern type determined from motion characteristics
   3. Pattern parameters calculated
-  4. Pattern rendered for 2 seconds
+  4. Pattern rendered for 2 seconds (Config::FREECAST_DISPLAY_MS)
   5. Cycle repeats
 
 #### Pattern Generation
@@ -135,6 +141,17 @@ Dynamic patterns based on motion characteristics.
   - Circular motion: Spirals, waves
   - Steady motion: Smooth gradients
   - Jerky motion: Random sparkles and flickers
+
+#### Exit Methods
+- **LongShield Exit**:
+  - Hold Shield position for 5 seconds
+  - Blue LED countdown begins at 3 seconds
+  - Cancels if position changes during countdown
+  
+- **ShakeCancel Exit**:
+  - Quick shake motion detected by ShakeGestureDetector
+  - Immediate exit with brief white flash animation
+  - Position-independent cancellation method
 
 ### 6. System Status Patterns
 Startup and error indication patterns.
@@ -181,7 +198,10 @@ Startup and error indication patterns.
 1. **Spell Durations**
    - Location: `Config.h` in `Spells` namespace
    - Structure: Duration constants
-   - Update: Modify timing constants
+   - Update: Modify timing constants:
+     - `RAINBOW_DURATION_MS`: 8000 (8 seconds)
+     - `LIGHTNING_DURATION_MS`: 5000 (5 seconds)
+     - `LUMINA_DURATION_MS`: 60000 (60 seconds)
 
 2. **Gesture Recognition Timing**
    - Location: `Config.h`
@@ -192,6 +212,11 @@ Startup and error indication patterns.
    - Location: `Config.h`
    - Structure: `FREECAST_COLLECTION_MS` and `FREECAST_DISPLAY_MS` constants
    - Update: Modify timing values (currently both 2000ms)
+
+4. **ShakeCancel Animation Timing**
+   - Location: `Config.h` in `ShakeDetection` namespace
+   - Structure: `CANCEL_FLASH_COUNT` and `CANCEL_FLASH_DURATION_MS` constants
+   - Update: Modify flash count and duration
 
 ## Common LED Pattern Issues and Solutions
 
@@ -219,6 +244,14 @@ Startup and error indication patterns.
   2. Verify `GauntletController` properly calls render methods
   3. Check `HardwareManager::updateLEDs()` is called consistently
 
+### 5. ShakeCancel Not Working
+- **Issue**: Shake gesture not detected or not canceling current mode
+- **Solution**:
+  1. Check shake detection thresholds in `Config::ShakeDetection` namespace
+  2. Verify `ShakeGestureDetector` is properly initialized
+  3. Ensure current mode's cancellation method is called
+  4. Test with different shake intensities
+
 ## Best Practices
 
 1. **Color Consistency**
@@ -240,7 +273,8 @@ Startup and error indication patterns.
    - Verify each pattern individually
    - Test transitions between patterns
    - Check LED state persistence between mode changes
+   - Test ShakeCancel in all applicable modes
 
 ---
 
-> Last updated: 2025-04-02 
+> Last updated: 2025-04-05 

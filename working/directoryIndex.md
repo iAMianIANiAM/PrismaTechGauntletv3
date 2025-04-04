@@ -14,6 +14,10 @@
 ├── reference/            # Reference documentation for protocols and standards
 ├── working/              # Active working documents (chronicle, roadmap, etc.)
 ├── archive/              # Archived documents and deprecated code
+├── docs/                 # Project documentation
+├── logs/                 # System logs and diagnostic output
+├── utils/                # Utility scripts and tools
+├── .pio/                 # PlatformIO build output
 └── platformio.ini        # PlatformIO project configuration
 ```
 
@@ -28,7 +32,7 @@ The core subsystem provides fundamental types, configuration, and system control
 | `Config.h` | Global configuration parameters and settings |
 | `SystemTypes.h` | Common data structures and type definitions |
 | `GauntletController.h/cpp` | Main system controller managing mode transitions |
-| `SystemStatus.h/cpp` | System status tracking and reporting |
+| `ThresholdManager.h/cpp` | Management of sensor calibration thresholds |
 
 ### Mode Subsystem (`src/modes/`)
 
@@ -38,7 +42,7 @@ The mode subsystem implements the primary operational modes of the gauntlet.
 |------|-------------|
 | `IdleMode.h/cpp` | Idle mode: position detection, Idle LED feedback, QuickCast gesture detection, Freecast mode trigger detection |
 | `QuickCastSpellsMode.h/cpp` | Executes QuickCast spell visual effects (Rainbow, Lightning, Lumina) for a set duration |
-| `FreecastMode.h/cpp` | Freecast mode: dynamic motion-to-pattern LED effects |
+| `FreeCastMode.h/cpp` | Freecast mode: dynamic motion-to-pattern LED effects |
 
 ### Hardware Abstraction (`src/hardware/`)
 
@@ -65,6 +69,9 @@ The detection subsystem processes sensor data to determine hand positions and ge
 |------|-------------|
 | `UltraBasicPositionDetector.h/cpp` | Basic position detection using dominant axis algorithm based on `TrueFunctionGuide` |
 | `GestureTransitionTracker.h/cpp` | Tracks transitions between two hand positions within a time window (used for QuickCast spells) |
+| `ShakeGestureDetector.h/cpp` | Detects shake motion for universal gesture cancellation |
+| `GestureRecognizer.h/cpp` | Advanced gesture recognition for complex patterns |
+| `CalibrationRoutine.h` | Routines for sensor calibration |
 
 ### Animation Subsystem (`src/animation/`)
 
@@ -86,6 +93,16 @@ The utilities subsystem provides helper functions and debugging tools.
 | `DebugTools.h/cpp` | Debugging, logging, and diagnostic functions |
 | `SerialCommands.h/cpp` | Serial command parsing and execution |
 | `TimeUtils.h/cpp` | Timing utilities and non-blocking delays |
+
+### Diagnostics System (`src/diagnostics/`)
+
+The diagnostics subsystem provides tools for system monitoring and troubleshooting.
+
+| File | Description |
+|------|-------------|
+| `SystemMonitor.h/cpp` | System performance monitoring |
+| `DiagnosticsManager.h/cpp` | Centralized diagnostics management |
+| `ErrorReporter.h/cpp` | Error reporting and logging |
 
 ## 📱 Example Applications (examples/)
 
@@ -122,6 +139,22 @@ Reference documentation for system components and protocols.
 | `UBPD.md` | Ultra Basic Position Detection specification |
 | `ChronicleTransitionProtocol.md` | Protocol for chronicle version transitions |
 
+## 📄 Working Documents (working/)
+
+Active working documents for the project.
+
+| File | Description |
+|------|-------------|
+| `chronicle_v9.md` | Current version of the development chronicle |
+| `TrueFunctionGuidev2.md` | Current version of the function guide |
+| `LEDPatternMap.md` | Documentation of LED pattern specifications |
+| `directoryIndex.md` | This file - project structure documentation |
+| `glossary.md` | Project terminology and definitions |
+| `UserScratchpad.md` | User notes and temporary information |
+| `LUTTGuide.md` | LED User Testing and Tuning Guide |
+| `RUTTPlanning.md` | Robust User Testing and Tuning Planning |
+| `WTEMP_Housekeeping.md` | Temporary file for tracking housekeeping tasks |
+
 ## 🧪 Test Framework (test/)
 
 Test cases and testing infrastructure.
@@ -137,7 +170,8 @@ Test cases and testing infrastructure.
 ```
 GauntletController
 ├── Mode Controllers (Idle, QuickCastSpells, Freecast)
-│   └── Detection Systems (UltraBasicPositionDetector, GestureTransitionTracker)
+│   ├── Detection Systems (UltraBasicPositionDetector, GestureTransitionTracker)
+│   └── ShakeGestureDetector
 └── Hardware Manager
     ├── MPU9250 Interface
     ├── LED Interface
@@ -166,6 +200,11 @@ GauntletController
    PowerManager → HardwareManager → Component Power States
    ```
 
+5. **Shake Cancellation Flow:**
+   ```
+   MPU9250Interface → HardwareManager → ShakeGestureDetector → Active Mode → GauntletController → Mode Transition
+   ```
+
 ## 🧠 Critical Code Relationships
 
 1. **Position Detection System**
@@ -176,12 +215,18 @@ GauntletController
 2. **Mode Transition System**
    - `GauntletController` manages mode lifecycle and transitions (IDLE <-> QUICKCAST, IDLE <-> FREECAST).
    - Mode transitions are triggered by specific gestures detected in `IdleMode` (`LongShield`, QuickCast gestures via `GestureTransitionTracker`).
+   - Universal cancellation via `ShakeGestureDetector` allows exiting from any non-idle mode
 
 3. **Hardware Abstraction System**
    - `HardwareManager` provides a unified interface to all hardware components
    - All hardware access should go through the `HardwareManager` singleton
    - I2C communication with the MPU sensor is handled by `MPU9250Interface`
    - LED control is abstracted by `LEDInterface`
+
+4. **Gesture Recognition System**
+   - `GestureTransitionTracker` handles simple position-to-position transitions
+   - `ShakeGestureDetector` provides universal cancellation gesture
+   - `GestureRecognizer` handles more complex gesture patterns
 
 ## 📂 File Purpose Mapping
 
@@ -200,6 +245,8 @@ GauntletController
 ### Position & Gesture Detection Files
 - **Basic Position Detection**: `UltraBasicPositionDetector.cpp`
 - **QuickCast Gesture Logic**: `GestureTransitionTracker.cpp` (used by `IdleMode.cpp`)
+- **Shake Detection**: `ShakeGestureDetector.cpp`
+- **Complex Gesture Recognition**: `GestureRecognizer.cpp`
 
 ### Mode Implementation Files
 - **Idle Mode**: `IdleMode.cpp`
@@ -208,12 +255,12 @@ GauntletController
 
 ## 📚 Working Document Cross-References
 
-- **Chronicle**: [working/chronicle_v8.md](./chronicle_v8.md)
-- **Roadmap**: [working/roadmap.md](./roadmap.md)
+- **Chronicle**: [working/chronicle_v9.md](./chronicle_v9.md)
+- **TrueFunctionGuide**: [working/TrueFunctionGuidev2.md](./TrueFunctionGuidev2.md)
 - **Glossary**: [working/glossary.md](./glossary.md)
 - **LED Pattern Map**: [working/LEDPatternMap.md](./LEDPatternMap.md)
 
-## 🔄 System Architecture (2025-04-02)
+## 🔄 System Architecture (2025-04-04)
 
 ### Core Component Relationships
 
@@ -234,18 +281,17 @@ GauntletController
 │     uses                            │ uses
 │   ┌──────────────────────────────┐  │  ┌─────────────────┐
 │   │ UltraBasicPositionDetector   │◄─┘  │ HardwareManager │
-│   └──────────────────────────────┘     └───────┬─────────┘
-│     uses                                       │ provides
+│   └─────────────┬────────────────┘     └───────┬─────────┘
+│     uses        │                               │ provides
 └─► ┌──────────────────────────┐                 │
     │ GestureTransitionTracker │                 ▼
     └──────────────────────────┘        ┌────────────────┐
-                                        │ LEDInterface   │
-                                        └────────────────┘
-                                                ▲
-                                                │ uses
-                                        ┌────────────────┐
-                                        │ MPUInterface   │
-                                        └────────────────┘
+                │                        │ LEDInterface   │
+                │                        └────────────────┘
+                ▼                                ▲
+        ┌─────────────────────┐                 │ uses
+        │ ShakeGestureDetector│◄────────────────┘
+        └─────────────────────┘
 ```
 
 ### Key Interface Points
@@ -253,7 +299,8 @@ GauntletController
 1. `GauntletController` manages instances of `IdleMode`, `QuickCastSpellsMode`, `FreecastMode`.
 2. `IdleMode` uses `UltraBasicPositionDetector` for position and `GestureTransitionTracker` for QuickCast detection.
 3. `QuickCastSpellsMode` and `FreecastMode` use `HardwareManager` (primarily for `LEDInterface`) to render effects.
-4. Transitions: IDLE -> QUICKCAST, IDLE -> FREECAST, QUICKCAST -> IDLE, FREECAST -> IDLE.
+4. `ShakeGestureDetector` provides universal cancellation across all modes.
+5. Transitions: IDLE -> QUICKCAST, IDLE -> FREECAST, QUICKCAST -> IDLE, FREECAST -> IDLE.
 
 ### Current System State
 
@@ -263,15 +310,18 @@ GauntletController
 - **[VERIFIED]** QuickCast spells (Rainbow, Lightning, Lumina) via `QuickCastSpellsMode`
 - **[VERIFIED]** Freecast Mode with dynamic motion-to-pattern translation
 - **[VERIFIED]** LongShield gesture for Freecast Mode entry/exit
+- **[VERIFIED]** Shake cancellation for exiting non-idle modes
 - **[DEPRECATED]** Invocation/Resolution mode structure
 
-### Key Updates (2025-04-02)
-- Fixed issue with QuickCast spell completion where LEDs would not reactivate properly
-- Updated gesture detection to handle intermediate positions correctly 
+### Key Updates (2025-04-04)
+- Updated directory structure documentation to match current project organization
+- Added documentation for ShakeGestureDetector and GestureRecognizer components
+- Expanded directory listings to include diagnostics, utils, and docs directories
+- Updated system architecture diagram to include shake cancellation flow
 - All planned functionality now implemented and verified
 - System now uses consistent LED rendering approach across all modes
 
 ---
 
-> Last updated: 2025-04-02
+> Last updated: 2025-04-04
 > This document is maintained as part of the project's working documentation set.
