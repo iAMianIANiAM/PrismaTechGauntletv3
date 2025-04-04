@@ -9,3 +9,8 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+
+# Project-specific ignores
+reference/
+user_vault/
+working/UserScratchpad.md
